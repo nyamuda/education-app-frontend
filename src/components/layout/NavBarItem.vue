@@ -36,7 +36,7 @@
 
       <template #end>
         <div class="d-flex align-items-center gap-3">
-          <QuestionAutoComplete />
+          <AutoCompleteInput />
           <div class="d-flex align-items-center">
             <Button
               icon="pi pi-user"
@@ -71,8 +71,7 @@ import Button from "primevue/button";
 import MegaMenu from "primevue/megamenu";
 
 import { useRouter } from "vue-router";
-import QuestionAutoComplete from "./QuestionAutoComplete.vue";
-
+import AutoCompleteInput from "../shared/AutoCompleteInput.vue";
 const router = useRouter();
 
 //Logout user by removing the access token from local storage
@@ -145,6 +144,7 @@ const items = computed(() => [
     icon: "pi pi-home",
     route: "/",
   },
+
   {
     label: "Questions",
     icon: "pi pi-question-circle",
@@ -200,11 +200,20 @@ const items = computed(() => [
         {
           label: "Engage",
           items: [
-            { label: "Top Contributors" },
-            { label: "Moderator Guidelines" },
-            { label: "Report Content" },
-            { label: "Community Rules" },
-            { label: "Help Center / FAQ" },
+            { label: "Top Contributors", route: "/community/top-contributors" },
+            { label: "Community Rules", route: "/community/rules" },
+            { label: "Moderator Guidelines", route: "/community/moderators" },
+            { label: "Help Center / FAQ", route: "/faq" },
+          ],
+        },
+      ],
+      [
+        {
+          label: "Feedback",
+          items: [
+            { label: "Missing Something? Tell Us", route: "/feedback/suggestions" },
+            { label: "Request a Feature", route: "/feedback/feature-request" },
+            { label: "Report a Bug", route: "/feedback/bug-report" },
           ],
         },
       ],
@@ -215,7 +224,34 @@ const items = computed(() => [
     icon: "pi pi-plus-circle",
     route: "/questions/add",
   },
+
+  // {
+  //   label: "Tutoring",
+  //   icon: "pi pi-star",
+  //   items: [
+  //     [
+  //       {
+  //         label: "Learn With Pierce",
+  //         items: [
+  //           { label: "Math, Physics & Chemistry", route: "/tutoring" },
+  //           { label: "Free Practice Questions", route: "/practice" },
+  //           { label: "Get in Touch", route: "/contact" },
+  //         ],
+  //       },
+  //     ],
+  //     [
+  //       {
+  //         label: "What Students Say",
+  //         items: [
+  //           { label: "Testimonials", route: "/tutoring/testimonials" },
+  //           { label: "Tutoring Philosophy", route: "/tutoring/philosophy" },
+  //           { label: "Tutoring FAQ", route: "/tutoring/faq" },
+  //         ],
+  //       },
+  //     ],
+  //   ],
+  // },
 ]);
 </script>
 
-<style lang="scss"></style>
+<style lang="scss" scoped></style>
