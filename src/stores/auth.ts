@@ -2,7 +2,7 @@ import { ref, type Ref } from "vue";
 import { defineStore } from "pinia";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import type { CustomJwtPayload } from "@/interfaces/auth/jwtPayload";
+import type { CustomJwtPayload } from "@/interfaces/auth/customJwtPayload";
 import { User } from "@/models/user";
 import { apiUrl } from "@/helpers/urlHelper";
 import { unexpectedErrorMessage } from "@/helpers/errorMessageHelper";
