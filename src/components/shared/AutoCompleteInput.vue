@@ -7,10 +7,9 @@
         v-model="value"
         :suggestions="items"
         @complete="search"
-        size="small"
         fluid
     /></IconField>
-    <label for="navbar-search">Search for a question...</label>
+    <label for="navbar-search">Search questions...</label>
   </FloatLabel>
 </template>
 

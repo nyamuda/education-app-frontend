@@ -44,7 +44,7 @@
       </template>
 
       <template #end>
-        <div class="d-flex align-items-center gap-3 w-100">
+        <div class="d-flex align-items-center gap-2 w-100">
           <div class="flex-grow-1">
             <AutoCompleteInput />
           </div>
@@ -204,6 +204,7 @@ const items = computed(() => [
   },
   {
     label: "Community",
+
     icon: "pi pi-users",
     items: [
       [
@@ -233,6 +234,12 @@ const items = computed(() => [
     label: "Ask a Question",
     icon: "pi pi-plus-circle",
     route: "/questions/add",
+  },
+  {
+    label: "Login",
+    icon: "pi pi-sign-in",
+    route: "/auth/login",
+    class: "d-block d-md-none",
   },
   // {
   //   label: "Tutoring",
