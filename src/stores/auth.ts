@@ -3,12 +3,10 @@ import { defineStore } from "pinia";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import type { CustomJwtPayload } from "@/interfaces/auth/customJwtPayload";
-import { User } from "@/models/user";
-import { apiUrl } from "@/helpers/urlHelper";
-import { unexpectedErrorMessage } from "@/helpers/errorMessageHelper";
-import type { LoginDetails } from "@/interfaces/auth/loginDetails";
-import type { RegistrationDetails } from "@/interfaces/auth/registerDetails";
-import { SendingOtpResult } from "@/enums/sendingOtpResult";
+import type { User } from "@/user";
+import { OtpSendResult } from "@/enums/otpSendResult";
+import { UrlHelper } from "@/helpers/urlHelper";
+import { ErrorResponse } from "@/models/errorResponse";
 
 export const useAuthStore = defineStore("auth", () => {
   const isAuthenticated = ref(false);
@@ -17,16 +15,15 @@ export const useAuthStore = defineStore("auth", () => {
   //used for things like email verification, password reset etc
   const userEmail: Ref<string | null> = ref(null);
   const isVerifyingEmailOtp: Ref<boolean> = ref(false);
-  //The result of sending an email verification code to use
+  //The result of sending an email verification code to user
   //e.g success, failure
-  const emailConfirmationOtpSendingResult: Ref<SendingOtpResult> = ref(
-    SendingOtpResult.NothingSent,
-  );
+  const emailConfirmationOtpSendingResult: Ref<OtpSendResult> = ref(OtpSendResult.NoAttemptMade);
 
   //attempted url if the user is not logged in
   //and they're redirected to the log in page
   const attemptedUrl = ref("/");
   const isVerifyingPasswordResetOtp: Ref<boolean> = ref(false);
+  const apiUrl = ref(UrlHelper.apiUrl);
 
   const getUserDetails = (): Promise<User> => {
     return new Promise((resolve, reject) => {
@@ -34,13 +31,13 @@ export const useAuthStore = defineStore("auth", () => {
       //to access the protected route
       setAuthToken();
       axios
-        .get<User>(`${apiUrl}/users/me`)
+        .get<User>(`${apiUrl.value}/auth/me`)
         .then((response) => {
           user.value = response.data;
           resolve(response.data);
         })
         .catch((error) => {
-          const message = error.response.data?.message || unexpectedErrorMessage();
+          const message = error.response.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
     });
@@ -50,7 +47,7 @@ export const useAuthStore = defineStore("auth", () => {
   const login = (loginDetails: LoginDetails): Promise<{ isVerified: boolean }> => {
     return new Promise((resolve, reject) => {
       axios
-        .post(`${apiUrl}/auth/login`, loginDetails)
+        .post(`${apiUrl.value}/auth/login`, loginDetails)
         .then((response) => {
           //get the access token
           const token = response.data?.token;
@@ -88,7 +85,7 @@ export const useAuthStore = defineStore("auth", () => {
     return new Promise((resolve, reject) => {
       // Step 1: Send registration request to the backend
       axios
-        .post(`${apiUrl}/auth/register`, registrationDetails)
+        .post(`${apiUrl.value}/auth/register`, registrationDetails)
         .then(() => {
           // Step 2: If registration succeeds, trigger email verification
           //store the email to be verified
@@ -117,7 +114,7 @@ export const useAuthStore = defineStore("auth", () => {
   //The OTP is emailed to the user email
   const requestEmailVerification = (email: string) => {
     return new Promise((resolve, reject) => {
-      const url = `${apiUrl}/auth/email-verification/request`;
+      const url = `${apiUrl.value}/auth/email-verification/request`;
       axios
         .post(url, { email })
         .then(() => {
@@ -137,7 +134,7 @@ export const useAuthStore = defineStore("auth", () => {
     return new Promise((resolve, reject) => {
       isVerifyingEmailOtp.value = true;
       axios
-        .post(`${apiUrl}/auth/email-verification/verify`, verifyDetails)
+        .post(`${apiUrl.value}/auth/email-verification/verify`, verifyDetails)
         .then(() => resolve({}))
         .catch((error) => {
           const message =
@@ -154,7 +151,7 @@ export const useAuthStore = defineStore("auth", () => {
   const requestPasswordReset = (email: string) => {
     return new Promise((resolve, reject) => {
       axios
-        .post(`${apiUrl}/auth/password-reset/request`, { email })
+        .post(`${apiUrl.value}/auth/password-reset/request`, { email })
         .then(() => resolve({}))
         .catch((error) => {
           const message = error.response?.data?.message || unexpectedErrorMessage();
@@ -172,7 +169,7 @@ export const useAuthStore = defineStore("auth", () => {
     return new Promise((resolve, reject) => {
       isVerifyingPasswordResetOtp.value = true;
       axios
-        .post(`${apiUrl}/auth/password-reset/verify-otp`, verifyOtpDetails)
+        .post(`${apiUrl.value}/auth/password-reset/verify-otp`, verifyOtpDetails)
         .then((response) => resolve({ resetToken: response.data.resetToken }))
         .catch((error) => {
           const message = error.response?.data?.message || unexpectedErrorMessage();
@@ -185,7 +182,7 @@ export const useAuthStore = defineStore("auth", () => {
   //Reset user password
   const resetPassword = (resetDetails: { resetToken: string; password: string }) => {
     return new Promise((resolve, reject) => {
-      const url = `${apiUrl}/auth/password-reset/reset`;
+      const url = `${apiUrl.value}/auth/password-reset/reset`;
       axios
         .patch(url, resetDetails)
         .then(() =>
