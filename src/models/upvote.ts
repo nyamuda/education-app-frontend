@@ -1,5 +1,6 @@
 import type { User } from "@/user";
 import type { Question } from "./question";
+import type { Answer } from "./answer";
 
 export class Upvote {
   public constructor(
