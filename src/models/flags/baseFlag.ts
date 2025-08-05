@@ -1,3 +1,4 @@
+import { FlagStatus } from "@/enums/flags/flagStatus";
 import type { User } from "@/user";
 
 export abstract class BaseFlag {

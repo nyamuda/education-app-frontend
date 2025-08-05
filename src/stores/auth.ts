@@ -4,7 +4,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import type { CustomJwtPayload } from "@/interfaces/auth/customJwtPayload";
 import type { User } from "@/user";
-import { OtpSendResult } from "@/enums/otpSendResult";
+import { OtpSendResult } from "@/enums/auth/otpSendResult";
 import { UrlHelper } from "@/helpers/urlHelper";
 import { ErrorResponse } from "@/models/errorResponse";
 
