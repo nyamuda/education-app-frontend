@@ -8,6 +8,7 @@ import { OtpSendResult } from "@/enums/auth/otpSendResult";
 import { UrlHelper } from "@/helpers/urlHelper";
 import { ErrorResponse } from "@/models/errorResponse";
 import type { LoginDetails } from "@/interfaces/auth/loginDetails";
+import type { RegistrationDetails } from "@/interfaces/auth/registrationDetails";
 
 export const useAuthStore = defineStore("auth", () => {
   const isAuthenticated = ref(false);
@@ -102,8 +103,7 @@ export const useAuthStore = defineStore("auth", () => {
             });
         })
         .catch((error) => {
-          console.log(error);
-          const message = error.response?.data?.message || unexpectedErrorMessage();
+          const message = error.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
     });
@@ -117,12 +117,12 @@ export const useAuthStore = defineStore("auth", () => {
       axios
         .post(url, { email })
         .then(() => {
-          emailConfirmationOtpSendingResult.value = SendingOtpResult.Success;
+          emailConfirmationOtpSendingResult.value = OtpSendResult.SentSuccessfully;
           resolve({});
         })
         .catch((error) => {
-          emailConfirmationOtpSendingResult.value = SendingOtpResult.Failure;
-          const message = error.response?.data?.message || unexpectedErrorMessage();
+          emailConfirmationOtpSendingResult.value = OtpSendResult.FailedToSend;
+          const message = error.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
     });
@@ -153,14 +153,14 @@ export const useAuthStore = defineStore("auth", () => {
         .post(`${apiUrl.value}/auth/password-reset/request`, { email })
         .then(() => resolve({}))
         .catch((error) => {
-          const message = error.response?.data?.message || unexpectedErrorMessage();
+          const message = error.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
     });
   };
 
   //Verifies password reset one-time password(OTP)
-  //Returns a reset token if the OTP code is valid
+  //Returns a reset password token if the OTP code is valid
   const verifyPasswordResetOtp = (verifyOtpDetails: {
     email: string;
     otpCode: string;
@@ -171,7 +171,7 @@ export const useAuthStore = defineStore("auth", () => {
         .post(`${apiUrl.value}/auth/password-reset/verify-otp`, verifyOtpDetails)
         .then((response) => resolve({ resetToken: response.data.resetToken }))
         .catch((error) => {
-          const message = error.response?.data?.message || unexpectedErrorMessage();
+          const message = error.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         })
         .finally(() => (isVerifyingPasswordResetOtp.value = false));
@@ -188,7 +188,7 @@ export const useAuthStore = defineStore("auth", () => {
           resolve("Password reset was successful. You may now use your new password to sign in."),
         )
         .catch((error) => {
-          const message = error.response?.data?.message || unexpectedErrorMessage();
+          const message = error.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
     });
@@ -206,12 +206,12 @@ export const useAuthStore = defineStore("auth", () => {
   };
 
   //check to see if user is authenticated by using the Jwt token
-  const authenticateUser = () => {
+  const authenticateUser = async () => {
     try {
       //check if there is a token in local storage
       const token = localStorage.getItem("jwt_token");
 
-      if (!token) throw new Error("Token not found in localStorage");
+      if (!token) throw new Error();
 
       //decode the token
       const decodedToken = jwtDecode<CustomJwtPayload>(token);
@@ -225,7 +225,7 @@ export const useAuthStore = defineStore("auth", () => {
       isAuthenticated.value = hasExpired ? false : true;
 
       if (isAuthenticated.value) {
-        getUserDetails();
+        await getUserDetails();
       }
     } catch {
       isAuthenticated.value = false;
