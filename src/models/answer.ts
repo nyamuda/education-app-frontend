@@ -2,6 +2,7 @@ import type { User } from "@/user";
 import type { Question } from "./question";
 import type { Upvote } from "./upvote";
 import type { AnswerFlag } from "./flags/answerFlag";
+import type { Comment } from "./comment";
 
 export class Answer {
   public constructor(

@@ -1,3 +1,9 @@
+import type { User } from "@/user";
+import type { ExamBoard } from "./examBoard";
+import type { Subject } from "./subject";
+import type { Subtopic } from "./subtopic";
+import type { Topic } from "./topic";
+
 export class Question {
   public constructor(
     public id: number,
