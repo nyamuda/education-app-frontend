@@ -33,11 +33,11 @@ const router = createRouter({
       children: [
         {
           path: "",
-          name: "UserAccount",
+          name: "UserProfile",
           component: UserProfile,
           beforeEnter: (to) => {
-            const authStore = useAuthStore();
             //this is a protected route
+            const authStore = useAuthStore();
             if (!authStore.isAuthenticated) {
               //store the attempted URL
               authStore.attemptedUrl = to.fullPath;

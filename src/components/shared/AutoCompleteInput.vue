@@ -8,6 +8,7 @@
         :suggestions="items"
         @complete="search"
         size="small"
+        fluid
     /></IconField>
     <label for="navbar-search">Search for a question...</label>
   </FloatLabel>

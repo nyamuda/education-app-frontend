@@ -1,6 +1,15 @@
 <template>
   <div>
-    <MegaMenu :model="items" class="py-3">
+    <MegaMenu
+      :model="items"
+      class="py-3"
+      breakpoint="1200px"
+      :pt="{
+        root: { class: 'd-flex align-items-center w-100' }, // Make MegaMenu flex
+        start: { class: 'flex-shrink-0' },
+        end: { class: 'd-flex align-items-center gap-3 flex-grow-1' },
+      }"
+    >
       <template #start>
         <svg
           width="35"
@@ -35,9 +44,11 @@
       </template>
 
       <template #end>
-        <div class="d-flex align-items-center gap-3">
-          <AutoCompleteInput />
-          <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center gap-3 w-100">
+          <div class="flex-grow-1">
+            <AutoCompleteInput />
+          </div>
+          <div v-if="authStore.isAuthenticated" class="d-flex align-items-center flex-shrink-0">
             <Button
               icon="pi pi-user"
               severity="contrast"
@@ -48,7 +59,7 @@
             />
             <Menu ref="accountMenu" id="overlay_menu" :model="userAccountItems" :popup="true" />
           </div>
-          <div>
+          <div v-else class="d-none d-md-flex">
             <router-link to="/auth/login"
               ><Button label="Log in" severity="contrast" variant="text" size="small"
             /></router-link>
@@ -69,11 +80,12 @@ import { computed, ref } from "vue";
 import Button from "primevue/button";
 
 import MegaMenu from "primevue/megamenu";
-
+import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
 import AutoCompleteInput from "../shared/AutoCompleteInput.vue";
 const router = useRouter();
 
+const authStore = useAuthStore();
 //Logout user by removing the access token from local storage
 const logout = () => {};
 
@@ -144,7 +156,6 @@ const items = computed(() => [
     icon: "pi pi-home",
     route: "/",
   },
-
   {
     label: "Questions",
     icon: "pi pi-question-circle",
@@ -191,7 +202,6 @@ const items = computed(() => [
       ],
     ],
   },
-
   {
     label: "Community",
     icon: "pi pi-users",
@@ -224,7 +234,6 @@ const items = computed(() => [
     icon: "pi pi-plus-circle",
     route: "/questions/add",
   },
-
   // {
   //   label: "Tutoring",
   //   icon: "pi pi-star",
@@ -254,4 +263,4 @@ const items = computed(() => [
 ]);
 </script>
 
-<style lang="scss" scoped></style>
+<style scoped lang="scss"></style>

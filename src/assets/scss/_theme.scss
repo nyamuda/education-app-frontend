@@ -1,0 +1,21 @@
+@import "./variables";
+
+// Remove outline on all elements
+*:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+//Override Bootstrap
+.text-primary {
+  color: $primary !important;
+}
+.text-secondary {
+  color: $secondary !important;
+}
+.bg-primary {
+  background-color: $primary !important;
+}
+.bg-secondary {
+  background-color: $secondary !important;
+}
