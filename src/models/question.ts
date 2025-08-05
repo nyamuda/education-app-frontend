@@ -3,6 +3,10 @@ import type { ExamBoard } from "./examBoard";
 import type { Subject } from "./subject";
 import type { Subtopic } from "./subtopic";
 import type { Topic } from "./topic";
+import type { Tag } from "./Tag";
+import type { Upvote } from "./upvote";
+import type { QuestionFlag } from "./flags/questionFlag";
+import type { Answer } from "./answer";
 
 export class Question {
   public constructor(

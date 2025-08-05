@@ -1,0 +1,6 @@
+export interface RegisterDetails {
+  email: string;
+  password: string;
+  curriculumId: number;
+  examBoardId: number;
+}

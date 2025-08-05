@@ -7,6 +7,7 @@ import type { User } from "@/user";
 import { OtpSendResult } from "@/enums/auth/otpSendResult";
 import { UrlHelper } from "@/helpers/urlHelper";
 import { ErrorResponse } from "@/models/errorResponse";
+import type { LoginDetails } from "@/interfaces/auth/loginDetails";
 
 export const useAuthStore = defineStore("auth", () => {
   const isAuthenticated = ref(false);
@@ -52,6 +53,7 @@ export const useAuthStore = defineStore("auth", () => {
           //get the access token
           const token = response.data?.token;
           if (!token) throw new Error("Login failed.");
+
           //decode the access token
           const decodedToken = jwtDecode<CustomJwtPayload>(token);
           if (decodedToken.isVerified?.toLocaleLowerCase() == "true") {
@@ -66,15 +68,12 @@ export const useAuthStore = defineStore("auth", () => {
           //if the user is not verified
           //store the email that needs to be verified
           else {
-            userEmail.value =
-              decodedToken["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"] ||
-              null;
-
+            userEmail.value = loginDetails.email;
             resolve({ isVerified: false });
           }
         })
         .catch((error) => {
-          const message = error.response?.data?.message || unexpectedErrorMessage();
+          const message = error.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
     });
