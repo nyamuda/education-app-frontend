@@ -1,9 +1,13 @@
 import type { User } from "@/user";
 import { BaseFlag } from "./baseFlag";
 import type { FlagStatus } from "@/enums/flags/flagStatus";
-import type { CommentFlagType } from "@/enums/flags/commentFlagType";
+import type { Question } from "../question";
+import type { QuestionFlagType } from "@/enums/flags/questionFlagType";
 
-export class CommentFlag extends BaseFlag {
+/**
+ * Represents a report or flag raised by a user on a question.
+ */
+export class QuestionFlag extends BaseFlag {
   public constructor(
     // BaseFlag properties
     id: number,
@@ -13,10 +17,10 @@ export class CommentFlag extends BaseFlag {
     status: FlagStatus,
     createdAt: Date = new Date(),
 
-    // CommentFlag properties
-    public commentId: number,
-    public comment: Comment | null,
-    public flagType: CommentFlagType,
+    // QuestionFlag properties
+    public questionId: number,
+    public question: Question | null,
+    public flagType: QuestionFlagType,
   ) {
     super(id, content, userId, user, status, createdAt);
   }
