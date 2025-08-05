@@ -219,10 +219,8 @@ export const useAuthStore = defineStore("auth", () => {
       const exp = decodedToken.exp; // in seconds
       const now = Math.floor(Date.now() / 1000); // current time in seconds
 
-      const hasExpired: boolean = exp ? !(exp > now) : true;
-
-      //if token has expired, then the user is not authenticated
-      isAuthenticated.value = hasExpired ? false : true;
+      //if token has not expired, then the user is authenticated
+      isAuthenticated.value = exp > now ? true : false;
 
       if (isAuthenticated.value) {
         await getUserDetails();
