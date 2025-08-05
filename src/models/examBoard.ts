@@ -7,7 +7,7 @@ export class ExamBoard {
     public id: number,
     public name: string,
     public curriculumId: number,
-    public curriculum: Curriculum,
+    public curriculum: Curriculum | null,
     public subjects: Subject[] = [],
     public questions: Question[] = [],
     public createdAt: Date = new Date(),

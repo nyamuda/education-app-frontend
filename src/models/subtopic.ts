@@ -1,3 +1,4 @@
+import type { Question } from "./question";
 import type { Topic } from "./topic";
 
 export class Subtopic {
@@ -5,7 +6,8 @@ export class Subtopic {
     public id: number,
     public name: string,
     public topicId: number,
-    public Topic: Topic,
-    public createdAt: Date,
+    public Topic: Topic | null,
+    public questions: Question[],
+    public createdAt: Date = new Date(),
   ) {}
 }
