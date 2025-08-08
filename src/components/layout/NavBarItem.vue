@@ -64,7 +64,7 @@
               ><Button label="Log in" severity="contrast" variant="text" size="small"
             /></router-link>
             <router-link class="me-0 me-md-2" to="/auth/register"
-              ><Button label="Sign up" class="ms-2" severity="contrast" size="small"
+              ><Button label="Sign up" class="ms-2" severity="primary" size="small"
             /></router-link>
           </div>
         </div>
@@ -231,12 +231,12 @@ const items = computed(() => [
     ],
   },
   {
-    label: "Ask a Question",
+    label: "Submit a question",
     icon: "pi pi-plus-circle",
     route: "/questions/add",
   },
   {
-    label: "Login",
+    label: "Log in",
     icon: "pi pi-sign-in",
     route: "/auth/login",
     class: "d-block d-md-none",
