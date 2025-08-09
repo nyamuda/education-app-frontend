@@ -42,8 +42,24 @@ export const useCurriculumStore = defineStore("curriculum", () => {
           //return the curriculums
           resolve(response.data);
         })
-        .catch((er) => {
-          const message = er.response.data?.message || ErrorResponse.Unexpected();
+        .catch((err) => {
+          const message = err.response.data?.message || ErrorResponse.Unexpected();
+          reject(message);
+        });
+    });
+  };
+
+  //Updates a curriculum with a given ID
+  const update = (id: number, updateDetails: { name: string }) => {
+    return new Promise((resolve, reject) => {
+      //add access token to the request
+      //to access the protected route
+      setAuthToken();
+      axios
+        .put(`${apiUrl.value}/${id}`, updateDetails)
+        .then(() => resolve({}))
+        .catch((err) => {
+          const message = err.response.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
     });
