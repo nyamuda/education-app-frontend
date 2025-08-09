@@ -109,10 +109,10 @@
                       optionLabel="name"
                       optionValue="id"
                       :invalid="v$.examBoardId.$error"
-                      :value-change="updateLevelsForExamBoard"
+                      @value-change="updateLevelsForExamBoard"
                       placeholder="Select your exam board"
                     />
-                    <label for="userExamBoard">ExamBoard</label>
+                    <label for="userExamBoard">Exam Board</label>
                   </FloatLabel>
                   <Message
                     size="small"
@@ -121,6 +121,28 @@
                     variant="simple"
                   >
                     <div v-for="error of v$.examBoardId.$errors" :key="error.$uid">
+                      <div>{{ error.$message }}</div>
+                    </div>
+                  </Message>
+                </div>
+
+                <!-- Level input -->
+                <div class="form-group mb-3">
+                  <FloatLabel variant="in">
+                    <MultiSelect
+                      class="w-100"
+                      id="userLevel"
+                      v-model="v$.levelIds.$model"
+                      :options="levels"
+                      optionLabel="name"
+                      optionValue="id"
+                      :invalid="v$.levelIds.$error"
+                      placeholder="Select your level"
+                    />
+                    <label for="userLevel">Level</label>
+                  </FloatLabel>
+                  <Message size="small" severity="error" v-if="v$.levelIds.$error" variant="simple">
+                    <div v-for="error of v$.levelIds.$errors" :key="error.$uid">
                       <div>{{ error.$message }}</div>
                     </div>
                   </Message>
@@ -167,6 +189,7 @@ import type { ExamBoard } from "@/models/examBoard";
 //import type { Level } from "@/models/level";
 import Select from "primevue/select";
 import type { Level } from "@/models/level";
+import MultiSelect from "primevue/multiselect";
 
 // Access the store
 const authStore = useAuthStore();
@@ -205,11 +228,9 @@ const rules = {
     required,
     passwordRule: helpers.withMessage(passwordErrorMessage, passwordRule),
   },
-  curriculumId: { required },
-  examBoardId: { required },
-  levelIds: {
-    required: helpers.withMessage("You need to include at least one educational level.", required),
-  },
+  curriculumId: {},
+  examBoardId: {},
+  levelIds: {},
 };
 const v$ = useVuelidate(rules, registrationForm);
 //form validation end
