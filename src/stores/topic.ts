@@ -19,7 +19,7 @@ export const useTopicStore = defineStore("topic", () => {
         })
         .catch((err) => {
           const message =
-            err.response.statusCode == 404
+            err.response.status == 404
               ? ErrorResponse.NotFound("Topic")
               : ErrorResponse.Unexpected();
 

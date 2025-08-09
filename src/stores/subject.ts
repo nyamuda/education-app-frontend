@@ -19,7 +19,7 @@ export const useSubjectStore = defineStore("subject", () => {
         })
         .catch((err) => {
           const message =
-            err.response.statusCode == 404
+            err.response.status == 404
               ? ErrorResponse.NotFound("Subject")
               : ErrorResponse.Unexpected();
 

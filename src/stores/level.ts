@@ -9,7 +9,7 @@ import type { PageInfo } from "@/models/pageInfo";
 export const useLevelStore = defineStore("level", () => {
   const apiUrl = ref(`${UrlHelper.apiUrl}/levels`);
 
-  //Gets a level with a given ID
+  //Gets an educational level with a given ID
   const getLevelById = (id: number): Promise<Level> => {
     return new Promise((resolve, reject) => {
       axios
@@ -19,7 +19,7 @@ export const useLevelStore = defineStore("level", () => {
         })
         .catch((err) => {
           const message =
-            err.response.statusCode == 404
+            err.response.status == 404
               ? ErrorResponse.NotFound("Level")
               : ErrorResponse.Unexpected();
 
@@ -28,7 +28,7 @@ export const useLevelStore = defineStore("level", () => {
     });
   };
 
-  //Gets a paginated list of levels for a particular exam board along with pagination metadata
+  //Gets a paginated list of educational levels for a particular exam board along with pagination metadata
   const getLevels = (
     examBoardId: number,
     page: number,
@@ -53,7 +53,7 @@ export const useLevelStore = defineStore("level", () => {
     });
   };
 
-  //Creates a new level for a specific exam board
+  //Creates a new educational level for a specific exam board
   const addLevel = (examBoardId: number, details: { name: string }) => {
     return new Promise((resolve, reject) => {
       //add access token to the request
@@ -69,7 +69,7 @@ export const useLevelStore = defineStore("level", () => {
     });
   };
 
-  //Updates a level with a given ID for a specific exam board
+  //Updates an educational level with a given ID for a specific exam board
   const updateLevel = (examBoardId: number, levelId: number, updateDetails: { name: string }) => {
     return new Promise((resolve, reject) => {
       //add access token to the request
@@ -85,7 +85,7 @@ export const useLevelStore = defineStore("level", () => {
     });
   };
 
-  //Deletes a level with a given ID
+  //Deletes an educational level with a given ID
   const deleteLevel = (id: number) => {
     return new Promise((resolve, reject) => {
       //add access token to the request

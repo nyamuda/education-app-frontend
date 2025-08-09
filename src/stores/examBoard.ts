@@ -19,7 +19,7 @@ export const useExamBoardStore = defineStore("examBoard", () => {
         })
         .catch((err) => {
           const message =
-            err.response.statusCode == 404
+            err.response.status == 404
               ? ErrorResponse.NotFound("ExamBoard")
               : ErrorResponse.Unexpected();
 
@@ -66,7 +66,7 @@ export const useExamBoardStore = defineStore("examBoard", () => {
   };
 
   //Updates an exam board with a given ID
-  const updateExamBoard = (id: number, updateDetails: { name: string,  curriculumId: number }) => {
+  const updateExamBoard = (id: number, updateDetails: { name: string; curriculumId: number }) => {
     return new Promise((resolve, reject) => {
       //add access token to the request
       //to access the protected route

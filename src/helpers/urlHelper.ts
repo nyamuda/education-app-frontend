@@ -1,3 +1,3 @@
 export class UrlHelper {
-  public static readonly apiUrl = "https://localhost:7166/api";
+  public static readonly apiUrl = "http://localhost:5243/api";
 }

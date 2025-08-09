@@ -19,7 +19,7 @@ export const useSubtopicStore = defineStore("subtopic", () => {
         })
         .catch((err) => {
           const message =
-            err.response.statusCode == 404
+            err.response.status == 404
               ? ErrorResponse.NotFound("Subtopic")
               : ErrorResponse.Unexpected();
 

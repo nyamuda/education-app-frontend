@@ -1,4 +1,4 @@
-import { ref} from "vue";
+import { ref } from "vue";
 import { defineStore } from "pinia";
 import axios from "axios";
 import type { Curriculum } from "@/models/curriculum";
@@ -19,7 +19,7 @@ export const useCurriculumStore = defineStore("curriculum", () => {
         })
         .catch((err) => {
           const message =
-            err.response.statusCode == 404
+            err.response.status == 404
               ? ErrorResponse.NotFound("Curriculum")
               : ErrorResponse.Unexpected();
 
@@ -29,7 +29,10 @@ export const useCurriculumStore = defineStore("curriculum", () => {
   };
 
   //Gets a paginated list of curriculums along with pagination metadata
-  const getCurriculums = (page: number, pageSize: number): Promise<PageInfo<Curriculum>> => {
+  const getCurriculums = (
+    page: number = 1,
+    pageSize: number = 100,
+  ): Promise<PageInfo<Curriculum>> => {
     return new Promise((resolve, reject) => {
       axios
         .get<PageInfo<Curriculum>>(`${apiUrl.value}`, {
@@ -41,9 +44,11 @@ export const useCurriculumStore = defineStore("curriculum", () => {
         .then((response) => {
           //return the curriculums
           resolve(response.data);
+          console.log(response.data.items);
         })
         .catch((err) => {
-          const message = err.response.data?.message || ErrorResponse.Unexpected();
+          console.log(err);
+          const message = err.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
     });
@@ -59,7 +64,7 @@ export const useCurriculumStore = defineStore("curriculum", () => {
         .post(`${apiUrl.value}`, details)
         .then(() => resolve({}))
         .catch((err) => {
-          const message = err.response.data?.message || ErrorResponse.Unexpected();
+          const message = err.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
     });
@@ -75,7 +80,7 @@ export const useCurriculumStore = defineStore("curriculum", () => {
         .put(`${apiUrl.value}/${id}`, updateDetails)
         .then(() => resolve({}))
         .catch((err) => {
-          const message = err.response.data?.message || ErrorResponse.Unexpected();
+          const message = err.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
     });
@@ -91,7 +96,7 @@ export const useCurriculumStore = defineStore("curriculum", () => {
         .delete(`${apiUrl.value}/${id}`)
         .then(() => resolve({}))
         .catch((err) => {
-          const message = err.response.data?.message || ErrorResponse.Unexpected();
+          const message = err.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
     });

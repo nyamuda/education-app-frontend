@@ -28,7 +28,7 @@
 
                 <!-- Email input -->
                 <div class="form-group mb-3">
-                  <FloatLabel variant="on">
+                  <FloatLabel variant="in">
                     <IconField>
                       <InputIcon class="pi pi-envelope" />
                       <InputText
@@ -50,7 +50,7 @@
 
                 <!-- Password input -->
                 <div class="form-group mb-3">
-                  <FloatLabel variant="on">
+                  <FloatLabel variant="in">
                     <IconField>
                       <InputIcon class="pi pi-lock" />
                       <InputText
@@ -65,6 +65,61 @@
                   </FloatLabel>
                   <Message size="small" severity="error" v-if="v$.password.$error" variant="simple">
                     <div v-for="error of v$.password.$errors" :key="error.$uid">
+                      <div>{{ error.$message }}</div>
+                    </div>
+                  </Message>
+                </div>
+
+                <!-- Curriculum input -->
+                <div class="form-group mb-3">
+                  <FloatLabel variant="in">
+                    <Select
+                      class="w-100"
+                      id="userCurriculum"
+                      v-model="v$.curriculumId.$model"
+                      :options="curriculums"
+                      optionLabel="name"
+                      optionValue="id"
+                      @value-change="changeCurriculum"
+                      :invalid="v$.curriculumId.$error"
+                      placeholder="Select your curriculum"
+                    />
+                    <label for="userCurriculum">Curriculum</label>
+                  </FloatLabel>
+                  <Message
+                    size="small"
+                    severity="error"
+                    v-if="v$.curriculumId.$error"
+                    variant="simple"
+                  >
+                    <div v-for="error of v$.curriculumId.$errors" :key="error.$uid">
+                      <div>{{ error.$message }}</div>
+                    </div>
+                  </Message>
+                </div>
+
+                <!-- Exam board input -->
+                <div class="form-group mb-3">
+                  <FloatLabel variant="in">
+                    <Select
+                      class="w-100"
+                      id="userExamBoard"
+                      v-model="v$.examBoardId.$model"
+                      :options="examBoards"
+                      optionLabel="name"
+                      optionValue="id"
+                      :invalid="v$.examBoardId.$error"
+                      placeholder="Select your exam board"
+                    />
+                    <label for="userExamBoard">ExamBoard</label>
+                  </FloatLabel>
+                  <Message
+                    size="small"
+                    severity="error"
+                    v-if="v$.examBoardId.$error"
+                    variant="simple"
+                  >
+                    <div v-for="error of v$.examBoardId.$errors" :key="error.$uid">
                       <div>{{ error.$message }}</div>
                     </div>
                   </Message>
@@ -92,10 +147,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, type Ref } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useVuelidate } from "@vuelidate/core";
-import { required, email, helpers} from "@vuelidate/validators";
+import { required, email, helpers } from "@vuelidate/validators";
 import { Message } from "primevue";
 import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
@@ -105,17 +160,30 @@ import InputIcon from "primevue/inputicon";
 import TitleSection from "@/components/shared/TitleSection.vue";
 import { useToast } from "primevue/usetoast";
 import { useRouter } from "vue-router";
+import type { Curriculum } from "@/models/curriculum";
+import { useCurriculumStore } from "@/stores/curriculum";
+import type { ExamBoard } from "@/models/examBoard";
+//import type { Level } from "@/models/level";
+import Select from "primevue/select";
 
 // Access the store
 const authStore = useAuthStore();
+const curriculumStore = useCurriculumStore();
 const toast = useToast();
 const router = useRouter();
 
-onMounted(() => {
+onMounted(async () => {
   v$.value.$touch();
+
+  //get a list of curriculums
+  curriculums.value = (await curriculumStore.getCurriculums()).items;
 });
 
 const isRegistering = ref(false);
+const curriculums: Ref<Curriculum[]> = ref([]);
+const examBoards: Ref<ExamBoard[]> = ref([]);
+//educational levels under the selected exam board
+//const levels: Ref<Level[]> = ref([]);
 
 //form validation start
 const registrationForm = ref({
@@ -162,6 +230,16 @@ const submitForm = async () => {
         });
       })
       .finally(() => (isRegistering.value = false));
+  }
+};
+
+// When a curriculum is selected,
+// make exam boards under it the available options
+// when a user selects their exam board
+const changeCurriculum = (curriculumId: number) => {
+  const selectedCurriculum = curriculums.value.find((x) => x.id == curriculumId);
+  if (selectedCurriculum) {
+    examBoards.value = selectedCurriculum.examBoards;
   }
 };
 </script>

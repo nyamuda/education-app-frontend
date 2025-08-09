@@ -1,6 +1,5 @@
 import type { Curriculum } from "./curriculum";
-import type { Question } from "./question";
-import type { Subject } from "./subject";
+import type { Level } from "./level";
 
 export class ExamBoard {
   public constructor(
@@ -8,8 +7,7 @@ export class ExamBoard {
     public name: string,
     public curriculumId: number,
     public curriculum: Curriculum | null,
-    public subjects: Subject[] = [],
-    public questions: Question[] = [],
+    public levels: Level[] = [],
     public createdAt: Date = new Date(),
   ) {}
 }
