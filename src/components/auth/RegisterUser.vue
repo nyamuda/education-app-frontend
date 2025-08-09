@@ -21,7 +21,7 @@
 
           <div class="card bg-glass">
             <div class="card-body px-4 py-5 px-md-5">
-              <form @submit.prevent="submitForm" class="">
+              <form @submit.prevent="submitForm" class="text-start">
                 <div class="text-start mb-2">
                   <TitleSection title="Create an account" title-size="small" align-items="start" />
                 </div>
@@ -138,15 +138,24 @@
                       optionLabel="name"
                       optionValue="id"
                       :invalid="v$.levelIds.$error"
-                      placeholder="Select your level"
+                      show-clear
+                      placeholder="Choose one or more levels"
                     />
-                    <label for="userLevel">Level</label>
+                    <label for="userLevel">Educational Level</label>
                   </FloatLabel>
                   <Message size="small" severity="error" v-if="v$.levelIds.$error" variant="simple">
                     <div v-for="error of v$.levelIds.$errors" :key="error.$uid">
                       <div>{{ error.$message }}</div>
                     </div>
                   </Message>
+                  <Message
+                    v-else-if="levels.length > 0"
+                    severity="secondary"
+                    size="small"
+                    variant="simple"
+                    >Choose the educational level(s) you are currently studying, for example, Grade
+                    9, Grade 10, IGCSE, AS Level, or A Level.</Message
+                  >
                 </div>
 
                 <!-- Submit button -->
@@ -192,6 +201,7 @@ import type { Level } from "@/models/level";
 import MultiSelect from "primevue/multiselect";
 
 import Password from "primevue/password";
+import { generateFromEmail } from "unique-username-generator";
 
 // Access the store
 const authStore = useAuthStore();
@@ -219,6 +229,7 @@ const registrationForm = ref({
   curriculumId: 0,
   examBoardId: 0,
   levelIds: [],
+  username: "",
 });
 const passwordRule = helpers.regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/);
 const passwordErrorMessage =
@@ -240,7 +251,11 @@ const v$ = useVuelidate(rules, registrationForm);
 const submitForm = async () => {
   const isFormCorrect = await v$.value.$validate();
   if (isFormCorrect) {
+    //generate a username for the user based on their email
+    const username = generateFromEmail(registrationForm.value.email);
+    registrationForm.value.username = username;
     isRegistering.value = true;
+    //register user
     authStore
       .register(registrationForm.value)
       .then(() => {
