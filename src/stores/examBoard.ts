@@ -81,7 +81,7 @@ export const useExamBoardStore = defineStore("examBoard", () => {
     });
   };
 
-  //Deletes a exam board with a given ID
+  //Deletes an exam board with a given ID
   const deleteExamBoard = (id: number) => {
     return new Promise((resolve, reject) => {
       //add access token to the request
