@@ -53,12 +53,13 @@
                   <FloatLabel variant="in">
                     <IconField>
                       <InputIcon class="pi pi-lock" />
-                      <InputText
+                      <Password
                         fluid
                         id="registerPassword"
                         v-model="v$.password.$model"
                         :invalid="v$.password.$error"
                         type="password"
+                        toggle-mask
                       />
                     </IconField>
                     <label for="registerPassword">Password</label>
@@ -152,7 +153,6 @@
                 <Button
                   fluid
                   class="mb-2"
-                  size="small"
                   type="submit"
                   severity="primary"
                   :label="isRegistering ? 'Creating account...' : 'Sign up'"
@@ -190,6 +190,8 @@ import type { ExamBoard } from "@/models/examBoard";
 import Select from "primevue/select";
 import type { Level } from "@/models/level";
 import MultiSelect from "primevue/multiselect";
+
+import Password from "primevue/password";
 
 // Access the store
 const authStore = useAuthStore();
@@ -260,12 +262,18 @@ const submitForm = async () => {
 const updateExamBoardsForCurriculum = (curriculumId: number) => {
   const selectedCurriculum = curriculums.value.find((x) => x.id === curriculumId);
   examBoards.value = selectedCurriculum?.examBoards ?? [];
+  //clear any educational levels that have been already selected
+  levels.value = [];
+  registrationForm.value.levelIds = [];
 };
 
 // Updates the available educational level options so they match the chosen exam board.
 const updateLevelsForExamBoard = (examBoardId: number) => {
   const selectedExamBoard = examBoards.value.find((x) => x.id === examBoardId);
   levels.value = selectedExamBoard?.levels ?? [];
+
+  //clear any educational levels that have been already selected
+  registrationForm.value.levelIds = [];
 };
 </script>
 
