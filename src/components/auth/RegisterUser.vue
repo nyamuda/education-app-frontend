@@ -80,7 +80,7 @@
                       :options="curriculums"
                       optionLabel="name"
                       optionValue="id"
-                      @value-change="changeCurriculum"
+                      @value-change="updateExamBoardsForCurriculum"
                       :invalid="v$.curriculumId.$error"
                       placeholder="Select your curriculum"
                     />
@@ -109,6 +109,7 @@
                       optionLabel="name"
                       optionValue="id"
                       :invalid="v$.examBoardId.$error"
+                      :value-change="updateLevelsForExamBoard"
                       placeholder="Select your exam board"
                     />
                     <label for="userExamBoard">ExamBoard</label>
@@ -165,6 +166,7 @@ import { useCurriculumStore } from "@/stores/curriculum";
 import type { ExamBoard } from "@/models/examBoard";
 //import type { Level } from "@/models/level";
 import Select from "primevue/select";
+import type { Level } from "@/models/level";
 
 // Access the store
 const authStore = useAuthStore();
@@ -182,8 +184,8 @@ onMounted(async () => {
 const isRegistering = ref(false);
 const curriculums: Ref<Curriculum[]> = ref([]);
 const examBoards: Ref<ExamBoard[]> = ref([]);
-//educational levels under the selected exam board
-//const levels: Ref<Level[]> = ref([]);
+//educational levels available for the chosen exam board
+const levels: Ref<Level[]> = ref([]);
 
 //form validation start
 const registrationForm = ref({
@@ -233,14 +235,16 @@ const submitForm = async () => {
   }
 };
 
-// When a curriculum is selected,
-// make exam boards under it the available options
-// when a user selects their exam board
-const changeCurriculum = (curriculumId: number) => {
-  const selectedCurriculum = curriculums.value.find((x) => x.id == curriculumId);
-  if (selectedCurriculum) {
-    examBoards.value = selectedCurriculum.examBoards;
-  }
+// Updates the available exam board options so they match the chosen curriculum.
+const updateExamBoardsForCurriculum = (curriculumId: number) => {
+  const selectedCurriculum = curriculums.value.find((x) => x.id === curriculumId);
+  examBoards.value = selectedCurriculum?.examBoards ?? [];
+};
+
+// Updates the available educational level options so they match the chosen exam board.
+const updateLevelsForExamBoard = (examBoardId: number) => {
+  const selectedExamBoard = examBoards.value.find((x) => x.id === examBoardId);
+  levels.value = selectedExamBoard?.levels ?? [];
 };
 </script>
 
