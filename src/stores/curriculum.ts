@@ -10,7 +10,7 @@ export const useCurriculumStore = defineStore("curriculum", () => {
   const apiUrl = ref(`${UrlHelper.apiUrl}/curriculums`);
 
   //Gets a curriculum with a given ID
-  const getById = (id: number): Promise<Curriculum> => {
+  const getCurriculumById = (id: number): Promise<Curriculum> => {
     return new Promise((resolve, reject) => {
       axios
         .get<Curriculum>(`${apiUrl.value}/${id}`)
@@ -29,7 +29,7 @@ export const useCurriculumStore = defineStore("curriculum", () => {
   };
 
   //Gets a paginated list of curriculums along with pagination metadata
-  const get = (page: number, pageSize: number): Promise<PageInfo<Curriculum>> => {
+  const getCurriculums = (page: number, pageSize: number): Promise<PageInfo<Curriculum>> => {
     return new Promise((resolve, reject) => {
       axios
         .get<PageInfo<Curriculum>>(`${apiUrl.value}`, {
@@ -49,14 +49,46 @@ export const useCurriculumStore = defineStore("curriculum", () => {
     });
   };
 
+  //Creates a new curriculum
+  const addCurriculum = (details: { name: string }) => {
+    return new Promise((resolve, reject) => {
+      //add access token to the request
+      //to access the protected route
+      setAuthToken();
+      axios
+        .post(`${apiUrl.value}`, details)
+        .then(() => resolve({}))
+        .catch((err) => {
+          const message = err.response.data?.message || ErrorResponse.Unexpected();
+          reject(message);
+        });
+    });
+  };
+
   //Updates a curriculum with a given ID
-  const update = (id: number, updateDetails: { name: string }) => {
+  const updateCurriculum = (id: number, updateDetails: { name: string }) => {
     return new Promise((resolve, reject) => {
       //add access token to the request
       //to access the protected route
       setAuthToken();
       axios
         .put(`${apiUrl.value}/${id}`, updateDetails)
+        .then(() => resolve({}))
+        .catch((err) => {
+          const message = err.response.data?.message || ErrorResponse.Unexpected();
+          reject(message);
+        });
+    });
+  };
+
+  //Deletes a curriculum with a given ID
+  const deleteCurriculum = (id: number) => {
+    return new Promise((resolve, reject) => {
+      //add access token to the request
+      //to access the protected route
+      setAuthToken();
+      axios
+        .delete(`${apiUrl.value}/${id}`)
         .then(() => resolve({}))
         .catch((err) => {
           const message = err.response.data?.message || ErrorResponse.Unexpected();
@@ -73,5 +105,5 @@ export const useCurriculumStore = defineStore("curriculum", () => {
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   };
 
-  return { getById, get };
+  return { getCurriculumById, getCurriculums, updateCurriculum, deleteCurriculum };
 });
