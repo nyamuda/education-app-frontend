@@ -1,107 +1,101 @@
 <template>
-  <div style="margin-top: 5rem">
-    <div class="container h-100">
-      <div class="row d-flex align-items-center justify-content-center h-100">
-        <div class="col-md-8 col-lg-7 col-xl-6">
-          <img
-            src="https://plus.unsplash.com/premium_vector-1683121997647-bcc424b7ecd6?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            class="img-fluid"
-            alt="Phone image"
-          />
+  <!-- Section: Design Block -->
+  <section class="background-radial-gradient overflow-hidden">
+    <div class="container px-4 py-5 px-md-5 text-center text-lg-start my-5">
+      <div class="row gx-lg-5 align-items-center mb-5">
+        <div class="d-none d-md-block col-lg-6 mb-5 mb-lg-0" style="z-index: 10">
+          <h1 class="my-5 display-5 fw-bold ls-tight" style="color: hsl(218, 81%, 95%)">
+            The best offer <br />
+            <span style="color: hsl(218, 81%, 75%)">for your business</span>
+          </h1>
+          <p class="mb-4 opacity-70" style="color: hsl(218, 81%, 85%)">
+            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Temporibus, expedita iusto
+            veniam atque, magni tempora mollitia dolorum consequatur nulla, neque debitis eos
+            reprehenderit quasi ab ipsum nisi dolorem modi. Quos?
+          </p>
         </div>
-        <div class="col-md-7 col-lg-5 col-xl-5 offset-xl-1">
-          <form @submit.prevent="submitForm" class="">
-            <div class="text-start mb-2">
-              <TitleSection title="Create an account" title-size="small" align-items="start" />
-            </div>
-            <!-- Name input -->
-            <div class="form-group mb-3">
-              <FloatLabel variant="on">
-                <IconField>
-                  <InputIcon class="pi pi-user" />
-                  <InputText
-                    fluid
-                    id="registerName"
-                    v-model="v$.name.$model"
-                    :invalid="v$.name.$error"
-                  />
-                </IconField>
-                <label for="registerName">Name</label>
-              </FloatLabel>
-              <Message size="small" severity="error" v-if="v$.name.$error" variant="simple">
-                <div v-for="error of v$.name.$errors" :key="error.$uid">
-                  <div>{{ error.$message }}</div>
-                </div>
-              </Message>
-            </div>
 
-            <!-- Email input -->
-            <div class="form-group mb-3">
-              <FloatLabel variant="on">
-                <IconField>
-                  <InputIcon class="pi pi-envelope" />
-                  <InputText
-                    id="registerEmail"
-                    class="w-100"
-                    v-model="v$.email.$model"
-                    :invalid="v$.email.$error"
-                    type="email"
-                  />
-                </IconField>
-                <label for="registerEmail">Email</label>
-              </FloatLabel>
-              <Message size="small" severity="error" v-if="v$.email.$error" variant="simple">
-                <div v-for="error of v$.email.$errors" :key="error.$uid">
-                  <div>{{ error.$message }}</div>
-                </div>
-              </Message>
-            </div>
+        <div class="col-lg-6 mb-5 mb-lg-0 position-relative">
+          <div id="radius-shape-1" class="position-absolute rounded-circle shadow-5-strong"></div>
+          <div id="radius-shape-2" class="position-absolute shadow-5-strong"></div>
 
-            <!-- Password input -->
-            <div class="form-group mb-3">
-              <FloatLabel variant="on">
-                <IconField>
-                  <InputIcon class="pi pi-lock" />
-                  <InputText
-                    fluid
-                    id="registerPassword"
-                    v-model="v$.password.$model"
-                    :invalid="v$.password.$error"
-                    type="password"
-                  />
-                </IconField>
-                <label for="registerPassword">Password</label>
-              </FloatLabel>
-              <Message size="small" severity="error" v-if="v$.password.$error" variant="simple">
-                <div v-for="error of v$.password.$errors" :key="error.$uid">
-                  <div>{{ error.$message }}</div>
+          <div class="card bg-glass">
+            <div class="card-body px-4 py-5 px-md-5">
+              <form @submit.prevent="submitForm" class="">
+                <div class="text-start mb-2">
+                  <TitleSection title="Create an account" title-size="small" align-items="start" />
                 </div>
-              </Message>
-            </div>
 
-            <!-- Submit button -->
-            <Button
-              fluid
-              class="mb-2"
-              size="small"
-              type="submit"
-              severity="primary"
-              :label="isRegistering ? 'Creating account...' : 'Sign up'"
-              :loading="isRegistering"
-              :disabled="v$.$errors.length > 0 || isRegistering"
-            />
-          </form>
+                <!-- Email input -->
+                <div class="form-group mb-3">
+                  <FloatLabel variant="on">
+                    <IconField>
+                      <InputIcon class="pi pi-envelope" />
+                      <InputText
+                        id="registerEmail"
+                        class="w-100"
+                        v-model="v$.email.$model"
+                        :invalid="v$.email.$error"
+                        type="email"
+                      />
+                    </IconField>
+                    <label for="registerEmail">Email</label>
+                  </FloatLabel>
+                  <Message size="small" severity="error" v-if="v$.email.$error" variant="simple">
+                    <div v-for="error of v$.email.$errors" :key="error.$uid">
+                      <div>{{ error.$message }}</div>
+                    </div>
+                  </Message>
+                </div>
+
+                <!-- Password input -->
+                <div class="form-group mb-3">
+                  <FloatLabel variant="on">
+                    <IconField>
+                      <InputIcon class="pi pi-lock" />
+                      <InputText
+                        fluid
+                        id="registerPassword"
+                        v-model="v$.password.$model"
+                        :invalid="v$.password.$error"
+                        type="password"
+                      />
+                    </IconField>
+                    <label for="registerPassword">Password</label>
+                  </FloatLabel>
+                  <Message size="small" severity="error" v-if="v$.password.$error" variant="simple">
+                    <div v-for="error of v$.password.$errors" :key="error.$uid">
+                      <div>{{ error.$message }}</div>
+                    </div>
+                  </Message>
+                </div>
+
+                <!-- Submit button -->
+                <Button
+                  fluid
+                  class="mb-2"
+                  size="small"
+                  type="submit"
+                  severity="primary"
+                  :label="isRegistering ? 'Creating account...' : 'Sign up'"
+                  :loading="isRegistering"
+                  :disabled="v$.$errors.length > 0 || isRegistering"
+                />
+              </form>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </section>
+  <!-- Section: Design Block -->
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useVuelidate } from "@vuelidate/core";
-import { required, email, helpers, minLength } from "@vuelidate/validators";
+import { required, email, helpers} from "@vuelidate/validators";
 import { Message } from "primevue";
 import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
@@ -125,22 +119,26 @@ const isRegistering = ref(false);
 
 //form validation start
 const registrationForm = ref({
-  name: "",
   email: "",
   password: "",
   curriculumId: 0,
   examBoardId: 0,
+  levelIds: [],
 });
 const passwordRule = helpers.regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/);
 const passwordErrorMessage =
   "Password must be at least 8 characters long and contain a mix of letters, numbers, and special characters";
 
 const rules = {
-  name: { required, minLengthValue: minLength(3) },
   email: { required, email },
   password: {
     required,
     passwordRule: helpers.withMessage(passwordErrorMessage, passwordRule),
+  },
+  curriculumId: { required },
+  examBoardId: { required },
+  levelIds: {
+    required: helpers.withMessage("You need to include at least one educational level.", required),
   },
 };
 const v$ = useVuelidate(rules, registrationForm);
@@ -168,13 +166,49 @@ const submitForm = async () => {
 };
 </script>
 
-<style scoped lang="scss">
-a {
-  text-decoration: none;
+<style lang="scss" scoped>
+.background-radial-gradient {
+  background-color: hsl(218, 41%, 15%);
+  background-image:
+    radial-gradient(
+      650px circle at 0% 0%,
+      hsl(218, 41%, 35%) 15%,
+      hsl(218, 41%, 30%) 35%,
+      hsl(218, 41%, 20%) 75%,
+      hsl(218, 41%, 19%) 80%,
+      transparent 100%
+    ),
+    radial-gradient(
+      1250px circle at 100% 100%,
+      hsl(218, 41%, 45%) 15%,
+      hsl(218, 41%, 30%) 35%,
+      hsl(218, 41%, 20%) 75%,
+      hsl(218, 41%, 19%) 80%,
+      transparent 100%
+    );
 }
-@media (min-width: 768px) {
-  .login-form {
-    max-width: 30rem;
-  }
+
+#radius-shape-1 {
+  height: 220px;
+  width: 220px;
+  top: -60px;
+  left: -130px;
+  background: radial-gradient(#44006b, #ad1fff);
+  overflow: hidden;
+}
+
+#radius-shape-2 {
+  border-radius: 38% 62% 63% 37% / 70% 33% 67% 30%;
+  bottom: -60px;
+  right: -110px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(#44006b, #ad1fff);
+  overflow: hidden;
+}
+
+.bg-glass {
+  background-color: hsla(0, 0%, 100%, 0.9) !important;
+  backdrop-filter: saturate(200%) blur(25px);
 }
 </style>

@@ -194,13 +194,10 @@ export const useAuthStore = defineStore("auth", () => {
     });
   };
 
-  //Set authorization header for all request to access protected routes from the API
+  //Set authorization header for all requests to access protected routes from the API
   const setAuthToken = () => {
-    //check if there is a token in local storage
-    const localToken = localStorage.getItem("jwt_token");
-
-    //the current token
-    const token = localToken ? localToken : null;
+    //get the access token from local storage
+    const token = localStorage.getItem("jwt_token");
 
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   };
