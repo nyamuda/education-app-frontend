@@ -1,26 +1,26 @@
-import { ref} from "vue";
+import { ref } from "vue";
 import { defineStore } from "pinia";
 import axios from "axios";
-import type { Curriculum } from "@/models/curriculum";
+import type { Level } from "@/models/level";
 import { UrlHelper } from "@/helpers/urlHelper";
 import { ErrorResponse } from "@/models/errorResponse";
 import type { PageInfo } from "@/models/pageInfo";
 
-export const useCurriculumStore = defineStore("curriculum", () => {
-  const apiUrl = ref(`${UrlHelper.apiUrl}/curriculums`);
+export const useLevelStore = defineStore("level", () => {
+  const apiUrl = ref(`${UrlHelper.apiUrl}/levels`);
 
-  //Gets a curriculum with a given ID
-  const getCurriculumById = (id: number): Promise<Curriculum> => {
+  //Gets a level with a given ID
+  const getLevelById = (id: number): Promise<Level> => {
     return new Promise((resolve, reject) => {
       axios
-        .get<Curriculum>(`${apiUrl.value}/${id}`)
+        .get<Level>(`${apiUrl.value}/${id}`)
         .then((response) => {
           resolve(response.data);
         })
         .catch((err) => {
           const message =
             err.response.statusCode == 404
-              ? ErrorResponse.NotFound("Curriculum")
+              ? ErrorResponse.NotFound("Level")
               : ErrorResponse.Unexpected();
 
           reject(message);
@@ -28,18 +28,22 @@ export const useCurriculumStore = defineStore("curriculum", () => {
     });
   };
 
-  //Gets a paginated list of curriculums along with pagination metadata
-  const getCurriculums = (page: number, pageSize: number): Promise<PageInfo<Curriculum>> => {
+  //Gets a paginated list of levels for a particular exam board along with pagination metadata
+  const getLevels = (
+    examBoardId: number,
+    page: number,
+    pageSize: number,
+  ): Promise<PageInfo<Level>> => {
     return new Promise((resolve, reject) => {
       axios
-        .get<PageInfo<Curriculum>>(`${apiUrl.value}`, {
+        .get<PageInfo<Level>>(`${UrlHelper.apiUrl}/exam-boards/${examBoardId}/levels`, {
           params: {
             page: page,
             pageSize: pageSize,
           },
         })
         .then((response) => {
-          //return the curriculums
+          //return the levels
           resolve(response.data);
         })
         .catch((err) => {
@@ -49,14 +53,14 @@ export const useCurriculumStore = defineStore("curriculum", () => {
     });
   };
 
-  //Creates a new curriculum
-  const addCurriculum = (details: { name: string }) => {
+  //Creates a new level for a specific exam board
+  const addLevel = (examBoardId: number, details: { name: string }) => {
     return new Promise((resolve, reject) => {
       //add access token to the request
       //to access the protected route
       setAuthToken();
       axios
-        .post(`${apiUrl.value}`, details)
+        .post(`${UrlHelper.apiUrl}/exam-boards/${examBoardId}/levels`, details)
         .then(() => resolve({}))
         .catch((err) => {
           const message = err.response.data?.message || ErrorResponse.Unexpected();
@@ -65,14 +69,14 @@ export const useCurriculumStore = defineStore("curriculum", () => {
     });
   };
 
-  //Updates a curriculum with a given ID
-  const updateCurriculum = (id: number, updateDetails: { name: string }) => {
+  //Updates a level with a given ID for a specific exam board
+  const updateLevel = (examBoardId: number, levelId: number, updateDetails: { name: string }) => {
     return new Promise((resolve, reject) => {
       //add access token to the request
       //to access the protected route
       setAuthToken();
       axios
-        .put(`${apiUrl.value}/${id}`, updateDetails)
+        .put(`${UrlHelper.apiUrl}/exam-boards/${examBoardId}/levels/${levelId}`, updateDetails)
         .then(() => resolve({}))
         .catch((err) => {
           const message = err.response.data?.message || ErrorResponse.Unexpected();
@@ -81,8 +85,8 @@ export const useCurriculumStore = defineStore("curriculum", () => {
     });
   };
 
-  //Deletes a curriculum with a given ID
-  const deleteCurriculum = (id: number) => {
+  //Deletes a level with a given ID
+  const deleteLevel = (id: number) => {
     return new Promise((resolve, reject) => {
       //add access token to the request
       //to access the protected route
@@ -105,5 +109,5 @@ export const useCurriculumStore = defineStore("curriculum", () => {
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   };
 
-  return { getCurriculumById, getCurriculums, updateCurriculum, deleteCurriculum, addCurriculum };
+  return { getLevelById, getLevels, updateLevel, deleteLevel, addLevel };
 });
