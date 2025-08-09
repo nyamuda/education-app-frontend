@@ -1,4 +1,4 @@
-import { ref, type Ref } from "vue";
+import { ref} from "vue";
 import { defineStore } from "pinia";
 import axios from "axios";
 import type { Curriculum } from "@/models/curriculum";
@@ -105,5 +105,5 @@ export const useCurriculumStore = defineStore("curriculum", () => {
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   };
 
-  return { getCurriculumById, getCurriculums, updateCurriculum, deleteCurriculum };
+  return { getCurriculumById, getCurriculums, updateCurriculum, deleteCurriculum, addCurriculum };
 });
