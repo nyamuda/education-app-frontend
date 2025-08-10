@@ -201,7 +201,7 @@ import type { Level } from "@/models/level";
 import MultiSelect from "primevue/multiselect";
 
 import Password from "primevue/password";
-import { generateFromEmail } from "unique-username-generator";
+import { generateUsername } from "unique-username-generator";
 
 // Access the store
 const authStore = useAuthStore();
@@ -244,6 +244,7 @@ const rules = {
   curriculumId: {},
   examBoardId: {},
   levelIds: {},
+  username: {},
 };
 const v$ = useVuelidate(rules, registrationForm);
 //form validation end
@@ -251,8 +252,8 @@ const v$ = useVuelidate(rules, registrationForm);
 const submitForm = async () => {
   const isFormCorrect = await v$.value.$validate();
   if (isFormCorrect) {
-    //generate a username for the user based on their email
-    const username = generateFromEmail(registrationForm.value.email);
+    //generate a random username for the user
+    const username = generateUsername("", 3);
     registrationForm.value.username = username;
     isRegistering.value = true;
     //register user
