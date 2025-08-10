@@ -274,6 +274,22 @@ const submitForm = async () => {
   }
 };
 
+// Attempts to send an email verification link after successful registration.
+const sendEmailVerificationRequest = (email: string) => {
+  authStore
+    .requestEmailVerification(email)
+    .then(() => router.push("/auth/email-verification/request"))
+    .catch(() => {
+      toast.add({
+        severity: "error",
+        summary: "Email Verification Failed",
+        detail:
+          "Registration succeeded, but we couldn’t send the verification email. Check your email address or try again shortly.",
+        life: 20000,
+      });
+    });
+};
+
 // Updates the available exam board options so they match the chosen curriculum.
 const updateExamBoardsForCurriculum = (curriculumId: number) => {
   const selectedCurriculum = curriculums.value.find((x) => x.id === curriculumId);

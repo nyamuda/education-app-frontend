@@ -83,24 +83,12 @@ export const useAuthStore = defineStore("auth", () => {
   //Register a new user
   const register = (registrationDetails: RegistrationDetails) => {
     return new Promise((resolve, reject) => {
-      // Step 1: Send registration request to the backend
+      // Send registration request to the backend
       axios
         .post(`${apiUrl.value}/auth/register`, registrationDetails)
         .then(() => {
-          // Step 2: If registration succeeds, trigger email verification
           //store the email to be verified
           userEmail.value = registrationDetails.email;
-          //then request the email to be verified
-          requestEmailVerification(registrationDetails.email)
-            .then(() => resolve({}))
-            .catch((error) => {
-              // If sending the verification email fails,
-              // show a user-friendly message
-              const message =
-                error.response?.data?.message ||
-                "Registration succeeded, but we couldn’t send the verification email. Check your email address or try again shortly.";
-              reject(message);
-            });
         })
         .catch((error) => {
           const message = error.response?.data?.message || ErrorResponse.Unexpected();

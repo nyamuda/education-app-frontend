@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- Send code button start -->
+    <!-- Send OTP code button start -->
     <Button
       severity="primary"
       @click="sendCode"
