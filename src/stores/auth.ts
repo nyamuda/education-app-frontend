@@ -46,7 +46,7 @@ export const useAuthStore = defineStore("auth", () => {
   };
 
   //Login user and get the access token
-  const login = (loginDetails: LoginDetails): Promise<{ isVerified: boolean }> => {
+  const login = (loginDetails: LoginDetails): Promise<{ isVerified: boolean; email: string }> => {
     return new Promise((resolve, reject) => {
       axios
         .post(`${apiUrl.value}/auth/login`, loginDetails)
@@ -64,13 +64,13 @@ export const useAuthStore = defineStore("auth", () => {
             //mark the user as authenticated
             authenticateUser();
 
-            resolve({ isVerified: true });
+            resolve({ isVerified: true, email: loginDetails.email });
           }
           //if the user is not verified
           //store the email that needs to be verified
           else {
             userEmail.value = loginDetails.email;
-            resolve({ isVerified: false });
+            resolve({ isVerified: false, email: loginDetails.email });
           }
         })
         .catch((error) => {
@@ -81,7 +81,7 @@ export const useAuthStore = defineStore("auth", () => {
   };
 
   //Register a new user
-  const register = (registrationDetails: RegistrationDetails) => {
+  const register = (registrationDetails: RegistrationDetails): Promise<{ email: string }> => {
     return new Promise((resolve, reject) => {
       // Send registration request to the backend
       axios
@@ -89,8 +89,10 @@ export const useAuthStore = defineStore("auth", () => {
         .then(() => {
           //store the email to be verified
           userEmail.value = registrationDetails.email;
+          resolve({ email: registrationDetails.email });
         })
         .catch((error) => {
+          console.log(error);
           const message = error.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
@@ -117,13 +119,14 @@ export const useAuthStore = defineStore("auth", () => {
   };
 
   //Verify email using a one-time password (OTP)
-  const verifyEmail = (verifyDetails: { email: string; otpCode: string }) => {
+  const verifyEmail = (verifyDetails: { email: string; otp: string }) => {
     return new Promise((resolve, reject) => {
       isVerifyingEmailOtp.value = true;
       axios
         .post(`${apiUrl.value}/auth/email-verification/verify`, verifyDetails)
         .then(() => resolve({}))
         .catch((error) => {
+          console.log(error);
           const message =
             error.response?.data?.message ||
             "We couldn't verify your account. Double-check your code or request a new one.";

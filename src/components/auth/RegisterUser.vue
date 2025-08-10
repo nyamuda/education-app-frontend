@@ -1,6 +1,6 @@
 <template>
   <!-- Section: Design Block -->
-  <section class="background-radial-gradient overflow-hidden">
+  <section style="margin-bottom: -5rem" class="background-radial-gradient overflow-hidden">
     <div class="container px-4 py-5 px-md-5 text-center text-lg-start my-5">
       <div class="row gx-lg-5 align-items-center mb-5">
         <div class="d-none d-md-block col-lg-6 mb-5 mb-lg-0" style="z-index: 10">
@@ -259,8 +259,8 @@ const submitForm = async () => {
     //register user
     authStore
       .register(registrationForm.value)
-      .then(() => {
-        router.push("/auth/email-verification/request");
+      .then(({ email }) => {
+        sendEmailVerificationRequest(email);
       })
       .catch((message) => {
         toast.add({
@@ -274,7 +274,7 @@ const submitForm = async () => {
   }
 };
 
-// Attempts to send an email verification link after successful registration.
+// Attempts to send an email verification code after successful registration.
 const sendEmailVerificationRequest = (email: string) => {
   authStore
     .requestEmailVerification(email)
@@ -283,8 +283,7 @@ const sendEmailVerificationRequest = (email: string) => {
       toast.add({
         severity: "error",
         summary: "Email Verification Failed",
-        detail:
-          "Registration succeeded, but we couldn’t send the verification email. Check your email address or try again shortly.",
+        detail: "Registration succeeded, but we couldn’t send the verification email.",
         life: 20000,
       });
     });

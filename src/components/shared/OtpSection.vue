@@ -1,7 +1,7 @@
 <template>
-  <div class="text-center">
-    <h5>{{ title }}</h5>
-    <div>
+  <div>
+    <h5 class="text-center">{{ title }}</h5>
+    <div class="text-center">
       <span v-html="message"></span>
       <!-- Inline editor for the email the OTP is sent to -->
       <Inplace>
@@ -42,7 +42,7 @@
       </Inplace>
     </div>
     <!-- OTP input start -->
-    <div class="d-flex justify-content-center my-2">
+    <div class="d-flex justify-content-center my-2" v-if="showOtpInput">
       <InputOtp @change="onOtpChange" v-model="otpCode" :length="6" integerOnly />
     </div>
     <!-- OTP input end -->
@@ -88,6 +88,11 @@ const props = defineProps({
   isVerifyingOtp: {
     type: Boolean,
     required: true,
+  },
+  //whether to show the OTP text input or not
+  showOtpInput: {
+    type: Boolean,
+    default: false,
   },
 });
 

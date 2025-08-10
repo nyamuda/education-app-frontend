@@ -14,6 +14,13 @@
             <div class="text-start">
               <TitleSection title="Sign into your account" title-size="small" align-items="start" />
             </div>
+            <Message
+              v-if="loginErrorMessage"
+              severity="error"
+              icon="pi pi-times-circle"
+              class="mb-3"
+              >{{ loginErrorMessage }}</Message
+            >
             <!-- Email input -->
             <div class="form-group mb-3">
               <FloatLabel variant="on">
@@ -88,7 +95,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, type Ref } from "vue";
 import { useAuthStore } from "@/stores/auth";
 //import OauthBooking from "./OauthBooking.vue";
 import { useVuelidate } from "@vuelidate/core";
@@ -101,17 +108,17 @@ import Button from "primevue/button";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
 import { useRouter } from "vue-router";
-import { useToast } from "primevue/usetoast";
 
 const authStore = useAuthStore();
 const router = useRouter();
-const toast = useToast();
 
 onMounted(() => {
   v$.value.$touch();
 });
 
 const isLoggingIn = ref(false);
+//Used when login fails due to invalid credentials
+const loginErrorMessage: Ref<string | null> = ref(null);
 
 //form validation with Vuelidate start
 const loginForm = ref({
@@ -138,27 +145,30 @@ const submitForm = async () => {
     isLoggingIn.value = true;
     authStore
       .login(loginForm.value)
-      .then(async ({ isVerified }) => {
+      .then(({ isVerified, email }) => {
         //if user has been verified
         if (isVerified) {
           router.push(authStore.attemptedUrl);
         }
-        //else send them an email to verify their email
+        //else send an email verification request
         else {
-          await authStore.requestEmailVerification(loginForm.value.email);
-          router.push("/auth/email-verification/request");
+          sendEmailVerificationRequest(email);
         }
       })
       .catch((message) => {
-        toast.add({
-          severity: "error",
-          summary: "Login Failed",
-          detail: message,
-          life: 20000,
-        });
+        loginErrorMessage.value = message;
       })
       .finally(() => (isLoggingIn.value = false));
   }
+};
+
+// Attempts to send an email verification code after successful login
+// if the user is not verified.
+const sendEmailVerificationRequest = (email: string) => {
+  authStore
+    .requestEmailVerification(email)
+    .then(() => router.push("/auth/email-verification/request"))
+    .catch(() => {});
 };
 </script>
 

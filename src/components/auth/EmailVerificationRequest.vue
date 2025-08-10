@@ -7,7 +7,7 @@
         </div>
 
         <TitleSection
-          title="Email Verification Required to Proceed"
+          title="Confirm Your Account"
           title-size="small"
           align-items="center"
           style="margin-bottom: -1rem"
@@ -33,6 +33,9 @@
             :is-verifying-otp="authStore.isVerifyingEmailOtp"
             :title="otpSectionTitleAndMessage.title"
             :message="otpSectionTitleAndMessage.message"
+            :show-otp-input="
+              authStore.emailConfirmationOtpSendingResult == OtpSendResult.SentSuccessfully
+            "
           />
           <!-- Displayed if an attempt to resend OTP was a failure -->
           <div
@@ -117,11 +120,11 @@ const requestEmailVerificationCode = async () => {
 };
 
 //Verify email using OTP code
-const verifyEmail = async (otpCode: string) => {
+const verifyEmail = async (otp: string) => {
   try {
     const email = authStore.userEmail;
     if (email) {
-      await authStore.verifyEmail({ otpCode, email });
+      await authStore.verifyEmail({ otp, email });
       toast.add({
         severity: "success",
         summary: "Account Verified",
