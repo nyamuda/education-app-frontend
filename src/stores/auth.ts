@@ -218,6 +218,23 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
+  //Logs out a user
+  const logout = async () => {
+    return new Promise((resolve, reject) => {
+      axios
+        .post(`${apiUrl.value}/logout`)
+        .then(() => {
+          //remove the JWT token from local storage
+          localStorage.removeItem("jwt_token");
+          authenticateUser();
+          resolve({});
+        })
+        .catch((err) => {
+          const message = err.response?.data?.message || ErrorResponse.Unexpected();
+          reject(message);
+        });
+    });
+  };
   return {
     login,
     register,
@@ -233,5 +250,6 @@ export const useAuthStore = defineStore("auth", () => {
     resetPassword,
     authenticateUser,
     emailConfirmationOtpSendingResult,
+    logout,
   };
 });
