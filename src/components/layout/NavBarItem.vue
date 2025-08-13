@@ -5,7 +5,7 @@
       class="py-3"
       breakpoint="1200px"
       :pt="{
-        root: { class: 'd-flex align-items-center w-100' }, // Make MegaMenu flex
+        root: { class: 'd-flex align-items-center w-100' },
         start: { class: 'flex-shrink-0' },
         end: { class: 'd-flex align-items-center gap-3 flex-grow-1' },
       }"
@@ -83,11 +83,26 @@ import MegaMenu from "primevue/megamenu";
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
 import AutoCompleteInput from "../shared/AutoCompleteInput.vue";
+import { useToast } from "primevue";
 const router = useRouter();
 
 const authStore = useAuthStore();
-//Logout user by removing the access token from local storage
-const logout = () => {};
+const toast = useToast();
+
+//Logout user
+const logout = () => {
+  authStore
+    .logout()
+    .then(() => router.push("/"))
+    .catch((message) => {
+      toast.add({
+        severity: "error",
+        summary: "Logout Failed",
+        detail: message,
+        life: 10000,
+      });
+    });
+};
 
 // Controls the account dropdown menu for regular users.
 // This button appears on the right side of the navigation bar.

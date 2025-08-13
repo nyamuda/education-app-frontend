@@ -71,7 +71,7 @@
               size="small"
               type="submit"
               severity="primary"
-              :label="isLoggingIn ? 'Please wait...' : 'Sign in'"
+              :label="isLoggingIn ? 'One moment...' : 'Sign in'"
               :loading="isLoggingIn"
               :disabled="v$.$errors.length > 0 || isLoggingIn"
             />

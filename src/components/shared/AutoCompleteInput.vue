@@ -4,6 +4,7 @@
       <InputIcon class="pi pi-search" />
       <AutoComplete
         id="navbar-search"
+        class="rounded-pill"
         v-model="value"
         :suggestions="items"
         @complete="search"
@@ -27,3 +28,4 @@ const search = (event: { query: string }) => {
   items.value = Array.from({ length: 10 }, (_, i) => `${event.query}-${i}`);
 };
 </script>
+<style lang="scss" scoped></style>
