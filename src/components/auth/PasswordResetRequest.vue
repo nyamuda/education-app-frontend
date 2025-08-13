@@ -137,11 +137,11 @@ const requestResetCode = async () => {
 };
 
 //Verify email using OTP code
-const verifyPasswordResetCode = async (otpCode: string) => {
+const verifyPasswordResetCode = async (otp: string) => {
   try {
     const email = authStore.userEmail;
     if (email) {
-      const { resetToken } = await authStore.verifyPasswordResetOtp({ otpCode, email });
+      const { resetToken } = await authStore.verifyPasswordResetOtp({ otp, email });
       toast.add({
         severity: "success",
         summary: "Reset Code Verified",

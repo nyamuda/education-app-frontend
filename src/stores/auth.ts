@@ -154,7 +154,7 @@ export const useAuthStore = defineStore("auth", () => {
   //Returns a reset password token if the OTP code is valid
   const verifyPasswordResetOtp = (verifyOtpDetails: {
     email: string;
-    otpCode: string;
+    otp: string;
   }): Promise<{ resetToken: string }> => {
     return new Promise((resolve, reject) => {
       isVerifyingPasswordResetOtp.value = true;
@@ -162,6 +162,7 @@ export const useAuthStore = defineStore("auth", () => {
         .post(`${apiUrl.value}/password-reset/verify-otp`, verifyOtpDetails)
         .then((response) => resolve({ resetToken: response.data.resetToken }))
         .catch((error) => {
+          console.log(error);
           const message = error.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         })
@@ -172,13 +173,14 @@ export const useAuthStore = defineStore("auth", () => {
   //Reset user password
   const resetPassword = (resetDetails: { resetToken: string; password: string }) => {
     return new Promise((resolve, reject) => {
-      const url = `${apiUrl.value}/auth/password-reset/reset`;
+      const url = `${apiUrl.value}/password-reset/reset`;
       axios
-        .patch(url, resetDetails)
+        .post(url, resetDetails)
         .then(() =>
           resolve("Password reset was successful. You may now use your new password to sign in."),
         )
         .catch((error) => {
+          console.log(error);
           const message = error.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
