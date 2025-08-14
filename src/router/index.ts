@@ -95,7 +95,7 @@ const router = createRouter({
         {
           path: "add",
           component: AddCurriculum,
-          //This is a protected route
+          // This is a protected route: only authenticated admins can access it
           beforeEnter: async (to) => {
             const authStore = useAuthStore();
             // Make sure the user is logged in and their details are loaded
