@@ -7,25 +7,25 @@
     >
       <div class="flex-grow-1 flex-md-grow-0">
         <!-- For desktop screens -->
-        <!-- <Select
+        <Select
           style="width: 12rem"
           class="d-none d-md-flex"
           placeholder="Filter curriculums"
           checkmark
-          v-model="filterCurriculumsBy"
-          :options="statusFilters"
-          @change="filterCurriculums"
-        /> -->
+          v-model="selectedSortOption"
+          :options="sortOptions"
+          @change="getAllCurriculums"
+        />
 
         <!-- For mobile screens -->
-        <!-- <Select
+        <Select
           class="w-100 d-md-none"
           placeholder="Filter curriculums"
           checkmark
-          v-model="filterCurriculumsBy"
-          :options="statusFilters"
-          @change=""
-        /> -->
+          v-model="selectedSortOption"
+          :options="sortOptions"
+          @change="getAllCurriculums"
+        />
       </div>
       <router-link to="/curriculums/add">
         <Button label="New curriculum" icon="pi pi-plus" size="small" severity="primary" />
@@ -51,14 +51,8 @@
     <!--Skeleton table end-->
 
     <!--Table start-->
-    <div v-else-if="curriculums != null && curriculums?.items.length > 0" class="card">
-      <DataTable
-        :value="curriculums.items"
-        paginator
-        @page="onPageChange"
-        :rows="2"
-        :total-records="curriculums.totalItems"
-      >
+    <div v-else-if="curriculums.items.length > 0" class="card">
+      <DataTable :value="curriculums.items">
         <Column field="name" header="Name">
           <template #body="slotProps">
             <!--Curriculum name-->
@@ -94,19 +88,28 @@
           </template>
         </Column>
       </DataTable>
+      <!-- Pagination start -->
+      <Paginator
+        :rows="curriculums.pageSize"
+        :totalRecords="curriculums.totalItems"
+        @page="onPageChange"
+        :first="(curriculums.page - 1) * curriculums.pageSize"
+sever
+      />
+      <!-- Pagination end -->
     </div>
+
     <!--Table end-->
 
     <!--No Curriculums Start-->
     <EmptyList v-else />
     <!--No Curriculums End-->
   </div>
+  {{ curriculums.totalItems }}
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, type Ref } from "vue";
-//import Select from "primevue/select";
-import DataTable, { type DataTablePageEvent } from "primevue/datatable";
+import { ref, onMounted } from "vue";
 import Column from "primevue/column";
 import Button from "primevue/button";
 import Skeleton from "primevue/skeleton";
@@ -114,9 +117,12 @@ import { useToast } from "primevue/usetoast";
 import EmptyList from "../shared/EmptyList.vue";
 import TitleSection from "../shared/TitleSection.vue";
 import { useCurriculumStore } from "@/stores/curriculum";
-import type { PageInfo } from "@/models/pageInfo";
+import { PageInfo } from "@/models/pageInfo";
+import Select from "primevue/select";
 import type { Curriculum } from "@/models/curriculum";
 import { CurriculumSortOption } from "@/enums/curriculums/curriculumSortOption";
+import { DataTable } from "primevue";
+import Paginator, { type PageState } from "primevue/paginator";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));
@@ -124,7 +130,8 @@ const rowSkeletons = ref(new Array(10));
 const curriculumStore = useCurriculumStore();
 const toast = useToast();
 
-const curriculums: Ref<PageInfo<Curriculum> | null> = ref(null);
+const curriculums = ref(new PageInfo<Curriculum>());
+
 const isGettingCurriculums = ref(false);
 const sortOptions = ref([CurriculumSortOption.Name, CurriculumSortOption.DateCreated]);
 const selectedSortOption = ref(CurriculumSortOption.DateCreated);
@@ -136,8 +143,9 @@ onMounted(() => {
 //get all curriculums
 const getAllCurriculums = () => {
   isGettingCurriculums.value = true;
+  const { page, pageSize } = curriculums.value;
   curriculumStore
-    .getCurriculums()
+    .getCurriculums(page, pageSize, selectedSortOption.value)
     .then((data) => (curriculums.value = data))
     .catch((message) => {
       toast.add({
@@ -150,9 +158,17 @@ const getAllCurriculums = () => {
     .finally(() => (isGettingCurriculums.value = false));
 };
 
-//change pagination page
-const onPageChange = (event: DataTablePageEvent) => {
-  alert(event.page);
+/**
+ * Called when the user switches pages in the paginator.
+ * 1. Converts PrimeVue's 0-based page index to 1-based.
+ * 2. Stores the new page in state.
+ * 3. Fetches the updated curriculums list.
+ */
+const onPageChange = (state: PageState) => {
+  // PrimeVue uses a 0-based page index, so add 1 before sending
+  // the request to the backend, which expects 1-based indexing.
+  curriculums.value.page = state.page + 1;
+  getAllCurriculums();
 };
 </script>
 
