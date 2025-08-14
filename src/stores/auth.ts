@@ -12,6 +12,7 @@ import type { RegistrationDetails } from "@/interfaces/auth/registrationDetails"
 
 export const useAuthStore = defineStore("auth", () => {
   const isAuthenticated = ref(false);
+  const isAdmin = ref(false);
   const user: Ref<User | null> = ref(null);
   //the email of a user
   //used for things like email verification, password reset etc
@@ -254,5 +255,6 @@ export const useAuthStore = defineStore("auth", () => {
     emailConfirmationOtpSendingResult,
     logout,
     user,
+    isAdmin,
   };
 });

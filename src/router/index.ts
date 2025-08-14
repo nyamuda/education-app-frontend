@@ -11,6 +11,13 @@ import { useAuthStore } from "@/stores/auth";
 import CurriculumView from "@/views/CurriculumView.vue";
 import CurriculumList from "@/components/curriculums/CurriculumList.vue";
 import AddCurriculum from "@/components/curriculums/AddCurriculum.vue";
+import ExamBoardView from "@/views/ExamBoardView.vue";
+import LevelView from "@/views/LevelView.vue";
+import SubjectView from "@/views/SubjectView.vue";
+import TopicView from "@/views/TopicView.vue";
+import SubtopicView from "@/views/SubtopicView.vue";
+import QuestionView from "@/views/QuestionView.vue";
+import { UserRole } from "@/enums/auth/userRole";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -88,62 +95,64 @@ const router = createRouter({
         {
           path: "add",
           component: AddCurriculum,
+          //This is a protected route
+          beforeEnter: async (to) => {
+            const authStore = useAuthStore();
+            // Make sure the user is logged in and their details are loaded
+            // This prevents false redirects if user data is not yet populated in the store.
+            await authStore.authenticateUser();
+
+            // If the user is not logged in or is not an admin
+            if (!authStore.isAuthenticated || authStore.user?.role != UserRole.Admin) {
+              //store the attempted URL
+              authStore.attemptedUrl = to.fullPath;
+              // Redirect to login page
+              return { name: "Login" };
+            }
+            return true;
+          },
         },
       ],
     },
     //exam board routes
     {
-      path: "/auth",
-      name: "Auth",
-      component: AuthView,
+      path: "/exam-boards",
+      component: ExamBoardView,
       children: [],
     },
     //level routes
     {
-      path: "/auth",
-      name: "Auth",
-      component: AuthView,
+      path: "/levels",
+      component: LevelView,
       children: [],
     },
     //subject routes
     {
-      path: "/auth",
-      name: "Auth",
-      component: AuthView,
+      path: "/subjects",
+      component: SubjectView,
       children: [],
     },
     //topic routes
     {
-      path: "/auth",
-      name: "Auth",
-      component: AuthView,
+      path: "/topics",
+      component: TopicView,
       children: [],
     },
     //subtopic routes
     {
-      path: "/auth",
-      name: "Auth",
-      component: AuthView,
+      path: "/subtopics",
+      component: SubtopicView,
       children: [],
     },
     //question routes
     {
-      path: "/auth",
-      name: "Auth",
-      component: AuthView,
-      children: [],
-    },
-    //answers routes
-    {
-      path: "/auth",
-      name: "Auth",
-      component: AuthView,
+      path: "/questions",
+      component: QuestionView,
       children: [],
     },
     //flag routes
     {
-      path: "/auth",
-      name: "Auth",
+      path: "/flags",
       component: AuthView,
       children: [],
     },
