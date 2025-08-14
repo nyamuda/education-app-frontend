@@ -98,7 +98,12 @@
               /></router-link>
 
               <!--Delete Curriculum Button-->
-              <Button severity="danger" label="delete" size="small" icon="pi pi-trash" />
+              <DeletePopup
+                title="Are You Sure?"
+                message="Deleting this curriculum is permanent. Proceed?"
+                :id="slotProps.data.id"
+                :delete-callback="deleteCurriculum"
+              />
             </div>
           </template>
         </Column>
@@ -135,6 +140,7 @@ import type { Curriculum } from "@/models/curriculum";
 import { CurriculumSortOption } from "@/enums/curriculums/curriculumSortOption";
 import { DataTable } from "primevue";
 import Paginator, { type PageState } from "primevue/paginator";
+import DeletePopup from "../shared/DeletePopup.vue";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));
@@ -143,6 +149,7 @@ const curriculumStore = useCurriculumStore();
 const toast = useToast();
 const curriculums = ref(new PageInfo<Curriculum>());
 const isGettingCurriculums = ref(false);
+const isDeletingCurriculum = ref(false);
 
 //sorting info
 const sortOptions = ref([
@@ -184,6 +191,30 @@ const onPageChange = (state: PageState) => {
   // the request to the backend, which expects 1-based indexing.
   curriculums.value.page = state.page + 1;
   getAllCurriculums();
+};
+
+//Delete a curriculum with a given ID
+const deleteCurriculum = (id: number) => {
+  isDeletingCurriculum.value = true;
+  curriculumStore
+    .deleteCurriculum(id)
+    .then(() => {
+      toast.add({
+        severity: "success",
+        summary: "Done",
+        detail: "The curriculum was successfully deleted.",
+        life: 5000,
+      });
+    })
+    .catch((message) => {
+      toast.add({
+        severity: "error",
+        summary: "Delete Failed",
+        detail: message,
+        life: 10000,
+      });
+    })
+    .finally(() => (isDeletingCurriculum.value = false));
 };
 </script>
 
