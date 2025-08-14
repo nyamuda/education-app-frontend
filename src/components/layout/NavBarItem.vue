@@ -168,7 +168,7 @@ const userAccountItems = ref([
 ]);
 
 const items = computed(() => {
-  if (authStore.isAuthenticated && authStore.user?.role == UserRole.Admin) {
+  if (authStore.isAuthenticated && authStore.userRole == UserRole.Admin) {
     return adminMenuItems.value;
   } else {
     return userMenuItems.value;

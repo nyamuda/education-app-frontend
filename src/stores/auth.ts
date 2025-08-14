@@ -9,10 +9,11 @@ import { UrlHelper } from "@/helpers/urlHelper";
 import { ErrorResponse } from "@/models/errorResponse";
 import type { LoginDetails } from "@/interfaces/auth/loginDetails";
 import type { RegistrationDetails } from "@/interfaces/auth/registrationDetails";
+import { UserRole } from "@/enums/auth/userRole";
 
 export const useAuthStore = defineStore("auth", () => {
   const isAuthenticated = ref(false);
-  const isAdmin = ref(false);
+  const userRole: Ref<UserRole | null> = ref(null);
   const user: Ref<User | null> = ref(null);
   //the email of a user
   //used for things like email verification, password reset etc
@@ -214,6 +215,12 @@ export const useAuthStore = defineStore("auth", () => {
       isAuthenticated.value = exp > now ? true : false;
 
       if (isAuthenticated.value) {
+        //retrieve user role from decoded token
+        const role = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+        if (role) {
+          userRole.value = role == "Admin" ? UserRole.Admin : UserRole.Student;
+        }
+        //get all user details
         await getUserDetails();
       }
     } catch {
@@ -255,6 +262,6 @@ export const useAuthStore = defineStore("auth", () => {
     emailConfirmationOtpSendingResult,
     logout,
     user,
-    isAdmin,
+    userRole,
   };
 });

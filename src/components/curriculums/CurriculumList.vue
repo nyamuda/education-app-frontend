@@ -10,21 +10,25 @@
         <Select
           style="width: 12rem"
           class="d-none d-md-flex"
-          placeholder="Filter curriculums"
+          placeholder="Sort by"
           checkmark
           v-model="selectedSortOption"
           :options="sortOptions"
+          option-label="name"
+          option-value="value"
           @change="getAllCurriculums"
+          size="small"
         />
 
         <!-- For mobile screens -->
         <Select
           class="w-100 d-md-none"
-          placeholder="Filter curriculums"
+          placeholder="Sort by"
           checkmark
           v-model="selectedSortOption"
           :options="sortOptions"
           @change="getAllCurriculums"
+          size="small"
         />
       </div>
       <router-link to="/curriculums/add">
@@ -94,7 +98,7 @@
         :totalRecords="curriculums.totalItems"
         @page="onPageChange"
         :first="(curriculums.page - 1) * curriculums.pageSize"
-sever
+        sever
       />
       <!-- Pagination end -->
     </div>
@@ -129,11 +133,14 @@ const rowSkeletons = ref(new Array(10));
 
 const curriculumStore = useCurriculumStore();
 const toast = useToast();
-
 const curriculums = ref(new PageInfo<Curriculum>());
-
 const isGettingCurriculums = ref(false);
-const sortOptions = ref([CurriculumSortOption.Name, CurriculumSortOption.DateCreated]);
+
+//sorting info
+const sortOptions = ref([
+  { name: "Name", value: CurriculumSortOption.Name },
+  { name: "Date Created", value: CurriculumSortOption.DateCreated },
+]);
 const selectedSortOption = ref(CurriculumSortOption.DateCreated);
 
 onMounted(() => {
