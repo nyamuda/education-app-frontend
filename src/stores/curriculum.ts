@@ -5,6 +5,7 @@ import type { Curriculum } from "@/models/curriculum";
 import { UrlHelper } from "@/helpers/urlHelper";
 import { ErrorResponse } from "@/models/errorResponse";
 import type { PageInfo } from "@/models/pageInfo";
+import { CurriculumSortOption } from "@/enums/curriculums/curriculumSortOption";
 
 export const useCurriculumStore = defineStore("curriculum", () => {
   const apiUrl = ref(`${UrlHelper.apiUrl}/curriculums`);
@@ -32,13 +33,15 @@ export const useCurriculumStore = defineStore("curriculum", () => {
   const getCurriculums = (
     page: number = 1,
     pageSize: number = 10,
+    sortBy: CurriculumSortOption = CurriculumSortOption.DateCreated,
   ): Promise<PageInfo<Curriculum>> => {
     return new Promise((resolve, reject) => {
       axios
         .get<PageInfo<Curriculum>>(`${apiUrl.value}`, {
           params: {
-            page: page,
-            pageSize: pageSize,
+            page,
+            pageSize,
+            sortBy,
           },
         })
         .then((response) => {
