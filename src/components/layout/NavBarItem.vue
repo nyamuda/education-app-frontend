@@ -84,6 +84,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
 import AutoCompleteInput from "../shared/AutoCompleteInput.vue";
 import { useToast } from "primevue";
+import { UserRole } from "@/enums/auth/userRole";
 const router = useRouter();
 
 const authStore = useAuthStore();
@@ -111,6 +112,7 @@ const accountMenu = ref();
 const toggleAccountButton = (event: MouseEvent) => {
   accountMenu.value.toggle(event);
 };
+
 const userAccountItems = ref([
   {
     label: "Questions",
@@ -165,7 +167,16 @@ const userAccountItems = ref([
   },
 ]);
 
-const items = computed(() => [
+const items = computed(() => {
+  if (authStore.user?.role == UserRole.Admin) {
+    return adminMenuItems.value;
+  } else {
+    return userMenuItems.value;
+  }
+});
+
+//Menu items seen by normal users
+const userMenuItems = ref([
   {
     label: "Home",
     icon: "pi pi-home",
@@ -282,6 +293,59 @@ const items = computed(() => [
   //     ],
   //   ],
   // },
+]);
+
+//Menu items seen by the admin
+const adminMenuItems = ref([
+  {
+    label: "Home",
+    icon: "pi pi-home",
+    route: "/admin",
+  },
+
+  {
+    label: "Manage",
+    icon: "pi pi-cog",
+    items: [
+      [
+        {
+          label: "Academic Structure",
+          items: [
+            { label: "Curriculums (View / Add)", icon: "pi pi-sitemap", route: "/curriculums" },
+            { label: "Exam Boards (View / Add)", icon: "pi pi-list", route: "/exam-boards" },
+            { label: "Levels (View / Add)", icon: "pi pi-list", route: "/levels" },
+          ],
+        },
+      ],
+      [
+        {
+          label: "Subject Content",
+          items: [
+            { label: "Subjects (View / Add)", icon: "pi pi-book", route: "/subjects" },
+            { label: "Topics (View / Add)", icon: "pi pi-list", route: "/topics" },
+            { label: "Subtopics (View / Add)", icon: "pi pi-list", route: "/subtopics" },
+          ],
+        },
+      ],
+    ],
+  },
+
+  {
+    label: "Moderation",
+    icon: "pi pi-shield",
+    items: [
+      [
+        {
+          label: "Flags",
+          items: [
+            { label: "Question Flags", icon: "pi pi-flag", route: "/flags/questions" },
+            { label: "Answer Flags", icon: "pi pi-flag", route: "/flags/answers" },
+            { label: "Comment Flags", icon: "pi pi-flag", route: "/flags/comments" },
+          ],
+        },
+      ],
+    ],
+  },
 ]);
 </script>
 

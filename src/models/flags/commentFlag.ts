@@ -1,4 +1,4 @@
-import type { User } from "@/user";
+import type { User } from "@/interfaces/auth/user";
 import { BaseFlag } from "./baseFlag";
 import type { FlagStatus } from "@/enums/flags/flagStatus";
 import type { CommentFlagType } from "@/enums/flags/commentFlagType";

@@ -8,6 +8,9 @@ import ResetPassword from "@/components/auth/ResetPassword.vue";
 import AuthView from "@/views/AuthView.vue";
 import UserProfile from "@/components/auth/UserProfile.vue";
 import { useAuthStore } from "@/stores/auth";
+import CurriculumView from "@/views/CurriculumView.vue";
+import CurriculumList from "@/components/curriculums/CurriculumList.vue";
+import AddCurriculum from "@/components/curriculums/AddCurriculum.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -72,6 +75,77 @@ const router = createRouter({
           component: ResetPassword,
         },
       ],
+    },
+    //curriculum routes
+    {
+      path: "/curriculums",
+      component: CurriculumView,
+      children: [
+        {
+          path: "",
+          component: CurriculumList,
+        },
+        {
+          path: "add",
+          component: AddCurriculum,
+        },
+      ],
+    },
+    //exam board routes
+    {
+      path: "/auth",
+      name: "Auth",
+      component: AuthView,
+      children: [],
+    },
+    //level routes
+    {
+      path: "/auth",
+      name: "Auth",
+      component: AuthView,
+      children: [],
+    },
+    //subject routes
+    {
+      path: "/auth",
+      name: "Auth",
+      component: AuthView,
+      children: [],
+    },
+    //topic routes
+    {
+      path: "/auth",
+      name: "Auth",
+      component: AuthView,
+      children: [],
+    },
+    //subtopic routes
+    {
+      path: "/auth",
+      name: "Auth",
+      component: AuthView,
+      children: [],
+    },
+    //question routes
+    {
+      path: "/auth",
+      name: "Auth",
+      component: AuthView,
+      children: [],
+    },
+    //answers routes
+    {
+      path: "/auth",
+      name: "Auth",
+      component: AuthView,
+      children: [],
+    },
+    //flag routes
+    {
+      path: "/auth",
+      name: "Auth",
+      component: AuthView,
+      children: [],
     },
   ],
 });

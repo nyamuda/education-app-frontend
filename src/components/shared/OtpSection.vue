@@ -35,7 +35,12 @@
                 </div>
               </Message>
             </span>
-            <Button icon="pi pi-times" text severity="danger" @click="closeCallback" />
+            <Button
+              icon="pi pi-times"
+              variant="outlined"
+              severity="danger"
+              @click="closeCallback"
+            />
           </span>
           <!-- Email input end -->
         </template>

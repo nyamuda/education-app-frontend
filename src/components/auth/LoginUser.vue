@@ -47,12 +47,14 @@
               <FloatLabel variant="on">
                 <IconField>
                   <InputIcon class="pi pi-lock" />
-                  <InputText
+                  <Password
                     fluid
                     id="loginPassword"
                     v-model="v$.password.$model"
                     :invalid="v$.password.$error"
                     type="password"
+                    toggle-mask
+                    :feedback="false"
                   />
                 </IconField>
                 <label for="loginPassword">Password</label>
@@ -100,7 +102,7 @@ import { useAuthStore } from "@/stores/auth";
 //import OauthBooking from "./OauthBooking.vue";
 import { useVuelidate } from "@vuelidate/core";
 import { required, email, helpers } from "@vuelidate/validators";
-import { Message } from "primevue";
+import { Message, Password } from "primevue";
 import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
 import TitleSection from "../shared/TitleSection.vue";

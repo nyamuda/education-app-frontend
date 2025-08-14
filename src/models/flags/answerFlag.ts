@@ -1,5 +1,5 @@
 import type { FlagStatus } from "@/enums/flags/flagStatus";
-import type { User } from "@/user";
+import type { User } from "@/interfaces/auth/user";
 import { BaseFlag } from "./baseFlag";
 import type { AnswerFlagType } from "@/enums/flags/answerFlagType";
 import type { Answer } from "../answer";

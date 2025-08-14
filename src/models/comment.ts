@@ -1,4 +1,4 @@
-import type { User } from "@/user";
+import type { User } from "@/interfaces/auth/user";
 import type { Question } from "./question";
 import type { Answer } from "./answer";
 import type { CommentFlag } from "./flags/commentFlag";

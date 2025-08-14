@@ -1,5 +1,5 @@
 import { FlagStatus } from "@/enums/flags/flagStatus";
-import type { User } from "@/user";
+import type { User } from "@/interfaces/auth/user";
 
 export abstract class BaseFlag {
   public constructor(

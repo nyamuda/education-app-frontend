@@ -1,4 +1,4 @@
-import type { User } from "@/user";
+import type { User } from "@/interfaces/auth/user";
 import type { ExamBoard } from "./examBoard";
 import type { Subject } from "./subject";
 import type { Subtopic } from "./subtopic";
