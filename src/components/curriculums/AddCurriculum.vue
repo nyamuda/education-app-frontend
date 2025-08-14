@@ -26,7 +26,7 @@
         fluid
         type="submit"
         :label="isCreatingCurriculum ? 'Please wait...' : 'Add curriculum'"
-        icon="fas fa-plus"
+        icon="pi pi-plus"
         :loading="isCreatingCurriculum"
         :disabled="v$.$errors.length > 0 || isCreatingCurriculum"
         size="small"

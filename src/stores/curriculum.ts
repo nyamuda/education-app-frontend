@@ -31,7 +31,7 @@ export const useCurriculumStore = defineStore("curriculum", () => {
   //Gets a paginated list of curriculums along with pagination metadata
   const getCurriculums = (
     page: number = 1,
-    pageSize: number = 100,
+    pageSize: number = 10,
   ): Promise<PageInfo<Curriculum>> => {
     return new Promise((resolve, reject) => {
       axios
@@ -44,10 +44,8 @@ export const useCurriculumStore = defineStore("curriculum", () => {
         .then((response) => {
           //return the curriculums
           resolve(response.data);
-          console.log(response.data.items);
         })
         .catch((err) => {
-          console.log(err);
           const message = err.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });

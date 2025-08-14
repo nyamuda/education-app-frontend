@@ -87,6 +87,22 @@ const router = createRouter({
     {
       path: "/curriculums",
       component: CurriculumView,
+      // This is a protected route: only authenticated admins can access it
+      beforeEnter: async (to) => {
+        const authStore = useAuthStore();
+        // Make sure the user is logged in and their details are loaded
+        // This prevents false redirects if user data is not yet populated in the store.
+        await authStore.authenticateUser();
+
+        // If the user is not logged in or is not an admin
+        if (!authStore.isAuthenticated || authStore.user?.role != UserRole.Admin) {
+          //store the attempted URL
+          authStore.attemptedUrl = to.fullPath;
+          // Redirect to login page
+          return { name: "Login" };
+        }
+        return true;
+      },
       children: [
         {
           path: "",
@@ -95,22 +111,6 @@ const router = createRouter({
         {
           path: "add",
           component: AddCurriculum,
-          // This is a protected route: only authenticated admins can access it
-          beforeEnter: async (to) => {
-            const authStore = useAuthStore();
-            // Make sure the user is logged in and their details are loaded
-            // This prevents false redirects if user data is not yet populated in the store.
-            await authStore.authenticateUser();
-
-            // If the user is not logged in or is not an admin
-            if (!authStore.isAuthenticated || authStore.user?.role != UserRole.Admin) {
-              //store the attempted URL
-              authStore.attemptedUrl = to.fullPath;
-              // Redirect to login page
-              return { name: "Login" };
-            }
-            return true;
-          },
         },
       ],
     },
