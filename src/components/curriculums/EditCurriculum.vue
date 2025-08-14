@@ -11,6 +11,7 @@
             id="curriculumName"
             v-model="v$.name.$model"
             :invalid="v$.name.$error"
+            :disabled="isGettingCurriculum"
           />
           <label for="curriculumName">Curriculum name</label>
         </FloatLabel>
@@ -25,9 +26,16 @@
       <Button
         fluid
         type="submit"
-        :label="isUpdatingCurriculum ? 'Please wait...' : 'Update curriculum'"
-        :loading="isUpdatingCurriculum"
-        :disabled="v$.$errors.length > 0 || isUpdatingCurriculum"
+        :label="
+          isUpdatingCurriculum
+            ? 'Saving changes...'
+            : isGettingCurriculum
+              ? 'Retrieving curriculum information…'
+              : 'Update curriculum'
+        "
+        :loading="isUpdatingCurriculum || isGettingCurriculum"
+        :disabled="v$.$errors.length > 0 || isUpdatingCurriculum || isGettingCurriculum"
+        :variant="isGettingCurriculum ? 'outlined' : ''"
         size="small"
         severity="primary"
       />
@@ -55,8 +63,6 @@ const toast = useToast();
 const router = useRouter();
 
 onMounted(() => {
-  v$.value.$touch();
-
   //get the curriculum ID from a query parameter
   const id = router.currentRoute.value.params["id"];
 
@@ -67,6 +73,7 @@ onMounted(() => {
   }
 });
 const isUpdatingCurriculum = ref(false);
+const isGettingCurriculum = ref(false);
 const curriculumId: Ref<number | null> = ref(null);
 
 //form validation with Vuelidate start
@@ -110,6 +117,7 @@ const submitForm = async () => {
 
 //fetch curriculum with given ID
 const getCurriculumById = (id: number) => {
+  isGettingCurriculum.value = true;
   curriculumStore
     .getCurriculumById(id)
     .then((curriculum) => {
@@ -123,7 +131,8 @@ const getCurriculumById = (id: number) => {
         detail: message,
         life: 10000,
       });
-    });
+    })
+    .finally(() => (isGettingCurriculum.value = false));
 };
 </script>
 

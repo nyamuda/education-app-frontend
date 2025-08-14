@@ -3,7 +3,7 @@
     <TitleSection title="All Curriculums" title-size="small" align-items="center" />
 
     <div
-      class="d-flex justify-content-start justify-content-md-end align-items-center gap-3 flex-wrap mt-3 mb-4 mb-md-5"
+      class="d-flex justify-content-start justify-content-md-end align-items-center gap-3 flex-wrap mt-3 mb-4"
     >
       <div class="flex-grow-1 flex-md-grow-0">
         <!-- For desktop screens -->
@@ -112,11 +112,10 @@
       />
       <!-- Pagination end -->
     </div>
-
     <!--Table end-->
 
     <!--No Curriculums Start-->
-    <EmptyList v-else />
+    <EmptyList v-else message="No curriculum data to display at the moment." />
     <!--No Curriculums End-->
   </div>
 </template>
