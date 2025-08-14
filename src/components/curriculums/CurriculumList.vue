@@ -3,7 +3,7 @@
     <TitleSection title="All Curriculums" title-size="small" align-items="center" />
 
     <div
-      class="d-flex justify-content-start justify-content-md-end align-items-center gap-3 flex-wrap my-3"
+      class="d-flex justify-content-start justify-content-md-end align-items-center gap-3 flex-wrap mt-3 mb-5"
     >
       <div class="flex-grow-1 flex-md-grow-0">
         <!-- For desktop screens -->
@@ -44,6 +44,11 @@
             <Skeleton></Skeleton>
           </template>
         </Column>
+        <Column field="examBoard" header="Exam Board">
+          <template #body>
+            <Skeleton></Skeleton>
+          </template>
+        </Column>
 
         <Column field="actions" header="Actions">
           <template #body>
@@ -66,9 +71,13 @@
         <Column field="examBoards" header="Exam Boards">
           <template #body="slotProps">
             <!--Curriculum exam boards-->
-            <span class="" v-for="examBoard in slotProps.data.examBoards" :key="examBoard.id"
-              >{{ examBoard.name }} /
-            </span>
+            <div class="d-flex flex-wrap align-items-center">
+              <div v-for="(examBoard, index) in slotProps.data.examBoards" :key="examBoard.id">
+                <span>{{ examBoard.name }} </span>
+                <!-- exam board separator -->
+                <span class="mx-2" v-if="index < slotProps.data.examBoards.length - 1">&bull;</span>
+              </div>
+            </div>
           </template>
         </Column>
 
@@ -82,12 +91,12 @@
                   severity="contrast"
                   variant="outlined"
                   size="small"
-                  icon="fas fa-info"
+                  icon="pi pi-info-circle"
                   class="no-wrap-btn me-2"
               /></router-link>
 
               <!--Delete Curriculum Button-->
-              <Button severity="danger" label="delete" size="small" />
+              <Button severity="danger" label="delete" size="small" icon="pi pi-trash" />
             </div>
           </template>
         </Column>
