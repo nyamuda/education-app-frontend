@@ -3,7 +3,7 @@
     <TitleSection title="All Curriculums" title-size="small" align-items="center" />
 
     <div
-      class="d-flex justify-content-start justify-content-md-end align-items-center gap-3 flex-wrap mt-3 mb-5"
+      class="d-flex justify-content-start justify-content-md-end align-items-center gap-3 flex-wrap mt-3 mb-4 mb-md-5"
     >
       <div class="flex-grow-1 flex-md-grow-0">
         <!-- For desktop screens -->
@@ -27,6 +27,8 @@
           checkmark
           v-model="selectedSortOption"
           :options="sortOptions"
+          option-label="name"
+          option-value="value"
           @change="getAllCurriculums"
           size="small"
         />
@@ -44,7 +46,7 @@
             <Skeleton></Skeleton>
           </template>
         </Column>
-        <Column field="examBoard" header="Exam Board">
+        <Column field="examBoard" header="Exam Boards">
           <template #body>
             <Skeleton></Skeleton>
           </template>
@@ -107,7 +109,6 @@
         :totalRecords="curriculums.totalItems"
         @page="onPageChange"
         :first="(curriculums.page - 1) * curriculums.pageSize"
-        sever
       />
       <!-- Pagination end -->
     </div>
@@ -118,7 +119,6 @@
     <EmptyList v-else />
     <!--No Curriculums End-->
   </div>
-  {{ curriculums.totalItems }}
 </template>
 
 <script setup lang="ts">
@@ -188,4 +188,8 @@ const onPageChange = (state: PageState) => {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.btn {
+  display: inline-block;
+}
+</style>

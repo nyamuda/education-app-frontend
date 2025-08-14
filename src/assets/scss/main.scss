@@ -2,3 +2,7 @@
 @import "variables";
 @import "bootstrap/scss/bootstrap";
 @import "primeicons/primeicons.css";
+
+.no-wrap-btn {
+  white-space: nowrap;
+}
