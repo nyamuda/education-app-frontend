@@ -102,7 +102,8 @@
                 title="Are You Sure?"
                 message="Deleting this curriculum is permanent. Proceed?"
                 :id="slotProps.data.id"
-                :delete-callback="deleteCurriculum"
+                :delete-callback="() => deleteCurriculum(slotProps.data.id)"
+                :is-deleting-item="slotProps.data.idisDeletingCurriculum"
               />
             </div>
           </template>
@@ -141,6 +142,8 @@ import { CurriculumSortOption } from "@/enums/curriculums/curriculumSortOption";
 import { DataTable } from "primevue";
 import Paginator, { type PageState } from "primevue/paginator";
 import DeletePopup from "../shared/DeletePopup.vue";
+import type { DeletionState } from "@/interfaces/shared/deletionState";
+import type { Ref } from "vue";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));
@@ -149,7 +152,7 @@ const curriculumStore = useCurriculumStore();
 const toast = useToast();
 const curriculums = ref(new PageInfo<Curriculum>());
 const isGettingCurriculums = ref(false);
-const isDeletingCurriculum = ref(false);
+const deletingCurriculum: Ref<DeletionState | null> = ref(null);
 
 //sorting info
 const sortOptions = ref([
@@ -195,7 +198,7 @@ const onPageChange = (state: PageState) => {
 
 //Delete a curriculum with a given ID
 const deleteCurriculum = (id: number) => {
-  isDeletingCurriculum.value = true;
+  deletingCurriculum.value = { id, inProgress: true };
   curriculumStore
     .deleteCurriculum(id)
     .then(() => {
@@ -205,6 +208,8 @@ const deleteCurriculum = (id: number) => {
         detail: "The curriculum was successfully deleted.",
         life: 5000,
       });
+      //refresh the curriculum list
+      getAllCurriculums();
     })
     .catch((message) => {
       toast.add({
@@ -214,7 +219,7 @@ const deleteCurriculum = (id: number) => {
         life: 10000,
       });
     })
-    .finally(() => (isDeletingCurriculum.value = false));
+    .finally(() => (deletingCurriculum.value?.inProgress = false));
 };
 </script>
 

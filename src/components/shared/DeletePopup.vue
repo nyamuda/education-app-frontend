@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :id="id.toString()">
     <!--Delete Button-->
     <Button
       severity="danger"
@@ -7,6 +7,7 @@
       size="small"
       icon="pi pi-trash"
       @click="confirmDelete"
+      :loading="isDeletingItem"
     />
     <ConfirmPopup></ConfirmPopup>
   </div>
@@ -15,8 +16,14 @@
 <script setup lang="ts">
 import { useConfirm } from "primevue";
 import ConfirmPopup from "primevue/confirmpopup";
+import Button from "primevue/button";
 
 const props = defineProps({
+  //id of the item being deleted
+  id: {
+    type: Number,
+    required: true,
+  },
   title: {
     type: String,
     default: "Confirm Deletion",
@@ -29,6 +36,12 @@ const props = defineProps({
   deleteCallback: {
     type: Function,
     required: true,
+  },
+  //Whether the delete process is in progress or not.
+  //Used to show the button loader
+  isDeletingItem: {
+    type: Boolean,
+    default: false,
   },
 });
 
