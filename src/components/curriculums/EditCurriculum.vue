@@ -1,7 +1,7 @@
 <template>
   <div class="">
     <form class="curriculum-form m-auto" @submit.prevent="submitForm">
-      <TitleSection title="Add new curriculum" title-size="small" />
+      <TitleSection title="Update curriculum" title-size="small" />
 
       <!-- Name input -->
       <div class="form-group mb-3">
@@ -25,10 +25,9 @@
       <Button
         fluid
         type="submit"
-        :label="isCreatingCurriculum ? 'Please wait...' : 'Add curriculum'"
-        icon="pi pi-plus"
-        :loading="isCreatingCurriculum"
-        :disabled="v$.$errors.length > 0 || isCreatingCurriculum"
+        :label="isUpdatingCurriculum ? 'Please wait...' : 'Update curriculum'"
+        :loading="isUpdatingCurriculum"
+        :disabled="v$.$errors.length > 0 || isUpdatingCurriculum"
         size="small"
         severity="primary"
       />
@@ -60,11 +59,14 @@ onMounted(() => {
 
   //get the curriculum ID from a query parameter
   const id = router.currentRoute.value.params["id"];
+
+  //fetch curriculum with the given ID from the backend
   if (id) {
     curriculumId.value = Number(id);
+    getCurriculumById(curriculumId.value);
   }
 });
-const isCreatingCurriculum = ref(false);
+const isUpdatingCurriculum = ref(false);
 const curriculumId: Ref<number | null> = ref(null);
 
 //form validation with Vuelidate start
@@ -81,15 +83,15 @@ const v$ = useVuelidate(rules, formData.value);
 
 const submitForm = async () => {
   const isFormCorrect = await v$.value.$validate();
-  if (isFormCorrect) {
-    isCreatingCurriculum.value = true;
+  if (isFormCorrect && curriculumId.value) {
+    isUpdatingCurriculum.value = true;
     curriculumStore
-      .addCurriculum(formData.value)
-      .then((message) => {
+      .updateCurriculum(curriculumId.value, formData.value)
+      .then(() => {
         toast.add({
           severity: "success",
-          summary: "Success",
-          detail: message,
+          summary: "Update Successful",
+          detail: "Changes to the curriculum have been saved.",
           life: 5000,
         });
         router.push("/curriculums");
@@ -97,12 +99,12 @@ const submitForm = async () => {
       .catch((message) => {
         toast.add({
           severity: "error",
-          summary: "Adding Curriculum Failed",
+          summary: "Update Failed",
           detail: message,
           life: 10000,
         });
       })
-      .finally(() => (isCreatingCurriculum.value = false));
+      .finally(() => (isUpdatingCurriculum.value = false));
   }
 };
 
@@ -117,12 +119,11 @@ const getCurriculumById = (id: number) => {
     .catch((message) => {
       toast.add({
         severity: "error",
-        summary: "Adding Curriculum Failed",
+        summary: "Fetch Failed",
         detail: message,
         life: 10000,
       });
-    })
-    .finally(() => (isCreatingCurriculum.value = false));
+    });
 };
 </script>
 

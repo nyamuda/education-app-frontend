@@ -87,13 +87,13 @@
           <template #body="slotProps">
             <div class="d-flex justify-content-start align-items-center gap-2">
               <!--Button to see more details-->
-              <router-link :to="'curriculums/' + slotProps.data.id + '/details'">
+              <router-link :to="'curriculums/' + slotProps.data.id + '/edit'">
                 <Button
-                  label="More details"
+                  label="Edit"
                   severity="contrast"
                   variant="outlined"
                   size="small"
-                  icon="pi pi-info-circle"
+                  icon="pi pi-pencil"
                   class="no-wrap-btn me-2"
               /></router-link>
 

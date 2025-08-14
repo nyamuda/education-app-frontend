@@ -18,6 +18,7 @@ import TopicView from "@/views/TopicView.vue";
 import SubtopicView from "@/views/SubtopicView.vue";
 import QuestionView from "@/views/QuestionView.vue";
 import { UserRole } from "@/enums/auth/userRole";
+import EditCurriculum from "@/components/curriculums/EditCurriculum.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -108,6 +109,10 @@ const router = createRouter({
         {
           path: "add",
           component: AddCurriculum,
+        },
+        {
+          path: ":id/edit",
+          component: EditCurriculum,
         },
       ],
     },

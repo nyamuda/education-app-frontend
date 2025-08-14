@@ -22,7 +22,7 @@ export const useCurriculumStore = defineStore("curriculum", () => {
           const message =
             err.response.status == 404
               ? ErrorResponse.NotFound("Curriculum")
-              : ErrorResponse.Unexpected();
+              : "Something went wrong while fetching the curriculum.";
 
           reject(message);
         });
@@ -81,7 +81,9 @@ export const useCurriculumStore = defineStore("curriculum", () => {
         .put(`${apiUrl.value}/${id}`, updateDetails)
         .then(() => resolve({}))
         .catch((err) => {
-          const message = err.response?.data?.message || ErrorResponse.Unexpected();
+          const message =
+            err.response?.data?.message ||
+            "There was a problem updating the curriculum. Please try again.";
           reject(message);
         });
     });
