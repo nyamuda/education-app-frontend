@@ -11,6 +11,18 @@
         <Select
           style="width: 12rem"
           class="d-none d-md-flex"
+          placeholder="Filter"
+          checkmark
+          v-model="selectedCurriculumFilter"
+          :options="curriculums"
+          option-label="name"
+          option-value="id"
+          @change="getAllExamBoards"
+          size="small"
+        />
+        <Select
+          style="width: 12rem"
+          class="d-none d-md-flex"
           placeholder="Sort by"
           checkmark
           v-model="selectedSortOption"
@@ -141,18 +153,20 @@ import { DeletionState } from "@/models/deletionState";
 import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 import { useExamBoardStore } from "@/stores/examBoard";
 import LazySelectInput from "../shared/LazySelectInput.vue";
-//import type { Curriculum } from "@/models/curriculum";
-//import { useCurriculumStore } from "@/stores/curriculum";
+import type { Curriculum } from "@/models/curriculum";
+import { useCurriculumStore } from "@/stores/curriculum";
+import type { Ref } from "vue";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));
 
 const examBoardStore = useExamBoardStore();
-//const curriculumStore = useCurriculumStore();
+const curriculumStore = useCurriculumStore();
 const toast = useToast();
 const examBoards = ref(new PageInfo<ExamBoard>());
 //used for filtering exam boards by curriculum name
-//const curriculums: Ref<Curriculum[]> = ref([]);
+const curriculums: Ref<Curriculum[]> = ref([]);
+const selectedCurriculumFilter: Ref<number | null> = ref(null);
 const isGettingExamBoards = ref(false);
 const deletingExamBoard = ref(new DeletionState());
 
@@ -166,13 +180,15 @@ const selectedSortOption = ref(ExamBoardSortOption.DateCreated);
 onMounted(() => {
   //get all exam boards
   getAllExamBoards();
+  //get all curriculums
+  getAllCurriculums();
 });
 //get all exam boards
 const getAllExamBoards = () => {
   isGettingExamBoards.value = true;
   const { page, pageSize } = examBoards.value;
   examBoardStore
-    .getExamBoards(page, pageSize, selectedSortOption.value)
+    .getExamBoards(page, pageSize, selectedSortOption.value, selectedCurriculumFilter.value)
     .then((data) => (examBoards.value = data))
     .catch((message) => {
       toast.add({
@@ -196,21 +212,21 @@ const getAllExamBoards = () => {
  * If the dataset grows significantly in the future, the page size can be
  * reduced or proper pagination logic can be implemented.
  */
-// const getAllCurriculums = () => {
-//   const page = 1;
-//   const pageSize = 100;
-//   curriculumStore
-//     .getCurriculums(page, pageSize)
-//     .then((data) => (curriculums.value = data.items))
-//     .catch((message) => {
-//       toast.add({
-//         severity: "error",
-//         summary: "Error",
-//         detail: message,
-//         life: 5000,
-//       });
-//     });
-// };
+const getAllCurriculums = () => {
+  const page = 1;
+  const pageSize = 100;
+  curriculumStore
+    .getCurriculums(page, pageSize)
+    .then((data) => (curriculums.value = data.items))
+    .catch((message) => {
+      toast.add({
+        severity: "error",
+        summary: "Error",
+        detail: message,
+        life: 5000,
+      });
+    });
+};
 
 /**
  * Called when the user switches pages in the paginator.

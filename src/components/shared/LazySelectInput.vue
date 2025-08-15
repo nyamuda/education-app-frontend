@@ -6,8 +6,8 @@
     optionValue="id"
     size="small"
     :virtualScrollerOptions="virtualScrollerOptions"
-    style="width: 250px"
-    placeholder="Select Item"
+    style="width: 300px"
+    :placeholder="placeholder"
   />
 </template>
 <script setup lang="ts">
@@ -18,12 +18,19 @@ import type { VirtualScrollerLazyEvent } from "primevue";
 import Select from "primevue/select";
 import { computed, ref } from "vue";
 
+defineProps({
+  placeholder: {
+    type: String,
+    default: "Select curriculum",
+  },
+});
+
 const curriculumStore = useCurriculumStore();
 const selectedCurriculum = ref(null);
 const curriculums = ref(new PageInfo<Curriculum>());
 const loading = ref(false);
 
-// Computed virtual scroller options with dynamic totalRecords
+// Computed virtual scroller options
 const virtualScrollerOptions = computed(() => ({
   lazy: true,
   onLazyLoad: onLazyLoad,
@@ -57,8 +64,8 @@ const onLazyLoad = async (event: VirtualScrollerLazyEvent) => {
   try {
     loading.value = true;
 
-    // Determine the number of items per page from the current pageSize
-    const pageSize = curriculums.value.pageSize;
+    // The number of items per page
+    const pageSize = 5;
 
     // Calculate which page to fetch based on the starting index
     // Formula: first = (page - 1) * pageSize
