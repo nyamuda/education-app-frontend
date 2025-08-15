@@ -86,7 +86,7 @@
         <Column field="id" header="Actions">
           <template #body="slotProps">
             <div class="d-flex justify-content-start align-items-center gap-2">
-              <!--Button to see more details-->
+              <!--Edit curriculum button-->
               <router-link :to="'curriculums/' + slotProps.data.id + '/edit'">
                 <Button
                   label="Edit"
@@ -97,11 +97,10 @@
                   class="no-wrap-btn me-2"
               /></router-link>
 
-              <!--Delete Curriculum Button-->
+              <!--Delete curriculum button-->
               <DeletePopup
                 title="Are You Sure?"
                 message="Deleting this curriculum is permanent. Proceed?"
-                :id="slotProps.data.id"
                 :delete-callback="() => deleteCurriculum(slotProps.data.id)"
                 :is-deleting-item="
                   slotProps.data.id == deletingCurriculum.id && deletingCurriculum.inProgress

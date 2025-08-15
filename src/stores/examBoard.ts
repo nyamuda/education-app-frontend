@@ -5,6 +5,7 @@ import { UrlHelper } from "@/helpers/urlHelper";
 import { ErrorResponse } from "@/models/errorResponse";
 import type { PageInfo } from "@/models/pageInfo";
 import type { ExamBoard } from "@/models/examBoard";
+import { ExamBoardSortOption } from "@/enums/examBoards/examBoardSortOption";
 
 export const useExamBoardStore = defineStore("examBoard", () => {
   const apiUrl = ref(`${UrlHelper.apiUrl}/exam-boards`);
@@ -19,7 +20,7 @@ export const useExamBoardStore = defineStore("examBoard", () => {
         })
         .catch((err) => {
           const message =
-            err.response.status == 404
+            err.response?.status == 404
               ? ErrorResponse.NotFound("ExamBoard")
               : ErrorResponse.Unexpected();
 
@@ -29,13 +30,18 @@ export const useExamBoardStore = defineStore("examBoard", () => {
   };
 
   //Gets a paginated list of exam boards along with pagination metadata
-  const getExamBoards = (page: number, pageSize: number): Promise<PageInfo<ExamBoard>> => {
+  const getExamBoards = (
+    page: number = 1,
+    pageSize: number = 10,
+    sortBy: ExamBoardSortOption = ExamBoardSortOption.DateCreated,
+  ): Promise<PageInfo<ExamBoard>> => {
     return new Promise((resolve, reject) => {
       axios
         .get<PageInfo<ExamBoard>>(`${apiUrl.value}`, {
           params: {
-            page: page,
-            pageSize: pageSize,
+            page,
+            pageSize,
+            sortBy,
           },
         })
         .then((response) => {
@@ -43,7 +49,7 @@ export const useExamBoardStore = defineStore("examBoard", () => {
           resolve(response.data);
         })
         .catch((err) => {
-          const message = err.response.data?.message || ErrorResponse.Unexpected();
+          const message = err.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
     });
