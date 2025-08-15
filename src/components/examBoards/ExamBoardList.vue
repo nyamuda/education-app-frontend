@@ -2,15 +2,10 @@
   <div class="container mx-auto">
     <TitleSection title="All Exam Boards" title-size="small" align-items="center" />
 
-    <div
-      class="d-flex justify-content-start justify-content-md-end align-items-center gap-3 flex-wrap mt-3 mb-4"
-    >
-      <LazySelectInput />
-      <div class="flex-grow-1 flex-md-grow-0">
-        <!-- For desktop screens -->
+    <div class="row mt-3 mb-4 justify-content-md-end g-3">
+      <!-- Filter by curriculum -->
+      <div class="col-6 col-md-3">
         <Select
-          style="width: 12rem"
-          class="d-none d-md-flex"
           placeholder="Filter"
           checkmark
           v-model="selectedCurriculumFilter"
@@ -19,36 +14,33 @@
           option-value="id"
           @change="getAllExamBoards"
           size="small"
-        />
-        <Select
-          style="width: 12rem"
-          class="d-none d-md-flex"
-          placeholder="Sort by"
-          checkmark
-          v-model="selectedSortOption"
-          :options="sortOptions"
-          option-label="name"
-          option-value="value"
-          @change="getAllExamBoards"
-          size="small"
-        />
-
-        <!-- For mobile screens -->
-        <Select
-          class="w-100 d-md-none"
-          placeholder="Sort by"
-          checkmark
-          v-model="selectedSortOption"
-          :options="sortOptions"
-          option-label="name"
-          option-value="value"
-          @change="getAllExamBoards"
-          size="small"
+          class="w-100"
+          show-clear
         />
       </div>
-      <router-link to="/exam-boards/add">
-        <Button label="New exam board" icon="pi pi-plus" size="small" severity="primary" />
-      </router-link>
+
+      <!-- Sorting -->
+      <div class="col-6 col-md-3">
+        <Select
+          placeholder="Sort by"
+          checkmark
+          v-model="selectedSortOption"
+          :options="sortOptions"
+          option-label="name"
+          option-value="value"
+          @change="getAllExamBoards"
+          size="small"
+          class="w-100"
+          show-clear
+        />
+      </div>
+
+      <!-- Button -->
+      <div class="col-12 col-md-auto">
+        <router-link to="/exam-boards/add">
+          <Button label="New exam board" icon="pi pi-plus" size="small" severity="primary" />
+        </router-link>
+      </div>
     </div>
 
     <!--Skeleton table start-->
@@ -152,7 +144,6 @@ import DeletePopup from "../shared/DeletePopup.vue";
 import { DeletionState } from "@/models/deletionState";
 import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 import { useExamBoardStore } from "@/stores/examBoard";
-import LazySelectInput from "../shared/LazySelectInput.vue";
 import type { Curriculum } from "@/models/curriculum";
 import { useCurriculumStore } from "@/stores/curriculum";
 import type { Ref } from "vue";
