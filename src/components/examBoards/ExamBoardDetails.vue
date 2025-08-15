@@ -28,7 +28,7 @@
         <div class="row justify-content-md-end mt-1 g-2">
           <!--Button to see more details-->
           <div class="col-6 col-md-3 col-lg-2">
-            <router-link :to="'exam-boards/' + examBoard.id + '/edit'">
+            <router-link :to="'/exam-boards/' + examBoard.id + '/edit'">
               <Button
                 label="Edit"
                 severity="contrast"
