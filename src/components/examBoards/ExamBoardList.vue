@@ -5,6 +5,7 @@
     <div
       class="d-flex justify-content-start justify-content-md-end align-items-center gap-3 flex-wrap mt-3 mb-4"
     >
+      <LazySelectInput />
       <div class="flex-grow-1 flex-md-grow-0">
         <!-- For desktop screens -->
         <Select
@@ -122,7 +123,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, type Ref } from "vue";
+import { ref, onMounted } from "vue";
 import Column from "primevue/column";
 import Button from "primevue/button";
 import Skeleton from "primevue/skeleton";
@@ -139,18 +140,19 @@ import DeletePopup from "../shared/DeletePopup.vue";
 import { DeletionState } from "@/models/deletionState";
 import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 import { useExamBoardStore } from "@/stores/examBoard";
-import type { Curriculum } from "@/models/curriculum";
-import { useCurriculumStore } from "@/stores/curriculum";
+import LazySelectInput from "../shared/LazySelectInput.vue";
+//import type { Curriculum } from "@/models/curriculum";
+//import { useCurriculumStore } from "@/stores/curriculum";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));
 
 const examBoardStore = useExamBoardStore();
-const curriculumStore = useCurriculumStore();
+//const curriculumStore = useCurriculumStore();
 const toast = useToast();
 const examBoards = ref(new PageInfo<ExamBoard>());
 //used for filtering exam boards by curriculum name
-const curriculums: Ref<Curriculum[]> = ref([]);
+//const curriculums: Ref<Curriculum[]> = ref([]);
 const isGettingExamBoards = ref(false);
 const deletingExamBoard = ref(new DeletionState());
 
@@ -194,21 +196,21 @@ const getAllExamBoards = () => {
  * If the dataset grows significantly in the future, the page size can be
  * reduced or proper pagination logic can be implemented.
  */
-const getAllCurriculums = () => {
-  const page = 1;
-  const pageSize = 100;
-  curriculumStore
-    .getCurriculums(page, pageSize)
-    .then((data) => (curriculums.value = data.items))
-    .catch((message) => {
-      toast.add({
-        severity: "error",
-        summary: "Error",
-        detail: message,
-        life: 5000,
-      });
-    });
-};
+// const getAllCurriculums = () => {
+//   const page = 1;
+//   const pageSize = 100;
+//   curriculumStore
+//     .getCurriculums(page, pageSize)
+//     .then((data) => (curriculums.value = data.items))
+//     .catch((message) => {
+//       toast.add({
+//         severity: "error",
+//         summary: "Error",
+//         detail: message,
+//         life: 5000,
+//       });
+//     });
+// };
 
 /**
  * Called when the user switches pages in the paginator.
