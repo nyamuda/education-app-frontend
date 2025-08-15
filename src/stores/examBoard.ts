@@ -21,7 +21,7 @@ export const useExamBoardStore = defineStore("examBoard", () => {
         .catch((err) => {
           const message =
             err.response?.status == 404
-              ? ErrorResponse.NotFound("ExamBoard")
+              ? ErrorResponse.NotFound("Exam board")
               : ErrorResponse.Unexpected();
 
           reject(message);
