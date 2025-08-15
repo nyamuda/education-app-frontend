@@ -19,6 +19,10 @@ import SubtopicView from "@/views/SubtopicView.vue";
 import QuestionView from "@/views/QuestionView.vue";
 import { UserRole } from "@/enums/auth/userRole";
 import EditCurriculum from "@/components/curriculums/EditCurriculum.vue";
+import ExamBoardList from "@/components/examBoards/ExamBoardList.vue";
+import AddExamBoard from "@/components/examBoards/AddExamBoard.vue";
+import ExamBoardDetails from "@/components/examBoards/ExamBoardDetails.vue";
+import EditExamBoard from "@/components/examBoards/EditExamBoard.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -120,7 +124,37 @@ const router = createRouter({
     {
       path: "/exam-boards",
       component: ExamBoardView,
-      children: [],
+      // This is a protected route: only authenticated admins can access it
+      beforeEnter: async (to) => {
+        const authStore = useAuthStore();
+
+        // If the user is not logged in or is not an admin
+        if (!authStore.isAuthenticated || authStore.userRole != UserRole.Admin) {
+          //store the attempted URL
+          authStore.attemptedUrl = to.fullPath;
+          // Redirect to login page
+          return { name: "Login" };
+        }
+        return true;
+      },
+      children: [
+        {
+          path: "",
+          component: ExamBoardList,
+        },
+        {
+          path: "add",
+          component: AddExamBoard,
+        },
+        {
+          path: ":id/details",
+          component: ExamBoardDetails,
+        },
+        {
+          path: ":id/edit",
+          component: EditExamBoard,
+        },
+      ],
     },
     //level routes
     {
