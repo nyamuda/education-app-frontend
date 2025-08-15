@@ -1,46 +1,53 @@
 <template>
   <div class="">
-    <TitleSection title="Exam Board Details" title-size="small" />
     <div v-if="isGettingExamBoard" class="text-center py-5">
       <ProgressSpinner />
       <p>Loading Exam Board...</p>
     </div>
 
-    <div v-else-if="examBoard">
-      <div class="card shadow-sm p-4">
+    <Card v-else-if="examBoard">
+      <template #title>
         <h2 class="mb-2">{{ examBoard.name }}</h2>
-        <h6 class="text-muted mb-3">
+      </template>
+      <template #subtitle
+        ><h6 class="text-muted mb-3">
           Curriculum: <strong>{{ examBoard.curriculum?.name }}</strong>
-        </h6>
-
-        <div>
-          <h5>Levels:</h5>
-          <div class="d-flex flex-wrap gap-2">
-            <span v-for="level in examBoard.levels" :key="level.id" class="badge bg-primary">
-              {{ level.name }}
-            </span>
+        </h6></template
+      >
+      <template #content>
+        <h5>Levels:</h5>
+        <div class="d-flex flex-wrap gap-2">
+          <span v-for="level in examBoard.levels" :key="level.id" class="badge bg-primary">
+            {{ level.name }}
+          </span>
+        </div>
+      </template>
+      <template #footer>
+        <div class="row justify-content-md-end mt-1 g-2">
+          <!--Button to see more details-->
+          <div class="col-6 col-md-3 col-lg-2">
+            <router-link :to="'exam-boards/' + examBoard.id + '/edit'">
+              <Button
+                label="Edit"
+                severity="contrast"
+                variant="outlined"
+                size="small"
+                icon="pi pi-pencil"
+                class="no-wrap-btn me-2"
+                fluid
+            /></router-link>
+          </div>
+          <div class="col-6 col-md-3 col-lg-2">
+            <DeletePopup
+              :delete-callback="deleteExamBoard"
+              :is-deleting-item="deletingExamBoard.inProgress"
+              title="Are You Sure?"
+              message="Deleting this curriculum is permanent. Proceed?"
+            />
           </div>
         </div>
-      </div>
-      <div class="d-flex justify-content-evenly justify-content-md-end align-items-start flex-wrap">
-        <!--Button to see more details-->
-        <router-link :to="'exam-boards/' + examBoard.id + '/edit'">
-          <Button
-            label="More details"
-            severity="contrast"
-            variant="outlined"
-            size="small"
-            icon="pi pi-info-circle"
-            class="no-wrap-btn me-2"
-        /></router-link>
-
-        <DeletePopup
-          :delete-callback="deleteExamBoard"
-          :is-deleting-item="deletingExamBoard.inProgress"
-        />
-      </div>
-    </div>
-
+      </template>
+    </Card>
     <ItemNotFound v-else />
   </div>
 </template>
@@ -53,9 +60,10 @@ import { onMounted, ref, type Ref } from "vue";
 import { useRouter } from "vue-router";
 import ProgressSpinner from "primevue/progressspinner";
 import ItemNotFound from "../shared/ItemNotFound.vue";
-import TitleSection from "../shared/TitleSection.vue";
+
 import Button from "primevue/button";
 import DeletePopup from "../shared/DeletePopup.vue";
+import Card from "primevue/card";
 import { DeletionState } from "@/models/deletionState";
 
 const examBoardStore = useExamBoardStore();

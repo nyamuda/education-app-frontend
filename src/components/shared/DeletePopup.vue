@@ -8,6 +8,7 @@
       icon="pi pi-trash"
       @click="confirmDelete"
       :loading="isDeletingItem"
+      fluid
     />
     <ConfirmPopup></ConfirmPopup>
   </div>
