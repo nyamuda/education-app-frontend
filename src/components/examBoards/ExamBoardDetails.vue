@@ -1,9 +1,11 @@
 <template>
   <div class="">
-    <div v-if="isGettingExamBoard" class="text-center py-5">
+    <!-- <div v-if="isGettingExamBoard" class="text-center py-5">
       <ProgressSpinner />
       <p>Loading Exam Board...</p>
-    </div>
+    </div> -->
+
+    <ExamBoardDetailsSkeletons v-if="!isGettingExamBoard" />
 
     <Card v-else-if="examBoard">
       <template #title>
@@ -58,13 +60,14 @@ import { useExamBoardStore } from "@/stores/examBoard";
 import { useToast } from "primevue";
 import { onMounted, ref, type Ref } from "vue";
 import { useRouter } from "vue-router";
-import ProgressSpinner from "primevue/progressspinner";
+//import ProgressSpinner from "primevue/progressspinner";
 import ItemNotFound from "../shared/ItemNotFound.vue";
 
 import Button from "primevue/button";
 import DeletePopup from "../shared/DeletePopup.vue";
 import Card from "primevue/card";
 import { DeletionState } from "@/models/deletionState";
+import ExamBoardDetailsSkeletons from "./skeletons/ExamBoardDetailsSkeletons.vue";
 
 const examBoardStore = useExamBoardStore();
 const toast = useToast();

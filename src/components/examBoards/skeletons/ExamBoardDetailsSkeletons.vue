@@ -16,7 +16,7 @@
         <Skeleton width="20%" height="1.5rem" class="mb-2" />
         <!-- Skeleton badges -->
         <div class="d-flex flex-wrap gap-2">
-          <Skeleton v-for="n in 4" :key="n" width="60px" height="28px" class="rounded" />
+          <Skeleton v-for="n in 6" :key="n" width="60px" height="28px" class="rounded" />
         </div>
       </template>
 
