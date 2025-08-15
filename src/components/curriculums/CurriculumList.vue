@@ -39,7 +39,7 @@
     </div>
 
     <!--Skeleton table start-->
-    <div v-if="isGettingCurriculums" class="card">
+    <div id="curriculum-list" v-if="isGettingCurriculums" class="card">
       <DataTable :value="rowSkeletons">
         <Column field="name" header="Name">
           <template #body>
@@ -145,6 +145,7 @@ import { DataTable } from "primevue";
 import Paginator, { type PageState } from "primevue/paginator";
 import DeletePopup from "../shared/DeletePopup.vue";
 import { DeletionState } from "@/models/deletionState";
+import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));
@@ -188,7 +189,7 @@ const getAllCurriculums = () => {
  * Called when the user switches pages in the paginator.
  * 1. Converts PrimeVue's 0-based page index to 1-based.
  * 2. Stores the new page in state.
- * 3. Fetches the updated curriculums list.
+ * 3. Fetches the updated curriculums list and scrolls to the top of that list.
  */
 const onPageChange = (state: PageState) => {
   // PrimeVue uses a 0-based page index, so add 1 before sending
@@ -196,7 +197,9 @@ const onPageChange = (state: PageState) => {
   curriculums.value.page = state.page + 1;
   getAllCurriculums();
 
-scroll
+  //smoothly scroll to the top of the list
+  const elementId = "curriculum-list";
+  SmoothScrollHelper.scrollToElement(elementId);
 };
 
 //Delete a curriculum with a given ID
