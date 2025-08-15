@@ -11,7 +11,6 @@ export class DeletionState {
   constructor(
     public id: string | number | null = null,
     public inProgress: boolean = false,
-    public error: string | null = null,
     public type?: string,
   ) {}
 }

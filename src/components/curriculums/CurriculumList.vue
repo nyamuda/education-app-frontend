@@ -62,7 +62,7 @@
     <!--Skeleton table end-->
 
     <!--Table start-->
-    <div v-else-if="curriculums.items.length > 0" class="card">
+    <div id="curriculum-list" v-else-if="curriculums.items.length > 0" class="card">
       <DataTable :value="curriculums.items">
         <Column field="name" header="Name">
           <template #body="slotProps">
@@ -103,7 +103,9 @@
                 message="Deleting this curriculum is permanent. Proceed?"
                 :id="slotProps.data.id"
                 :delete-callback="() => deleteCurriculum(slotProps.data.id)"
-                :is-deleting-item="slotProps.data.idisDeletingCurriculum"
+                :is-deleting-item="
+                  slotProps.data.id == deletingCurriculum.id && deletingCurriculum.inProgress
+                "
               />
             </div>
           </template>
@@ -142,8 +144,7 @@ import { CurriculumSortOption } from "@/enums/curriculums/curriculumSortOption";
 import { DataTable } from "primevue";
 import Paginator, { type PageState } from "primevue/paginator";
 import DeletePopup from "../shared/DeletePopup.vue";
-import type { DeletionState } from "@/interfaces/shared/deletionState";
-import type { Ref } from "vue";
+import { DeletionState } from "@/models/deletionState";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));
@@ -152,7 +153,7 @@ const curriculumStore = useCurriculumStore();
 const toast = useToast();
 const curriculums = ref(new PageInfo<Curriculum>());
 const isGettingCurriculums = ref(false);
-const deletingCurriculum: Ref<DeletionState | null> = ref(null);
+const deletingCurriculum = ref(new DeletionState());
 
 //sorting info
 const sortOptions = ref([
@@ -194,6 +195,8 @@ const onPageChange = (state: PageState) => {
   // the request to the backend, which expects 1-based indexing.
   curriculums.value.page = state.page + 1;
   getAllCurriculums();
+
+scroll
 };
 
 //Delete a curriculum with a given ID
@@ -219,7 +222,7 @@ const deleteCurriculum = (id: number) => {
         life: 10000,
       });
     })
-    .finally(() => (deletingCurriculum.value?.inProgress = false));
+    .finally(() => (deletingCurriculum.value.inProgress = false));
 };
 </script>
 
