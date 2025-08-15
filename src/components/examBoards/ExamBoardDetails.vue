@@ -5,7 +5,7 @@
       <p>Loading Exam Board...</p>
     </div> -->
 
-    <ExamBoardDetailsSkeletons v-if="!isGettingExamBoard" />
+    <ExamBoardDetailsSkeletons v-if="isGettingExamBoard" />
 
     <Card v-else-if="examBoard">
       <template #title>
@@ -50,7 +50,11 @@
         </div>
       </template>
     </Card>
-    <ItemNotFound v-else />
+    <ItemNotFound
+      v-else
+      title="Exam Board Not Found"
+      message="The exam board you are looking for does not exist or may have been removed."
+    />
   </div>
 </template>
 
@@ -78,6 +82,9 @@ const examBoardId: Ref<number | null> = ref(null);
 const deletingExamBoard = ref(new DeletionState());
 const isGettingExamBoard = ref(false);
 onMounted(() => {
+  //scroll up to the top of the page
+  window.scrollTo(0, 0);
+
   //get the exam board ID from a query parameter
   const id = router.currentRoute.value.params["id"];
 
