@@ -41,12 +41,12 @@
     <!--Skeleton table start-->
     <div id="examBoard-list" v-if="isGettingExamBoards" class="card">
       <DataTable :value="rowSkeletons">
-        <Column field="name" header="Name">
+        <Column field="examBoardName" header="Exam Board Name">
           <template #body>
             <Skeleton></Skeleton>
           </template>
         </Column>
-        <Column field="examBoard" header="Exam Boards">
+        <Column field="curriculum" header="Curriculum">
           <template #body>
             <Skeleton></Skeleton>
           </template>
@@ -64,22 +64,16 @@
     <!--Table start-->
     <div id="examBoard-list" v-else-if="examBoards.items.length > 0" class="card">
       <DataTable :value="examBoards.items">
-        <Column field="name" header="Name">
+        <Column field="examBoardName" header="Exam Board Name">
           <template #body="slotProps">
-            <!--ExamBoard name-->
+            <!--Exam board name-->
             <span>{{ slotProps.data.name }}</span>
           </template>
         </Column>
-        <Column field="examBoards" header="Exam Boards">
+        <Column field="curriculum" header="Curriculum">
           <template #body="slotProps">
-            <!--ExamBoard exam boards-->
-            <div class="d-flex flex-wrap align-items-center">
-              <div v-for="(examBoard, index) in slotProps.data.examBoards" :key="examBoard.id">
-                <span>{{ examBoard.name }} </span>
-                <!-- exam board separator -->
-                <span class="mx-2" v-if="index < slotProps.data.examBoards.length - 1">&bull;</span>
-              </div>
-            </div>
+            <!--Curriculum name-->
+            <span>{{ slotProps.data.curriculum?.name }}</span>
           </template>
         </Column>
 
@@ -122,13 +116,13 @@
     <!--Table end-->
 
     <!--No ExamBoards Start-->
-    <EmptyList v-else message="No examboard data to display at the moment." />
+    <EmptyList v-else message="No exam board data to display at the moment." />
     <!--No ExamBoards End-->
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, type Ref } from "vue";
 import Column from "primevue/column";
 import Button from "primevue/button";
 import Skeleton from "primevue/skeleton";
@@ -145,20 +139,24 @@ import DeletePopup from "../shared/DeletePopup.vue";
 import { DeletionState } from "@/models/deletionState";
 import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 import { useExamBoardStore } from "@/stores/examBoard";
+import type { Curriculum } from "@/models/curriculum";
+import { useCurriculumStore } from "@/stores/curriculum";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));
 
 const examBoardStore = useExamBoardStore();
+const curriculumStore = useCurriculumStore();
 const toast = useToast();
 const examBoards = ref(new PageInfo<ExamBoard>());
+//used for filtering exam boards by curriculum name
+const curriculums: Ref<Curriculum[]> = ref([]);
 const isGettingExamBoards = ref(false);
 const deletingExamBoard = ref(new DeletionState());
 
 //sorting info
 const sortOptions = ref([
   { name: "Name", value: ExamBoardSortOption.Name },
-  { name: "Curriculum", value: ExamBoardSortOption.Name },
   { name: "Date Created", value: ExamBoardSortOption.DateCreated },
 ]);
 const selectedSortOption = ref(ExamBoardSortOption.DateCreated);
@@ -183,6 +181,33 @@ const getAllExamBoards = () => {
       });
     })
     .finally(() => (isGettingExamBoards.value = false));
+};
+
+/**
+ * Fetches all curriculums from the backend. These curriculums are used
+ * to filter exam boards by curriculum name.
+ *
+ * Retrieves the first 100 curriculums (page size = 100), which is currently
+ * more than enough since the total number of curriculums in the system is small.
+ *
+ * Using 100 ensures all available curriculums are fetched in one request.
+ * If the dataset grows significantly in the future, the page size can be
+ * reduced or proper pagination logic can be implemented.
+ */
+const getAllCurriculums = () => {
+  const page = 1;
+  const pageSize = 100;
+  curriculumStore
+    .getCurriculums(page, pageSize)
+    .then((data) => (curriculums.value = data.items))
+    .catch((message) => {
+      toast.add({
+        severity: "error",
+        summary: "Error",
+        detail: message,
+        life: 5000,
+      });
+    });
 };
 
 /**
