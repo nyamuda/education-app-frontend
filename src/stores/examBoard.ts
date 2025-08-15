@@ -65,7 +65,7 @@ export const useExamBoardStore = defineStore("examBoard", () => {
       setAuthToken();
       axios
         .post(`${apiUrl.value}`, details)
-        .then(() => resolve({}))
+        .then(() => resolve("Exam board added successfully."))
         .catch((err) => {
           const message = err.response.data?.message || ErrorResponse.Unexpected();
           reject(message);

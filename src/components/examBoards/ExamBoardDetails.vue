@@ -44,7 +44,7 @@
               :delete-callback="deleteExamBoard"
               :is-deleting-item="deletingExamBoard.inProgress"
               title="Are You Sure?"
-              message="Deleting this curriculum is permanent. Proceed?"
+              message="Deleting this exam board is permanent. Proceed?"
             />
           </div>
         </div>

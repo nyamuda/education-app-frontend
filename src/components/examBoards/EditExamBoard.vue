@@ -170,7 +170,7 @@ const getExamBoardById = (id: number) => {
 
 /**
  * Fetches all curriculums from the backend. These curriculums are used
- * to filter exam boards by curriculum name.
+ * to select the curriculum an exam board falls under.
  *
  * Retrieves the first 100 curriculums (page size = 100), which is currently
  * more than enough since the total number of curriculums in the system is small.
