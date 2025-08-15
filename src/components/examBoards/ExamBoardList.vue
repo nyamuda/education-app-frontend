@@ -1,8 +1,8 @@
 <template>
   <div class="container mx-auto">
-    <TitleSection title="All Exam Boards" title-size="small" align-items="center" />
+    <TitleSection title="Exam Boards" title-size="small" align-items="center" />
 
-    <div class="row mt-3 mb-4 justify-content-md-end g-3">
+    <div class="list-actions row mt-3 justify-content-md-end g-3">
       <!-- Filter by curriculum -->
       <div class="col-6 col-md-3">
         <Select
@@ -88,7 +88,7 @@
               <!--Button to see more details-->
               <router-link :to="'exam-boards/' + slotProps.data.id + '/details'">
                 <Button
-                  label="Edit"
+                  label="More details"
                   severity="contrast"
                   variant="outlined"
                   size="small"
