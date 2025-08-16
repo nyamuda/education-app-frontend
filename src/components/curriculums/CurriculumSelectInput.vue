@@ -64,13 +64,16 @@ const inputData = ref({
   curriculum: "",
 });
 
-const rules = {
-  curriculum: props.isRequired
-    ? { required: helpers.withMessage("Select curriculum", required) }
-    : {},
-};
+const rules = ref({
+  curriculum: () =>
+    isGettingCurriculums.value
+      ? {}
+      : props.isRequired
+        ? { required: helpers.withMessage("Select curriculum", required) }
+        : {},
+});
 
-const v$ = useVuelidate(rules, inputData.value);
+const v$ = useVuelidate(rules.value, inputData.value);
 //select input validation end
 
 const onSelect = async () => {
@@ -106,6 +109,6 @@ const getAllCurriculums = () => {
         life: 5000,
       });
     })
-    .finally(() => (isGettingCurriculums.value = false));
+    .finally(() => (isGettingCurriculums.value = true));
 };
 </script>
