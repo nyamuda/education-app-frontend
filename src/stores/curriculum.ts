@@ -98,8 +98,7 @@ export const useCurriculumStore = defineStore("curriculum", () => {
       axios
         .delete(`${apiUrl.value}/${id}`)
         .then(() => resolve({}))
-        .catch((ex) => {
-          console.log(ex);
+        .catch(() => {
           const message = "Could not delete the curriculum. Please try again.";
           reject(message);
         });

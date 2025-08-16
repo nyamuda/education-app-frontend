@@ -98,8 +98,8 @@ export const useExamBoardStore = defineStore("examBoard", () => {
       axios
         .delete(`${apiUrl.value}/${id}`)
         .then(() => resolve({}))
-        .catch((err) => {
-          const message = err.response.data?.message || ErrorResponse.Unexpected();
+        .catch(() => {
+          const message = "Could not delete the exam board. Please try again.";
           reject(message);
         });
     });

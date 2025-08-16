@@ -1,6 +1,6 @@
 <template>
   <div class="text-center">
-    <i class="pi pi-exclamation-triangle mb-3 text-primary" style="font-size: 4rem"></i>
+    <i class="pi pi-exclamation-triangle mb-3 text-secondary" style="font-size: 4rem"></i>
     <h2 class="text-secondary fw-bold">{{ title }}</h2>
     <p class="text-muted m-auto col-md-5">{{ message }}</p>
     <Button

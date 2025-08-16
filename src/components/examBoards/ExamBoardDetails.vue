@@ -115,7 +115,9 @@ const getExamBoardById = (id: number) => {
 };
 
 //Delete a exam board with a given ID
-const deleteExamBoard = (id: number) => {
+const deleteExamBoard = () => {
+  const id = examBoardId.value;
+  if (!id) return;
   deletingExamBoard.value = { id, inProgress: true };
   examBoardStore
     .deleteExamBoard(id)
