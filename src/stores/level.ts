@@ -5,6 +5,7 @@ import type { Level } from "@/models/level";
 import { UrlHelper } from "@/helpers/urlHelper";
 import { ErrorResponse } from "@/models/errorResponse";
 import type { PageInfo } from "@/models/pageInfo";
+import { LevelSortOption } from "@/enums/levels/levelSortOption";
 
 export const useLevelStore = defineStore("level", () => {
   const apiUrl = ref(`${UrlHelper.apiUrl}/levels`);
@@ -30,9 +31,10 @@ export const useLevelStore = defineStore("level", () => {
 
   //Gets a paginated list of educational levels for a particular exam board along with pagination metadata
   const getLevels = (
-    examBoardId: number,
     page: number,
     pageSize: number,
+    sortBy: LevelSortOption,
+    examBoardId: number | null,
   ): Promise<PageInfo<Level>> => {
     return new Promise((resolve, reject) => {
       axios
@@ -40,6 +42,7 @@ export const useLevelStore = defineStore("level", () => {
           params: {
             page: page,
             pageSize: pageSize,
+            sortBy,
           },
         })
         .then((response) => {

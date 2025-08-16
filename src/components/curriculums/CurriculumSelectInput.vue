@@ -13,6 +13,7 @@
       :loading="isGettingCurriculums"
       :disabled="isGettingCurriculums"
       @change="onSelect"
+      :default-value="defaultCurriculumId"
     />
 
     <Message size="small" severity="error" v-if="v$.curriculumId.$error" variant="simple">
@@ -21,7 +22,6 @@
       </div>
     </Message>
   </div>
-  --{{ inputData.curriculumId }}
 </template>
 
 <script setup lang="ts">
@@ -35,7 +35,7 @@ import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 import { Message } from "primevue";
 
-const props = defineProps({
+defineProps({
   //placeholder text of the select input
   placeholder: {
     type: String,
@@ -49,8 +49,8 @@ const props = defineProps({
     default: true,
   },
 
-  //ID of selected curriculum(if any)
-  curriculumId: {
+  //ID of the default curriculum(if any)
+  defaultCurriculumId: {
     type: Number,
     required: false,
   },
@@ -68,11 +68,11 @@ const curriculums: Ref<Curriculum[]> = ref([]);
 const curriculumStore = useCurriculumStore();
 const isGettingCurriculums = ref(false);
 
-const initialCurriculumId = computed(() => props.curriculumId);
+//const initialCurriculumId = computed(() => props.curriculumId);
 
 //select input validation start
 const inputData = ref({
-  curriculumId: initialCurriculumId,
+  curriculumId: "",
 });
 
 const rules = computed(() => {
@@ -84,13 +84,13 @@ const v$ = useVuelidate(rules, inputData);
 //select input validation end
 
 const onSelect = async (event: SelectChangeEvent) => {
-  inputData.value = event.value;
   //check if select input is valid
   const isValid = await v$.value.$validate();
   if (!isValid) return;
 
   //get and emit the selected curriculum
   const curriculum = curriculums.value.find((c) => c.id == event.value);
+
   emit("curriculum", curriculum);
 };
 
