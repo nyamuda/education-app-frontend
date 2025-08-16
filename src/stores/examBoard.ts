@@ -34,7 +34,7 @@ export const useExamBoardStore = defineStore("examBoard", () => {
     page: number = 1,
     pageSize: number = 10,
     sortBy: ExamBoardSortOption = ExamBoardSortOption.DateCreated,
-    curriculumId: number | null,
+    curriculumId: number | null = null,
   ): Promise<PageInfo<ExamBoard>> => {
     return new Promise((resolve, reject) => {
       axios
