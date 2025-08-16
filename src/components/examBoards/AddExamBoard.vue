@@ -21,7 +21,10 @@
         </Message>
       </div>
       <!-- Curriculum input -->
-      <CurriculumSelectInput @curriculum="(c: Curriculum) => (formData.curriculumId = c.id)" />
+      <CurriculumSelectInput
+        @curriculum="(c: Curriculum) => (formData.curriculumId = c.id)"
+        placeholder="Select a curriculum"
+      />
 
       <!-- Submit button -->
       <Button
@@ -29,12 +32,11 @@
         type="submit"
         :label="isAddingExamBoard ? 'Adding...' : 'Add exam board'"
         :loading="isAddingExamBoard"
-        :disabled="v$.$errors.length > 0 || isAddingExamBoard"
+        :disabled="v$.$errors.length > 0 || isAddingExamBoard || isLoadingCurriculums"
         size="small"
         severity="primary"
       />
     </form>
-    {{ formData.curriculumId }}
   </div>
 </template>
 
@@ -63,6 +65,8 @@ const examBoardStore = useExamBoardStore();
 const toast = useToast();
 const router = useRouter();
 const isAddingExamBoard = ref(false);
+//check if the curriculums for the select input are being loaded
+const isLoadingCurriculums = ref(false);
 
 //form validation with Vuelidate start
 const formData = ref({

@@ -2,7 +2,7 @@
   <div class="form-group mb-3">
     <Select
       id="examBoardCurriculum"
-      :placeholder="isGettingCurriculums ? 'Fetching curriculums...' : placeholder"
+      :placeholder="isGettingCurriculums ? 'Loading curriculums...' : placeholder"
       checkmark
       :options="curriculums"
       option-label="name"
@@ -27,13 +27,13 @@ import Select from "primevue/select";
 import { Curriculum } from "@/models/curriculum";
 import { useCurriculumStore } from "@/stores/curriculum";
 //import FloatLabel from "primevue/floatlabel";
-import { onMounted, ref, type Ref } from "vue";
+import { computed, onMounted, ref, type Ref } from "vue";
 import { useToast } from "primevue";
 import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 import { Message } from "primevue";
 
-const props = defineProps({
+defineProps({
   //placeholder text of the select input
   placeholder: {
     type: String,
@@ -47,7 +47,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["curriculum"]);
+const emit = defineEmits(["curriculum", "isLoading"]);
 
 onMounted(() => {
   getAllCurriculums();
@@ -64,16 +64,12 @@ const inputData = ref({
   curriculum: "",
 });
 
-const rules = ref({
-  curriculum: () =>
-    isGettingCurriculums.value
-      ? {}
-      : props.isRequired
-        ? { required: helpers.withMessage("Select curriculum", required) }
-        : {},
+const rules = computed(() => {
+  if (isGettingCurriculums.value) return { curriculum: {} };
+  return { curriculum: { required: helpers.withMessage("Select curriculum", required) } };
 });
 
-const v$ = useVuelidate(rules.value, inputData.value);
+const v$ = useVuelidate(rules, inputData);
 //select input validation end
 
 const onSelect = async () => {
@@ -85,7 +81,8 @@ const onSelect = async () => {
 
 /**
  * Fetches all curriculums from the backend. These curriculums are used
- * to select the curriculum for things like exam boards, subjects, topics and so on.
+ * to select the curriculum for things like exam boards, subjects, topics in forms
+ * and dropdowns and where a user needs to choose which curriculum they are working with.
  *
  * Retrieves the first 100 curriculums (page size = 100), which is currently
  * more than enough since the total number of curriculums in the system is small.
@@ -96,6 +93,8 @@ const onSelect = async () => {
  */
 const getAllCurriculums = () => {
   isGettingCurriculums.value = true;
+  //tell the parent component that the curriculums are being loaded
+  emit("isLoading", true);
   const page = 1;
   const pageSize = 100;
   curriculumStore
@@ -109,6 +108,9 @@ const getAllCurriculums = () => {
         life: 5000,
       });
     })
-    .finally(() => (isGettingCurriculums.value = true));
+    .finally(() => {
+      isGettingCurriculums.value = false;
+      emit("isLoading", false);
+    });
 };
 </script>
