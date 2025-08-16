@@ -13,6 +13,7 @@
         class="w-100"
         :loading="isGettingCurriculums"
         :disabled="isGettingCurriculums"
+        @change="onSelect"
       />
       <label for="examBoardCurriculum">Curriculum</label>
     </FloatLabel>
@@ -42,6 +43,8 @@ defineProps({
   },
 });
 
+const emit = defineEmits(["curriculumId"]);
+
 onMounted(() => {
   getAllCurriculums();
 });
@@ -62,6 +65,10 @@ const rules = {
 
 const v$ = useVuelidate(rules, inputData.value);
 //select input validation end
+
+const onSelect = () => {
+  emit("curriculumId", inputData.value.curriculumId);
+};
 
 /**
  * Fetches all curriculums from the backend. These curriculums are used
