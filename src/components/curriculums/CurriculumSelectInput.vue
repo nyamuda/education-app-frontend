@@ -6,24 +6,26 @@
       checkmark
       :options="curriculums"
       option-label="name"
-      v-model="v$.curriculum.$model"
-      :invalid="v$.curriculum.$error"
+      option-value="id"
+      v-model="v$.curriculumId.$model"
+      :invalid="v$.curriculumId.$error"
       class="w-100"
       :loading="isGettingCurriculums"
       :disabled="isGettingCurriculums"
       @change="onSelect"
     />
 
-    <Message size="small" severity="error" v-if="v$.curriculum.$error" variant="simple">
-      <div v-for="error of v$.curriculum.$errors" :key="error.$uid">
+    <Message size="small" severity="error" v-if="v$.curriculumId.$error" variant="simple">
+      <div v-for="error of v$.curriculumId.$errors" :key="error.$uid">
         <div>{{ error.$message }}</div>
       </div>
     </Message>
   </div>
+  --{{ inputData.curriculumId }}
 </template>
 
 <script setup lang="ts">
-import Select from "primevue/select";
+import Select, { type SelectChangeEvent } from "primevue/select";
 import { Curriculum } from "@/models/curriculum";
 import { useCurriculumStore } from "@/stores/curriculum";
 //import FloatLabel from "primevue/floatlabel";
@@ -33,17 +35,24 @@ import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 import { Message } from "primevue";
 
-defineProps({
+const props = defineProps({
   //placeholder text of the select input
   placeholder: {
     type: String,
     default: "Curriculum",
   },
+
   //whether the input value is required or not
   //controls whether to show error messages or not
   isRequired: {
     type: Boolean,
     default: true,
+  },
+
+  //ID of selected curriculum(if any)
+  curriculumId: {
+    type: Number,
+    required: false,
   },
 });
 
@@ -59,24 +68,30 @@ const curriculums: Ref<Curriculum[]> = ref([]);
 const curriculumStore = useCurriculumStore();
 const isGettingCurriculums = ref(false);
 
+const initialCurriculumId = computed(() => props.curriculumId);
+
 //select input validation start
 const inputData = ref({
-  curriculum: "",
+  curriculumId: initialCurriculumId,
 });
 
 const rules = computed(() => {
-  if (isGettingCurriculums.value) return { curriculum: {} };
-  return { curriculum: { required: helpers.withMessage("Select curriculum", required) } };
+  if (isGettingCurriculums.value) return { curriculumId: {} };
+  return { curriculumId: { required: helpers.withMessage("Select curriculum", required) } };
 });
 
 const v$ = useVuelidate(rules, inputData);
 //select input validation end
 
-const onSelect = async () => {
+const onSelect = async (event: SelectChangeEvent) => {
+  inputData.value = event.value;
   //check if select input is valid
   const isValid = await v$.value.$validate();
   if (!isValid) return;
-  emit("curriculum", inputData.value.curriculum);
+
+  //get and emit the selected curriculum
+  const curriculum = curriculums.value.find((c) => c.id == event.value);
+  emit("curriculum", curriculum);
 };
 
 /**
@@ -93,10 +108,13 @@ const onSelect = async () => {
  */
 const getAllCurriculums = () => {
   isGettingCurriculums.value = true;
+
   //tell the parent component that the curriculums are being loaded
   emit("isLoading", true);
+
   const page = 1;
   const pageSize = 100;
+
   curriculumStore
     .getCurriculums(page, pageSize)
     .then((data) => (curriculums.value = data.items))

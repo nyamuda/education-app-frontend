@@ -23,6 +23,10 @@ import ExamBoardList from "@/components/examBoards/ExamBoardList.vue";
 import AddExamBoard from "@/components/examBoards/AddExamBoard.vue";
 import ExamBoardDetails from "@/components/examBoards/ExamBoardDetails.vue";
 import EditExamBoard from "@/components/examBoards/EditExamBoard.vue";
+import LevelList from "@/components/levels/LevelList.vue";
+import AddLevel from "@/components/levels/AddLevel.vue";
+import EditLevel from "@/components/levels/EditLevel.vue";
+import LevelDetails from "@/components/levels/LevelDetails.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -160,7 +164,37 @@ const router = createRouter({
     {
       path: "/levels",
       component: LevelView,
-      children: [],
+      // This is a protected route: only authenticated admins can access it
+      beforeEnter: async (to) => {
+        const authStore = useAuthStore();
+
+        // If the user is not logged in or is not an admin
+        if (!authStore.isAuthenticated || authStore.userRole != UserRole.Admin) {
+          //store the attempted URL
+          authStore.attemptedUrl = to.fullPath;
+          // Redirect to login page
+          return { name: "Login" };
+        }
+        return true;
+      },
+      children: [
+        {
+          path: "",
+          component: LevelList,
+        },
+        {
+          path: "add",
+          component: AddLevel,
+        },
+        {
+          path: ":id/details",
+          component: LevelDetails,
+        },
+        {
+          path: ":id/edit",
+          component: EditLevel,
+        },
+      ],
     },
     //subject routes
     {

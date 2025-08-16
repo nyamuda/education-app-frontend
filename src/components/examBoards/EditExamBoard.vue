@@ -21,28 +21,13 @@
           </div>
         </Message>
       </div>
-      <div class="form-group mb-3">
-        <FloatLabel variant="on">
-          <Select
-            id="examBoardCurriculum"
-            placeholder="Curriculum"
-            checkmark
-            :options="curriculums"
-            option-label="name"
-            option-value="id"
-            v-model="v$.curriculumId.$model"
-            :invalid="v$.curriculumId.$error"
-            class="w-100"
-            :disabled="isGettingExamBoard"
-          />
-          <label for="examBoardCurriculum">Curriculum</label>
-        </FloatLabel>
-        <Message size="small" severity="error" v-if="v$.curriculumId.$error" variant="simple">
-          <div v-for="error of v$.name.$errors" :key="error.$uid">
-            <div>{{ error.$message }}</div>
-          </div>
-        </Message>
-      </div>
+      <!-- Curriculum input -->
+      <CurriculumSelectInput
+        @curriculum="(val: Curriculum) => (formData.curriculumId = val.id)"
+        @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
+        :curriculumId="initialCurriculumId || 0"
+        placeholder="Select a curriculum"
+      />
 
       <!-- Submit button -->
       <Button
@@ -79,8 +64,7 @@ import { useRouter } from "vue-router";
 import TitleSection from "../shared/TitleSection.vue";
 import { useExamBoardStore } from "@/stores/examBoard";
 import type { Curriculum } from "@/models/curriculum";
-import { useCurriculumStore } from "@/stores/curriculum";
-import Select from "primevue/select";
+import CurriculumSelectInput from "../curriculums/CurriculumSelectInput.vue";
 
 // Access the store
 const examBoardStore = useExamBoardStore();
@@ -95,16 +79,15 @@ onMounted(() => {
   if (id) {
     examBoardId.value = Number(id);
     getExamBoardById(examBoardId.value);
-
-    //get all curriculums to allow admin to select a curriculum for the exam board
-    getAllCurriculums();
   }
 });
 const isUpdatingExamBoard = ref(false);
 const isGettingExamBoard = ref(false);
 const examBoardId: Ref<number | null> = ref(null);
-const curriculums: Ref<Curriculum[]> = ref([]);
-const curriculumStore = useCurriculumStore();
+//check if the curriculums for the select input are being loaded
+const isLoadingCurriculums = ref(false);
+//ID of curriculum initially selected
+const initialCurriculumId: Ref<number | null> = ref(null);
 
 //form validation with Vuelidate start
 const formData = ref({
@@ -156,6 +139,7 @@ const getExamBoardById = (id: number) => {
       //populate the form
       formData.value.name = data.name;
       formData.value.curriculumId = data.curriculumId;
+      initialCurriculumId.value = data.curriculumId;
     })
     .catch((message) => {
       toast.add({
@@ -166,33 +150,6 @@ const getExamBoardById = (id: number) => {
       });
     })
     .finally(() => (isGettingExamBoard.value = false));
-};
-
-/**
- * Fetches all curriculums from the backend. These curriculums are used
- * to select the curriculum an exam board falls under.
- *
- * Retrieves the first 100 curriculums (page size = 100), which is currently
- * more than enough since the total number of curriculums in the system is small.
- *
- * Using 100 ensures all available curriculums are fetched in one request.
- * If the dataset grows significantly in the future, the page size can be
- * reduced or proper pagination logic can be implemented.
- */
-const getAllCurriculums = () => {
-  const page = 1;
-  const pageSize = 100;
-  curriculumStore
-    .getCurriculums(page, pageSize)
-    .then((data) => (curriculums.value = data.items))
-    .catch((message) => {
-      toast.add({
-        severity: "error",
-        summary: "Error",
-        detail: message,
-        life: 5000,
-      });
-    });
 };
 </script>
 

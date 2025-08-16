@@ -22,7 +22,7 @@ export const useExamBoardStore = defineStore("examBoard", () => {
           const message =
             err.response?.status == 404
               ? ErrorResponse.NotFound("Exam board")
-              : ErrorResponse.Unexpected();
+              : "Something went wrong while fetching the exam board.";
 
           reject(message);
         });

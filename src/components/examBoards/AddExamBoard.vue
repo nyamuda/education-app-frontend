@@ -22,7 +22,8 @@
       </div>
       <!-- Curriculum input -->
       <CurriculumSelectInput
-        @curriculum="(c: Curriculum) => (formData.curriculumId = c.id)"
+        @curriculum="(val: Curriculum) => (formData.curriculumId = val.id)"
+        @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
         placeholder="Select a curriculum"
       />
 
