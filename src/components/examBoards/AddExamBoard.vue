@@ -21,7 +21,7 @@
         </Message>
       </div>
       <!-- Curriculum input -->
-      <CurriculumSelectInput @curriculum-id="(id: number) => (formData.curriculumId = id)" />
+      <CurriculumSelectInput @curriculum="(c: Curriculum) => (formData.curriculumId = c.id)" />
 
       <!-- Submit button -->
       <Button
@@ -34,11 +34,12 @@
         severity="primary"
       />
     </form>
+    {{ formData.curriculumId }}
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
 import Button from "primevue/button";
@@ -51,6 +52,11 @@ import { useRouter } from "vue-router";
 import TitleSection from "../shared/TitleSection.vue";
 import { useExamBoardStore } from "@/stores/examBoard";
 import CurriculumSelectInput from "../curriculums/CurriculumSelectInput.vue";
+import type { Curriculum } from "@/models/curriculum";
+
+onMounted(() => {
+  v$.value.$touch();
+});
 
 // Access the store
 const examBoardStore = useExamBoardStore();

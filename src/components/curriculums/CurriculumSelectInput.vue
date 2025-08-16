@@ -1,24 +1,21 @@
 <template>
   <div class="form-group mb-3">
-    <FloatLabel variant="on">
-      <Select
-        id="examBoardCurriculum"
-        :placeholder="isGettingCurriculums ? 'Fetching curriculums...' : 'Curriculum'"
-        checkmark
-        :options="curriculums"
-        option-label="name"
-        option-value="id"
-        v-model="v$.curriculumId.$model"
-        :invalid="v$.curriculumId.$error"
-        class="w-100"
-        :loading="isGettingCurriculums"
-        :disabled="isGettingCurriculums"
-        @change="onSelect"
-      />
-      <label for="examBoardCurriculum">Curriculum</label>
-    </FloatLabel>
-    <Message size="small" severity="error" v-if="v$.curriculumId.$error" variant="simple">
-      <div v-for="error of v$.name.$errors" :key="error.$uid">
+    <Select
+      id="examBoardCurriculum"
+      :placeholder="isGettingCurriculums ? 'Fetching curriculums...' : placeholder"
+      checkmark
+      :options="curriculums"
+      option-label="name"
+      v-model="v$.curriculum.$model"
+      :invalid="v$.curriculum.$error"
+      class="w-100"
+      :loading="isGettingCurriculums"
+      :disabled="isGettingCurriculums"
+      @change="onSelect"
+    />
+
+    <Message size="small" severity="error" v-if="v$.curriculum.$error" variant="simple">
+      <div v-for="error of v$.curriculum.$errors" :key="error.$uid">
         <div>{{ error.$message }}</div>
       </div>
     </Message>
@@ -27,12 +24,12 @@
 
 <script setup lang="ts">
 import Select from "primevue/select";
-import type { Curriculum } from "@/models/curriculum";
+import { Curriculum } from "@/models/curriculum";
 import { useCurriculumStore } from "@/stores/curriculum";
-import FloatLabel from "primevue/floatlabel";
+//import FloatLabel from "primevue/floatlabel";
 import { onMounted, ref, type Ref } from "vue";
 import { useToast } from "primevue";
-import { required } from "@vuelidate/validators";
+import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 import { Message } from "primevue";
 
@@ -43,10 +40,11 @@ defineProps({
   },
 });
 
-const emit = defineEmits(["curriculumId"]);
+const emit = defineEmits(["curriculum"]);
 
 onMounted(() => {
   getAllCurriculums();
+  v$.value.$touch();
 });
 
 const toast = useToast();
@@ -56,18 +54,18 @@ const isGettingCurriculums = ref(false);
 
 //select input validation start
 const inputData = ref({
-  curriculumId: Number,
+  curriculum: "",
 });
 
 const rules = {
-  curriculumId: { required },
+  curriculum: { required: helpers.withMessage("Select curriculum", required) },
 };
 
 const v$ = useVuelidate(rules, inputData.value);
 //select input validation end
 
 const onSelect = () => {
-  emit("curriculumId", inputData.value.curriculumId);
+  emit("curriculum", inputData.value.curriculum);
 };
 
 /**
