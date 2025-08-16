@@ -33,10 +33,17 @@ import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 import { Message } from "primevue";
 
-defineProps({
+const props = defineProps({
+  //placeholder text of the select input
   placeholder: {
     type: String,
     default: "Curriculum",
+  },
+  //whether the input value is required or not
+  //controls whether to show error messages or not
+  isRequired: {
+    type: Boolean,
+    default: true,
   },
 });
 
@@ -58,13 +65,18 @@ const inputData = ref({
 });
 
 const rules = {
-  curriculum: { required: helpers.withMessage("Select curriculum", required) },
+  curriculum: props.isRequired
+    ? { required: helpers.withMessage("Select curriculum", required) }
+    : {},
 };
 
 const v$ = useVuelidate(rules, inputData.value);
 //select input validation end
 
-const onSelect = () => {
+const onSelect = async () => {
+  //check if select input is valid
+  const isValid = await v$.value.$validate();
+  if (!isValid) return;
   emit("curriculum", inputData.value.curriculum);
 };
 
