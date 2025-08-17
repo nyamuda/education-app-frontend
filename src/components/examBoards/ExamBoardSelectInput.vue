@@ -31,7 +31,7 @@ import Select, { type SelectChangeEvent } from "primevue/select";
 import { ExamBoard } from "@/models/examBoard";
 //import { useExamBoardStore } from "@/stores/examBoard";
 //import FloatLabel from "primevue/floatlabel";
-import { computed, onMounted, ref, watch, type PropType } from "vue";
+import { computed, onMounted, ref, type PropType, type Ref } from "vue";
 //import { useToast } from "primevue";
 import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
@@ -94,7 +94,7 @@ onMounted(() => {
 //const isGettingExamBoards = ref(false);
 
 //select input validation start
-const inputData = ref({
+const formData: Ref<{ examBoardId: number | null }> = ref({
   examBoardId: null,
 });
 
@@ -103,7 +103,7 @@ const rules = computed(() => {
   return { examBoardId: { required: helpers.withMessage("Select exam board", required) } };
 });
 
-const v$ = useVuelidate(rules, inputData);
+const v$ = useVuelidate(rules, formData);
 //select input validation end
 
 const onSelect = async (event: SelectChangeEvent) => {
@@ -113,13 +113,11 @@ const onSelect = async (event: SelectChangeEvent) => {
   emit("change", examBoard);
 };
 
-//if the exam board are not longer there
-// reset the form
-watch(props.examBoards, (examBoards) => {
-  if (examBoards.length == 0) {
-    inputData.value.examBoardId = null;
-  }
-});
+const resetSelectedValue = () => {
+  formData.value.examBoardId = null;
+};
+//expose the `resetSelectedValue` method to call it in parent components
+defineExpose({ resetSelectedValue });
 
 /**
  * Fetches all exam boards from the backend. These exam boards are used

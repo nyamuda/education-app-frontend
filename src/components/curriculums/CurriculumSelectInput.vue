@@ -82,8 +82,8 @@ const isGettingCurriculums = ref(false);
 //const initialCurriculumId = computed(() => props.curriculumId);
 
 //select input validation start
-const inputData = ref({
-  curriculumId: props.defaultCurriculumId ?? 0,
+const formData: Ref<{ curriculumId: number | null }> = ref({
+  curriculumId: null,
 });
 
 const rules = computed(() => {
@@ -91,7 +91,7 @@ const rules = computed(() => {
   return { curriculumId: { required: helpers.withMessage("Select curriculum", required) } };
 });
 
-const v$ = useVuelidate(rules, inputData);
+const v$ = useVuelidate(rules, formData);
 //select input validation end
 
 const onSelect = async (event: SelectChangeEvent) => {
@@ -128,7 +128,7 @@ const getAllCurriculums = () => {
       // Once the list of curriculums is loaded, apply the default value (if provided).
       // This makes sure the correct option shows up in the select input instead of staying empty.
       if (props.defaultCurriculumId) {
-        inputData.value.curriculumId = props.defaultCurriculumId;
+        formData.value.curriculumId = props.defaultCurriculumId;
       }
     })
     .catch((message) => {
