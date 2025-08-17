@@ -23,9 +23,10 @@
       <!-- Curriculum input -->
       <div class="form-group mb-3">
         <CurriculumSelectInput
-          @curriculum="(val: Curriculum) => (formData.curriculumId = val.id)"
+          @change="(val: Curriculum) => (formData.curriculumId = val.id)"
           @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
           placeholder="Select a curriculum"
+          size="normal"
           :is-required="true"
         />
       </div>

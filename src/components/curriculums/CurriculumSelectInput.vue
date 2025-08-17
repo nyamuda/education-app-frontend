@@ -1,7 +1,7 @@
 <template>
   <div>
     <Select
-      id="examBoardCurriculum"
+      id="curriculumSelectInput"
       :placeholder="isGettingCurriculums ? 'Loading curriculums...' : placeholder"
       checkmark
       :options="curriculums"
@@ -13,8 +13,8 @@
       :loading="isGettingCurriculums"
       :disabled="isGettingCurriculums"
       @change="onSelect"
-      :default-value="defaultCurriculumId"
       :size="size"
+      :show-clear="showClear"
     />
 
     <Message size="small" severity="error" v-if="v$.curriculumId.$error" variant="simple">
@@ -47,6 +47,11 @@ const props = defineProps({
     type: String,
     default: "small",
   },
+  //whether or not to show a clear icon that resets the select input
+  showClear: {
+    type: Boolean,
+    default: true,
+  },
 
   //whether the input value is required or not
   //controls whether to show error messages or not
@@ -78,7 +83,7 @@ const isGettingCurriculums = ref(false);
 
 //select input validation start
 const inputData = ref({
-  curriculumId: "",
+  curriculumId: props.defaultCurriculumId ?? "",
 });
 
 const rules = computed(() => {
@@ -122,7 +127,14 @@ const getAllCurriculums = () => {
 
   curriculumStore
     .getCurriculums(page, pageSize)
-    .then((data) => (curriculums.value = data.items))
+    .then((data) => {
+      curriculums.value = data.items;
+      // Once the list of curriculums is loaded, apply the default value (if provided).
+      // This makes sure the correct option shows up in the select input instead of staying empty.
+      if (props.defaultCurriculumId) {
+        inputData.value.curriculumId = props.defaultCurriculumId;
+      }
+    })
     .catch((message) => {
       toast.add({
         severity: "error",

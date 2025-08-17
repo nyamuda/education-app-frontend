@@ -15,6 +15,7 @@
       @change="onSelect"
       :default-value="defaultExamBoardId"
       :size="size"
+      :show-clear="showClear"
     />
 
     <Message size="small" severity="error" v-if="v$.examBoardId.$error" variant="simple">
@@ -42,10 +43,15 @@ const props = defineProps({
     type: String,
     default: "ExamBoard",
   },
-  //size of the input
+  //size of the select input
   size: {
     type: String,
     default: "small",
+  },
+  //whether or not to show a clear icon that resets the select input
+  showClear: {
+    type: Boolean,
+    default: true,
   },
 
   //whether the input value is required or not

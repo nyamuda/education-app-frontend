@@ -1,6 +1,6 @@
 <template>
   <div class="container mx-auto">
-    <TitleSection title="Levels" title-size="small" align-items="center" />
+    <TitleSection title="Educational Levels" title-size="small" align-items="center" />
 
     <div class="list-actions row mt-3 justify-content-md-end g-3">
       <!-- Filter by curriculum -->
@@ -225,6 +225,7 @@ const onPageChange = (state: PageState) => {
 
 //Called when the curriculum select input filter value changes
 const onCurriculumChange = (curriculum: Curriculum) => {
+  resetFilters();
   selectedCurriculumFilter.value = curriculum;
   getAllLevels();
 };
@@ -232,6 +233,11 @@ const onCurriculumChange = (curriculum: Curriculum) => {
 const onExamBoardChange = (examBoard: ExamBoard) => {
   selectedExamBoardFilter.value = examBoard;
   getAllLevels();
+};
+//Resets filters
+const resetFilters = () => {
+  selectedCurriculumFilter.value = null;
+  selectedExamBoardFilter.value = null;
 };
 
 //Delete a level with a given ID

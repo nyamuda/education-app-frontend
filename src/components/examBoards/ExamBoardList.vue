@@ -5,17 +5,10 @@
     <div class="list-actions row mt-3 justify-content-md-end g-3">
       <!-- Filter by curriculum -->
       <div class="col-6 col-md-3">
-        <Select
-          placeholder="Filter"
-          checkmark
-          v-model="selectedCurriculumFilter"
-          :options="curriculums"
-          option-label="name"
-          option-value="id"
-          @change="getAllExamBoards"
-          size="small"
-          class="w-100"
-          show-clear
+        <CurriculumSelectInput
+          placeholder="Curriculum"
+          :is-required="false"
+          @change="onCurriculumChange"
         />
       </div>
 
@@ -36,7 +29,7 @@
       </div>
 
       <!-- Button -->
-      <div class="col-12 col-md-auto">
+      <div class="col-auto">
         <router-link to="/exam-boards/add">
           <Button label="New exam board" icon="pi pi-plus" size="small" severity="primary" />
         </router-link>
@@ -145,19 +138,17 @@ import { DeletionState } from "@/models/deletionState";
 import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 import { useExamBoardStore } from "@/stores/examBoard";
 import type { Curriculum } from "@/models/curriculum";
-import { useCurriculumStore } from "@/stores/curriculum";
+import CurriculumSelectInput from "../curriculums/CurriculumSelectInput.vue";
 import type { Ref } from "vue";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));
 
 const examBoardStore = useExamBoardStore();
-const curriculumStore = useCurriculumStore();
 const toast = useToast();
 const examBoards = ref(new PageInfo<ExamBoard>());
 //used for filtering exam boards by curriculum name
-const curriculums: Ref<Curriculum[]> = ref([]);
-const selectedCurriculumFilter: Ref<number | null> = ref(null);
+const selectedCurriculumFilter: Ref<Curriculum | null> = ref(null);
 const isGettingExamBoards = ref(false);
 const deletingExamBoard = ref(new DeletionState());
 
@@ -171,15 +162,14 @@ const selectedSortOption = ref(ExamBoardSortOption.DateCreated);
 onMounted(() => {
   //get all exam boards
   getAllExamBoards();
-  //get all curriculums
-  getAllCurriculums();
 });
 //get all exam boards
 const getAllExamBoards = () => {
   isGettingExamBoards.value = true;
   const { page, pageSize } = examBoards.value;
+  const curriculumId = selectedCurriculumFilter.value?.id;
   examBoardStore
-    .getExamBoards(page, pageSize, selectedSortOption.value, selectedCurriculumFilter.value)
+    .getExamBoards(page, pageSize, selectedSortOption.value, curriculumId)
     .then((data) => (examBoards.value = data))
     .catch((message) => {
       toast.add({
@@ -190,33 +180,6 @@ const getAllExamBoards = () => {
       });
     })
     .finally(() => (isGettingExamBoards.value = false));
-};
-
-/**
- * Fetches all curriculums from the backend. These curriculums are used
- * to filter exam boards by curriculum name.
- *
- * Retrieves the first 100 curriculums (page size = 100), which is currently
- * more than enough since the total number of curriculums in the system is small.
- *
- * Using 100 ensures all available curriculums are fetched in one request.
- * If the dataset grows significantly in the future, the page size can be
- * reduced or proper pagination logic can be implemented.
- */
-const getAllCurriculums = () => {
-  const page = 1;
-  const pageSize = 100;
-  curriculumStore
-    .getCurriculums(page, pageSize)
-    .then((data) => (curriculums.value = data.items))
-    .catch((message) => {
-      toast.add({
-        severity: "error",
-        summary: "Error",
-        detail: message,
-        life: 5000,
-      });
-    });
 };
 
 /**
@@ -234,6 +197,18 @@ const onPageChange = (state: PageState) => {
   //smoothly scroll to the top of the list
   const elementId = "examBoard-list";
   SmoothScrollHelper.scrollToElement(elementId);
+};
+
+//Called when the curriculum select input filter value changes
+const onCurriculumChange = (curriculum: Curriculum) => {
+  resetFilters();
+  selectedCurriculumFilter.value = curriculum;
+  getAllExamBoards();
+};
+
+//Resets filters
+const resetFilters = () => {
+  selectedCurriculumFilter.value = null;
 };
 
 //Delete a exam board with a given ID
