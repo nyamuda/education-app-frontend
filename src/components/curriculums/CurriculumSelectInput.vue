@@ -1,5 +1,5 @@
 <template>
-  <div class="form-group mb-3">
+  <div>
     <Select
       id="examBoardCurriculum"
       :placeholder="isGettingCurriculums ? 'Loading curriculums...' : placeholder"
@@ -14,6 +14,7 @@
       :disabled="isGettingCurriculums"
       @change="onSelect"
       :default-value="defaultCurriculumId"
+      :size="size"
     />
 
     <Message size="small" severity="error" v-if="v$.curriculumId.$error" variant="simple">
@@ -35,18 +36,23 @@ import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 import { Message } from "primevue";
 
-defineProps({
+const props = defineProps({
   //placeholder text of the select input
   placeholder: {
     type: String,
     default: "Curriculum",
+  },
+  //size of the input
+  size: {
+    type: String,
+    default: "small",
   },
 
   //whether the input value is required or not
   //controls whether to show error messages or not
   isRequired: {
     type: Boolean,
-    default: true,
+    default: false,
   },
 
   //ID of the default curriculum(if any)
@@ -56,7 +62,7 @@ defineProps({
   },
 });
 
-const emit = defineEmits(["curriculum", "isLoading"]);
+const emit = defineEmits(["isLoading", "change"]);
 
 onMounted(() => {
   getAllCurriculums();
@@ -76,7 +82,7 @@ const inputData = ref({
 });
 
 const rules = computed(() => {
-  if (isGettingCurriculums.value) return { curriculumId: {} };
+  if (isGettingCurriculums.value || !props.isRequired) return { curriculumId: {} };
   return { curriculumId: { required: helpers.withMessage("Select curriculum", required) } };
 });
 
@@ -90,8 +96,7 @@ const onSelect = async (event: SelectChangeEvent) => {
 
   //get and emit the selected curriculum
   const curriculum = curriculums.value.find((c) => c.id == event.value);
-
-  emit("curriculum", curriculum);
+  emit("change", curriculum);
 };
 
 /**

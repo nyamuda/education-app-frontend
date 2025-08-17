@@ -21,12 +21,14 @@
         </Message>
       </div>
       <!-- Curriculum input -->
-      <CurriculumSelectInput
-        @curriculum="(val: Curriculum) => (formData.curriculumId = val.id)"
-        @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
-        placeholder="Select a curriculum"
-      />
-
+      <div class="form-group mb-3">
+        <CurriculumSelectInput
+          @curriculum="(val: Curriculum) => (formData.curriculumId = val.id)"
+          @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
+          placeholder="Select a curriculum"
+          :is-required="true"
+        />
+      </div>
       <!-- Submit button -->
       <Button
         fluid

@@ -1,5 +1,5 @@
 <template>
-  <div class="form-group mb-3">
+  <div class="">
     <Select
       id="examBoardExamBoard"
       :placeholder="isGettingExamBoards ? 'Loading exam boards...' : placeholder"
@@ -14,6 +14,7 @@
       :disabled="isGettingExamBoards"
       @change="onSelect"
       :default-value="defaultExamBoardId"
+      :size="size"
     />
 
     <Message size="small" severity="error" v-if="v$.examBoardId.$error" variant="simple">
@@ -27,26 +28,31 @@
 <script setup lang="ts">
 import Select, { type SelectChangeEvent } from "primevue/select";
 import { ExamBoard } from "@/models/examBoard";
-import { useExamBoardStore } from "@/stores/examBoard";
+//import { useExamBoardStore } from "@/stores/examBoard";
 //import FloatLabel from "primevue/floatlabel";
-import { computed, onMounted, ref, type Ref } from "vue";
-import { useToast } from "primevue";
+import { computed, onMounted, ref, type PropType } from "vue";
+//import { useToast } from "primevue";
 import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 import { Message } from "primevue";
 
-defineProps({
+const props = defineProps({
   //placeholder text of the select input
   placeholder: {
     type: String,
     default: "ExamBoard",
+  },
+  //size of the input
+  size: {
+    type: String,
+    default: "small",
   },
 
   //whether the input value is required or not
   //controls whether to show error messages or not
   isRequired: {
     type: Boolean,
-    default: true,
+    default: false,
   },
 
   //ID of the default exam board(if any)
@@ -54,19 +60,32 @@ defineProps({
     type: Number,
     required: false,
   },
+  //Exam boards to use as options
+  examBoards: {
+    type: [] as PropType<ExamBoard[]>,
+    required: false,
+    default: [],
+  },
+  isGettingExamBoards: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(["examBoard", "isLoading"]);
 
 onMounted(() => {
-  getAllExamBoards();
+  // if (props.defaultExamBoards?.length > 0) {
+  //   examBoards.value = props.defaultExamBoards;
+  // }
+  //getAllExamBoards();
   v$.value.$touch();
 });
 
-const toast = useToast();
-const examBoards: Ref<ExamBoard[]> = ref([]);
-const examBoardStore = useExamBoardStore();
-const isGettingExamBoards = ref(false);
+//const toast = useToast();
+//const examBoards: Ref<ExamBoard[]> = ref([]);
+//const examBoardStore = useExamBoardStore();
+//const isGettingExamBoards = ref(false);
 
 //select input validation start
 const inputData = ref({
@@ -74,7 +93,7 @@ const inputData = ref({
 });
 
 const rules = computed(() => {
-  if (isGettingExamBoards.value) return { examBoardId: {} };
+  if (props.isGettingExamBoards || !props.isRequired) return { examBoardId: {} };
   return { examBoardId: { required: helpers.withMessage("Select exam board", required) } };
 });
 
@@ -87,7 +106,7 @@ const onSelect = async (event: SelectChangeEvent) => {
   if (!isValid) return;
 
   //get and emit the selected exam board
-  const examBoard = examBoards.value.find((x) => x.id == event.value);
+  const examBoard = props.examBoards.find((x) => x.id == event.value);
 
   emit("examBoard", examBoard);
 };
@@ -104,29 +123,29 @@ const onSelect = async (event: SelectChangeEvent) => {
  * If the dataset grows significantly in the future, the page size can be
  * reduced or proper pagination logic can be implemented.
  */
-const getAllExamBoards = () => {
-  isGettingExamBoards.value = true;
+// const getAllExamBoards = () => {
+//   isGettingExamBoards.value = true;
 
-  //tell the parent component that the exam boards are being loaded
-  emit("isLoading", true);
+//   //tell the parent component that the exam boards are being loaded
+//   emit("isLoading", true);
 
-  const page = 1;
-  const pageSize = 100;
+//   const page = 1;
+//   const pageSize = 100;
 
-  examBoardStore
-    .getExamBoards(page, pageSize)
-    .then((data) => (examBoards.value = data.items))
-    .catch((message) => {
-      toast.add({
-        severity: "error",
-        summary: "Error",
-        detail: message,
-        life: 5000,
-      });
-    })
-    .finally(() => {
-      isGettingExamBoards.value = false;
-      emit("isLoading", false);
-    });
-};
+//   examBoardStore
+//     .getExamBoards(page, pageSize)
+//     .then((data) => (examBoards.value = data.items))
+//     .catch((message) => {
+//       toast.add({
+//         severity: "error",
+//         summary: "Error",
+//         detail: message,
+//         life: 5000,
+//       });
+//     })
+//     .finally(() => {
+//       isGettingExamBoards.value = false;
+//       emit("isLoading", false);
+//     });
+// };
 </script>

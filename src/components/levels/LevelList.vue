@@ -5,27 +5,20 @@
     <div class="list-actions row mt-3 justify-content-md-end g-3">
       <!-- Filter by curriculum -->
       <div class="col-6 col-md-3">
-        <Select
+        <CurriculumSelectInput
+          @curriculum="(val: Curriculum) => (selectedCurriculumFilter = val)"
           placeholder="Curriculum"
-          checkmark
-          v-model="selectedCurriculumFilter"
-          :options="curriculums"
-          option-label="name"
+          :is-required="false"
           @change="getAllLevels"
-          size="small"
-          class="w-100"
         />
       </div>
+      <!-- Filter by exam board -->
       <div class="col-6 col-md-3">
-        <Select
+        <ExamBoardSelectInput
+          @exam-board="(val: ExamBoard) => (selectedExamBoardFilter = val)"
+          :exam-boards="selectedCurriculumFilter?.examBoards"
           placeholder="Exam board"
-          checkmark
-          v-model="selectedExamBoardFilter"
-          :options="selectedCurriculumFilter?.examBoards"
-          option-label="name"
-          @change="getAllLevels"
-          size="small"
-          class="w-100"
+          :is-required="false"
         />
       </div>
 
@@ -77,7 +70,7 @@
     <!--Skeleton table end-->
 
     <!--Table start-->
-    <div id="level-list" v-else-if="levels.items.length > 0" class="card">
+    <div id="level-list" v-else-if="levels.items?.length > 0" class="card">
       <DataTable :value="levels.items">
         <Column field="levelName" header="Level Name">
           <template #body="slotProps">
@@ -155,19 +148,18 @@ import { DeletionState } from "@/models/deletionState";
 import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 import { useLevelStore } from "@/stores/level";
 import type { Curriculum } from "@/models/curriculum";
-import { useCurriculumStore } from "@/stores/curriculum";
 import type { Ref } from "vue";
 import type { ExamBoard } from "@/models/examBoard";
+import CurriculumSelectInput from "../curriculums/CurriculumSelectInput.vue";
+import ExamBoardSelectInput from "../examBoards/ExamBoardSelectInput.vue";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));
 
 const levelStore = useLevelStore();
-const curriculumStore = useCurriculumStore();
+
 const toast = useToast();
 const levels = ref(new PageInfo<Level>());
-//used for filtering levels by curriculum name
-const curriculums: Ref<Curriculum[]> = ref([]);
 const selectedCurriculumFilter: Ref<Curriculum | null> = ref(null);
 const selectedExamBoardFilter: Ref<ExamBoard | null> = ref(null);
 const isGettingLevels = ref(false);
@@ -183,8 +175,6 @@ const selectedSortOption = ref(LevelSortOption.DateCreated);
 onMounted(() => {
   //get all levels
   getAllLevels();
-  //get all curriculums
-  getAllCurriculums();
 });
 //get all levels
 const getAllLevels = () => {
@@ -202,33 +192,6 @@ const getAllLevels = () => {
       });
     })
     .finally(() => (isGettingLevels.value = false));
-};
-
-/**
- * Fetches all curriculums from the backend. These curriculums are used
- * to filter levels by curriculum name.
- *
- * Retrieves the first 100 curriculums (page size = 100), which is currently
- * more than enough since the total number of curriculums in the system is small.
- *
- * Using 100 ensures all available curriculums are fetched in one request.
- * If the dataset grows significantly in the future, the page size can be
- * reduced or proper pagination logic can be implemented.
- */
-const getAllCurriculums = () => {
-  const page = 1;
-  const pageSize = 100;
-  curriculumStore
-    .getCurriculums(page, pageSize)
-    .then((data) => (curriculums.value = data.items))
-    .catch((message) => {
-      toast.add({
-        severity: "error",
-        summary: "Error",
-        detail: message,
-        life: 5000,
-      });
-    });
 };
 
 /**
