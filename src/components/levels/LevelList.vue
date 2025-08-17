@@ -6,16 +6,15 @@
       <!-- Filter by curriculum -->
       <div class="col-6 col-md-3">
         <CurriculumSelectInput
-          @curriculum="(val: Curriculum) => (selectedCurriculumFilter = val)"
           placeholder="Curriculum"
           :is-required="false"
-          @change="getAllLevels"
+          @change="onCurriculumChange"
         />
       </div>
       <!-- Filter by exam board -->
       <div class="col-6 col-md-3">
         <ExamBoardSelectInput
-          @exam-board="(val: ExamBoard) => (selectedExamBoardFilter = val)"
+          @change="onExamBoardChange"
           :exam-boards="selectedCurriculumFilter?.examBoards"
           placeholder="Exam board"
           :is-required="false"
@@ -54,6 +53,11 @@
             <Skeleton></Skeleton>
           </template>
         </Column>
+        <Column field="examBoard" header="Exam Board">
+          <template #body>
+            <Skeleton></Skeleton>
+          </template>
+        </Column>
         <Column field="curriculum" header="Curriculum">
           <template #body>
             <Skeleton></Skeleton>
@@ -72,16 +76,22 @@
     <!--Table start-->
     <div id="level-list" v-else-if="levels.items?.length > 0" class="card">
       <DataTable :value="levels.items">
+        <!--Level name-->
         <Column field="levelName" header="Level Name">
           <template #body="slotProps">
-            <!--Level name-->
             <span>{{ slotProps.data.name }}</span>
           </template>
         </Column>
+        <!--Exam board name-->
+        <Column field="examBoard" header="Exam Board">
+          <template #body="slotProps">
+            <span>{{ slotProps.data.examBoard?.name }}</span>
+          </template>
+        </Column>
+        <!--Curriculum name-->
         <Column field="curriculum" header="Curriculum">
           <template #body="slotProps">
-            <!--Curriculum name-->
-            <span>{{ slotProps.data.curriculum?.name }}</span>
+            <span>{{ slotProps.data.examBoard?.curriculum?.name }}</span>
           </template>
         </Column>
 
@@ -147,7 +157,7 @@ import DeletePopup from "../shared/DeletePopup.vue";
 import { DeletionState } from "@/models/deletionState";
 import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 import { useLevelStore } from "@/stores/level";
-import type { Curriculum } from "@/models/curriculum";
+import { Curriculum } from "@/models/curriculum";
 import type { Ref } from "vue";
 import type { ExamBoard } from "@/models/examBoard";
 import CurriculumSelectInput from "../curriculums/CurriculumSelectInput.vue";
@@ -180,8 +190,10 @@ onMounted(() => {
 const getAllLevels = () => {
   isGettingLevels.value = true;
   const { page, pageSize } = levels.value;
+  const curriculumId = selectedCurriculumFilter.value?.id;
+  const examBoardId = selectedExamBoardFilter.value?.id;
   levelStore
-    .getLevels(page, pageSize, selectedSortOption.value, selectedExamBoardFilter.value?.id || 0)
+    .getLevels(page, pageSize, selectedSortOption.value, curriculumId, examBoardId)
     .then((data) => (levels.value = data))
     .catch((message) => {
       toast.add({
@@ -209,6 +221,17 @@ const onPageChange = (state: PageState) => {
   //smoothly scroll to the top of the list
   const elementId = "level-list";
   SmoothScrollHelper.scrollToElement(elementId);
+};
+
+//Called when the curriculum select input filter value changes
+const onCurriculumChange = (curriculum: Curriculum) => {
+  selectedCurriculumFilter.value = curriculum;
+  getAllLevels();
+};
+//Called when the exam board select input filter value changes
+const onExamBoardChange = (examBoard: ExamBoard) => {
+  selectedExamBoardFilter.value = examBoard;
+  getAllLevels();
 };
 
 //Delete a level with a given ID

@@ -33,16 +33,18 @@ export const useLevelStore = defineStore("level", () => {
   const getLevels = (
     page: number,
     pageSize: number,
-    sortBy: LevelSortOption,
+    sortBy: LevelSortOption | null = null,
+    curriculumId: number | null = null,
     examBoardId: number | null = null,
   ): Promise<PageInfo<Level>> => {
     return new Promise((resolve, reject) => {
       axios
-        .get<PageInfo<Level>>(`${UrlHelper.apiUrl}`, {
+        .get<PageInfo<Level>>(`${apiUrl.value}`, {
           params: {
             page: page,
             pageSize: pageSize,
             sortBy,
+            curriculumId,
             examBoardId,
           },
         })

@@ -72,7 +72,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["examBoard", "isLoading"]);
+const emit = defineEmits(["change", "isLoading"]);
 
 onMounted(() => {
   // if (props.defaultExamBoards?.length > 0) {
@@ -108,7 +108,7 @@ const onSelect = async (event: SelectChangeEvent) => {
   //get and emit the selected exam board
   const examBoard = props.examBoards.find((x) => x.id == event.value);
 
-  emit("examBoard", examBoard);
+  emit("change", examBoard);
 };
 
 /**
