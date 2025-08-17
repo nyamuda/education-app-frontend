@@ -120,7 +120,7 @@ const submitForm = async () => {
         detail: message,
         life: 5000,
       });
-      router.push("/exam-boards");
+      router.push("/levels");
     })
     .catch((message) => {
       toast.add({

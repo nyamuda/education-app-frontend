@@ -18,6 +18,7 @@
           :exam-boards="selectedCurriculumFilter?.examBoards"
           placeholder="Exam board"
           :is-required="false"
+          ref="examBoardSelectInputRef"
         />
       </div>
 
@@ -172,6 +173,7 @@ const toast = useToast();
 const levels = ref(new PageInfo<Level>());
 const selectedCurriculumFilter: Ref<Curriculum | null> = ref(null);
 const selectedExamBoardFilter: Ref<ExamBoard | null> = ref(null);
+const examBoardSelectInputRef = ref();
 const isGettingLevels = ref(false);
 const deletingLevel = ref(new DeletionState());
 
@@ -238,6 +240,8 @@ const onExamBoardChange = (examBoard: ExamBoard) => {
 const resetFilters = () => {
   selectedCurriculumFilter.value = null;
   selectedExamBoardFilter.value = null;
+  //reset exam board select input component value
+  examBoardSelectInputRef.value.resetSelectedValue();
 };
 
 //Delete a level with a given ID
