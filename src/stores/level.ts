@@ -60,13 +60,14 @@ export const useLevelStore = defineStore("level", () => {
   };
 
   //Creates a new educational level for a specific exam board
-  const addLevel = (examBoardId: number, details: { name: string }) => {
+  const addLevel = (details: { examBoardId: number; name: string }) => {
     return new Promise((resolve, reject) => {
+      const { examBoardId, name } = details;
       //add access token to the request
       //to access the protected route
       setAuthToken();
       axios
-        .post(`${UrlHelper.apiUrl}/exam-boards/${examBoardId}/levels`, details)
+        .post(`${UrlHelper.apiUrl}/exam-boards/${examBoardId}/levels`, { name })
         .then(() => resolve({}))
         .catch((err) => {
           const message = err.response.data?.message || ErrorResponse.Unexpected();

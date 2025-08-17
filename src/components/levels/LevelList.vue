@@ -39,7 +39,7 @@
 
       <!-- Button -->
       <div class="col-auto">
-        <router-link to="/exam-boards/add">
+        <router-link to="/levels/add">
           <Button label="New level" icon="pi pi-plus" size="small" severity="primary" />
         </router-link>
       </div>

@@ -83,7 +83,7 @@ const isGettingCurriculums = ref(false);
 
 //select input validation start
 const inputData = ref({
-  curriculumId: props.defaultCurriculumId ?? "",
+  curriculumId: props.defaultCurriculumId ?? 0,
 });
 
 const rules = computed(() => {
@@ -95,10 +95,6 @@ const v$ = useVuelidate(rules, inputData);
 //select input validation end
 
 const onSelect = async (event: SelectChangeEvent) => {
-  //check if select input is valid
-  const isValid = await v$.value.$validate();
-  if (!isValid) return;
-
   //get and emit the selected curriculum
   const curriculum = curriculums.value.find((c) => c.id == event.value);
   emit("change", curriculum);

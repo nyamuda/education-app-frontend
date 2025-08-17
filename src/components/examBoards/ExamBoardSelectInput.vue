@@ -31,7 +31,7 @@ import Select, { type SelectChangeEvent } from "primevue/select";
 import { ExamBoard } from "@/models/examBoard";
 //import { useExamBoardStore } from "@/stores/examBoard";
 //import FloatLabel from "primevue/floatlabel";
-import { computed, onMounted, ref, type PropType } from "vue";
+import { computed, onMounted, ref, watch, type PropType } from "vue";
 //import { useToast } from "primevue";
 import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
@@ -95,7 +95,7 @@ onMounted(() => {
 
 //select input validation start
 const inputData = ref({
-  examBoardId: "",
+  examBoardId: null,
 });
 
 const rules = computed(() => {
@@ -107,15 +107,19 @@ const v$ = useVuelidate(rules, inputData);
 //select input validation end
 
 const onSelect = async (event: SelectChangeEvent) => {
-  //check if select input is valid
-  const isValid = await v$.value.$validate();
-  if (!isValid) return;
-
   //get and emit the selected exam board
   const examBoard = props.examBoards.find((x) => x.id == event.value);
 
   emit("change", examBoard);
 };
+
+//if the exam board are not longer there
+// reset the form
+watch(props.examBoards, (examBoards) => {
+  if (examBoards.length == 0) {
+    inputData.value.examBoardId = null;
+  }
+});
 
 /**
  * Fetches all exam boards from the backend. These exam boards are used
