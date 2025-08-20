@@ -73,6 +73,7 @@ import type { Curriculum } from "@/models/curriculum";
 import ExamBoardSelectInput from "../examBoards/ExamBoardSelectInput.vue";
 import type { ExamBoard } from "@/models/examBoard";
 import type { LevelFormData } from "@/interfaces/levels/levelFormData";
+import type { Level } from "@/models/level";
 
 onMounted(() => {
   v$.value.$touch();
@@ -87,6 +88,7 @@ const isAddingLevel = ref(false);
 const isLoadingCurriculums = ref(false);
 const selectedCurriculum: Ref<Curriculum | null> = ref(null);
 const examBoardSelectInputRef = ref();
+const isGettingLevel = ref(false);
 //form validation start
 const formData: Ref<LevelFormData> = ref({
   name: "",
@@ -146,6 +148,27 @@ const resetSelectedInputValues = () => {
   formData.value.examBoardId = null;
   //reset exam board select input component value
   examBoardSelectInputRef.value.resetSelectedValue();
+};
+
+//Gets a level by ID and populates form data with the fetched details
+const getLevelById = async (id: number) => {
+  try {
+    isGettingLevel.value = true;
+    const level: Level = await levelStore.getLevelById(id);
+    //populate the form with level data
+    formData.value.name = level.name;
+    formData.value.curriculumId = level.examBoard?.curriculumId ?? null;
+    formData.value.examBoardId = level.examBoardId;
+  } catch (error) {
+    toast.add({
+      severity: "error",
+      summary: "Fetch Failed",
+      detail: error,
+      life: 10000,
+    });
+  } finally {
+    isGettingLevel.value = false;
+  }
 };
 </script>
 
