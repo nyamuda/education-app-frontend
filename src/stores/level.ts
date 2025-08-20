@@ -20,7 +20,7 @@ export const useLevelStore = defineStore("level", () => {
         })
         .catch((err) => {
           const message =
-            err.response.status == 404
+            err.response?.status == 404
               ? ErrorResponse.NotFound("Level")
               : ErrorResponse.Unexpected();
 
@@ -53,7 +53,7 @@ export const useLevelStore = defineStore("level", () => {
           resolve(response.data);
         })
         .catch((err) => {
-          const message = err.response.data?.message || ErrorResponse.Unexpected();
+          const message = err.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
     });
@@ -68,9 +68,9 @@ export const useLevelStore = defineStore("level", () => {
       setAuthToken();
       axios
         .post(`${UrlHelper.apiUrl}/exam-boards/${examBoardId}/levels`, { name })
-        .then(() => resolve({}))
+        .then(() => resolve("Educational level added successfully."))
         .catch((err) => {
-          const message = err.response.data?.message || ErrorResponse.Unexpected();
+          const message = err.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
     });
@@ -102,7 +102,7 @@ export const useLevelStore = defineStore("level", () => {
         .delete(`${apiUrl.value}/${id}`)
         .then(() => resolve({}))
         .catch((err) => {
-          const message = err.response.data?.message || ErrorResponse.Unexpected();
+          const message = err.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
     });

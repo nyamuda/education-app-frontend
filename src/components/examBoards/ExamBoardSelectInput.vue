@@ -31,7 +31,7 @@ import Select, { type SelectChangeEvent } from "primevue/select";
 import { ExamBoard } from "@/models/examBoard";
 //import { useExamBoardStore } from "@/stores/examBoard";
 //import FloatLabel from "primevue/floatlabel";
-import { computed, onMounted, ref, type PropType, type Ref } from "vue";
+import { computed, onMounted, ref, toRef, watch, type PropType, type Ref } from "vue";
 //import { useToast } from "primevue";
 import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
@@ -81,12 +81,10 @@ const props = defineProps({
 const emit = defineEmits(["change", "isLoading"]);
 
 onMounted(() => {
-  // if (props.defaultExamBoards?.length > 0) {
-  //   examBoards.value = props.defaultExamBoards;
-  // }
-  //getAllExamBoards();
   v$.value.$touch();
 });
+
+const defaultExamBoardId = toRef(props, "defaultExamBoardId");
 
 //const toast = useToast();
 //const examBoards: Ref<ExamBoard[]> = ref([]);
@@ -118,6 +116,14 @@ const resetSelectedValue = () => {
 };
 //expose the `resetSelectedValue` method to call it in parent components
 defineExpose({ resetSelectedValue });
+
+// If the list of exam boards is available, apply the default exam board ID value (if provided).
+// This makes sure the correct option shows up in the select input instead of staying empty.
+watch(defaultExamBoardId, (newVal) => {
+  if (newVal != null && props.examBoards.length > 0) {
+    formData.value.examBoardId = newVal;
+  }
+});
 
 /**
  * Fetches all exam boards from the backend. These exam boards are used
