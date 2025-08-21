@@ -57,7 +57,7 @@ import { useToast } from "primevue/usetoast";
 import { useRouter } from "vue-router";
 import TitleSection from "../shared/TitleSection.vue";
 import { useExamBoardStore } from "@/stores/examBoard";
-import CurriculumSelectInput from "../curriculums/CurriculumSelectInput.vue";
+import CurriculumSelectInput from "../shared/selects/CurriculumSelect.vue";
 import type { Curriculum } from "@/models/curriculum";
 
 onMounted(() => {

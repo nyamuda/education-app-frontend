@@ -161,8 +161,8 @@ import { useLevelStore } from "@/stores/level";
 import { Curriculum } from "@/models/curriculum";
 import type { Ref } from "vue";
 import type { ExamBoard } from "@/models/examBoard";
-import CurriculumSelectInput from "../curriculums/CurriculumSelectInput.vue";
-import ExamBoardSelectInput from "../examBoards/ExamBoardSelectInput.vue";
+import CurriculumSelectInput from "../shared/selects/CurriculumSelect.vue";
+import ExamBoardSelectInput from "../shared/selects/ExamBoardSelect.vue";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));

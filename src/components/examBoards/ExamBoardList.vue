@@ -138,7 +138,7 @@ import { DeletionState } from "@/models/deletionState";
 import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 import { useExamBoardStore } from "@/stores/examBoard";
 import type { Curriculum } from "@/models/curriculum";
-import CurriculumSelectInput from "../curriculums/CurriculumSelectInput.vue";
+import CurriculumSelectInput from "../shared/selects/CurriculumSelect.vue";
 import type { Ref } from "vue";
 
 //table row skeletons

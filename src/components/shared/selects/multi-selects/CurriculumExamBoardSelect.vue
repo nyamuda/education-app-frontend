@@ -96,7 +96,6 @@ const props = defineProps({
 const emit = defineEmits(["isLoading", "changeCurriculum", "changeExamBoard"]);
 
 onMounted(() => {
-  getAllCurriculums();
   v$.value.$touch();
 });
 
@@ -186,4 +185,5 @@ const getAllCurriculums = () => {
       emit("isLoading", false);
     });
 };
+defineExpose({ getAllCurriculums });
 </script>

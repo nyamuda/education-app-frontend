@@ -28,6 +28,7 @@
           @change-curriculum="(val: Curriculum) => (formData.curriculumId = val.id)"
           @change-exam-board="(val: ExamBoard) => (formData.examBoardId = val.id)"
           :is-required="true"
+          ref="curriculumExamBoardSelectRef"
         />
       </div>
       <!-- Submit button -->
@@ -59,7 +60,7 @@ import TitleSection from "../shared/TitleSection.vue";
 import { useLevelStore } from "@/stores/level";
 import type { LevelFormData } from "@/interfaces/levels/levelFormData";
 import type { Level } from "@/models/level";
-import CurriculumExamBoardSelect from "../shared/CurriculumExamBoardSelect.vue";
+import CurriculumExamBoardSelect from "../shared/selects/multi-selects/CurriculumExamBoardSelect.vue";
 import type { Curriculum } from "@/models/curriculum";
 import type { ExamBoard } from "@/models/examBoard";
 
@@ -79,6 +80,7 @@ const router = useRouter();
 const isUpdatingLevel = ref(false);
 //check if the curriculums for the select input are being loaded
 const isLoadingCurriculums = ref(false);
+const curriculumExamBoardSelectRef = ref();
 // const selectedCurriculum: Ref<Curriculum | null> = ref(null);
 // const examBoardSelectInputRef = ref();
 const levelId: Ref<number | null> = ref(null);
@@ -102,21 +104,22 @@ const v$ = useVuelidate(rules, formData.value);
 const submitForm = async () => {
   const isFormCorrect = await v$.value.$validate();
   if (!isFormCorrect) return;
+  if (!levelId.value) return;
 
   const { name, examBoardId } = formData.value;
   if (examBoardId == null) return;
 
   isUpdatingLevel.value = true;
   levelStore
-    .addLevel({ name, examBoardId })
-    .then((message) => {
+    .updateLevel(levelId.value, { name, examBoardId })
+    .then(() => {
       toast.add({
         severity: "success",
-        summary: "Success",
-        detail: message,
+        summary: "Update Successful",
+        detail: "Changes to the exam board have been saved.",
         life: 5000,
       });
-      router.push("/levels");
+      router.push(`/levels/${levelId.value}/details`);
     })
     .catch((message) => {
       toast.add({
@@ -129,21 +132,6 @@ const submitForm = async () => {
     .finally(() => (isUpdatingLevel.value = false));
 };
 
-//Called when the curriculum select input value changes
-// const onCurriculumChange = (curriculum: Curriculum) => {
-//   resetSelectedInputValues();
-//   selectedCurriculum.value = curriculum;
-//   formData.value.curriculumId = curriculum.id;
-// };
-//resets selected curriculum and exam board values
-// const resetSelectedInputValues = () => {
-//   selectedCurriculum.value = null;
-//   formData.value.curriculumId = null;
-//   formData.value.examBoardId = null;
-//   //reset exam board select input component value
-//   examBoardSelectInputRef.value.resetSelectedValue();
-// };
-
 //Gets a level by ID and populates form data with the fetched details
 const getLevelById = async (id: number) => {
   try {
@@ -153,6 +141,9 @@ const getLevelById = async (id: number) => {
     formData.value.name = level.name;
     formData.value.curriculumId = level.examBoard?.curriculumId ?? null;
     formData.value.examBoardId = level.examBoardId;
+
+    //fetch curriculums for the curriculum and exam board inputs
+    curriculumExamBoardSelectRef.value.getAllCurriculums();
   } catch (error) {
     toast.add({
       severity: "error",

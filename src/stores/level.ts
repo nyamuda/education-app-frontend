@@ -77,13 +77,14 @@ export const useLevelStore = defineStore("level", () => {
   };
 
   //Updates an educational level with a given ID for a specific exam board
-  const updateLevel = (examBoardId: number, levelId: number, updateDetails: { name: string }) => {
+  const updateLevel = (id: number, details: { examBoardId: number; name: string }) => {
     return new Promise((resolve, reject) => {
       //add access token to the request
       //to access the protected route
       setAuthToken();
+      const { examBoardId, name } = details;
       axios
-        .put(`${UrlHelper.apiUrl}/exam-boards/${examBoardId}/levels/${levelId}`, updateDetails)
+        .put(`${UrlHelper.apiUrl}/exam-boards/${examBoardId}/levels/${id}`, { name })
         .then(() => resolve({}))
         .catch((err) => {
           const message = err.response.data?.message || ErrorResponse.Unexpected();

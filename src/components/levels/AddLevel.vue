@@ -60,7 +60,7 @@ import TitleSection from "../shared/TitleSection.vue";
 import { useLevelStore } from "@/stores/level";
 import type { Curriculum } from "@/models/curriculum";
 import type { ExamBoard } from "@/models/examBoard";
-import CurriculumExamBoardSelect from "../shared/CurriculumExamBoardSelect.vue";
+import CurriculumExamBoardSelect from "../shared/selects/multi-selects/CurriculumExamBoardSelect.vue";
 import type { LevelFormData } from "@/interfaces/levels/levelFormData";
 
 onMounted(() => {
