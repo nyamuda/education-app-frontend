@@ -13,7 +13,6 @@
       :loading="isGettingExamBoards"
       :disabled="isGettingExamBoards"
       @change="onSelect"
-      :default-value="defaultExamBoardId"
       :size="size"
       :show-clear="showClear"
     />
@@ -31,7 +30,7 @@ import Select, { type SelectChangeEvent } from "primevue/select";
 import { ExamBoard } from "@/models/examBoard";
 //import { useExamBoardStore } from "@/stores/examBoard";
 //import FloatLabel from "primevue/floatlabel";
-import { computed, onMounted, ref, toRef, watch, type PropType, type Ref } from "vue";
+import { computed, onMounted, ref, type PropType, type Ref } from "vue";
 //import { useToast } from "primevue";
 import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
@@ -61,11 +60,6 @@ const props = defineProps({
     default: false,
   },
 
-  //ID of the default exam board(if any)
-  defaultExamBoardId: {
-    type: Number,
-    required: false,
-  },
   //Exam boards to use as options
   examBoards: {
     type: [] as PropType<ExamBoard[]>,
@@ -83,8 +77,6 @@ const emit = defineEmits(["change", "isLoading"]);
 onMounted(() => {
   v$.value.$touch();
 });
-
-const defaultExamBoardId = toRef(props, "defaultExamBoardId");
 
 //const toast = useToast();
 //const examBoards: Ref<ExamBoard[]> = ref([]);
@@ -119,11 +111,11 @@ defineExpose({ resetSelectedValue });
 
 // If the list of exam boards is available, apply the default exam board ID value (if provided).
 // This makes sure the correct option shows up in the select input instead of staying empty.
-watch(defaultExamBoardId, (newVal) => {
-  if (newVal != null && props.examBoards.length > 0) {
-    formData.value.examBoardId = newVal;
-  }
-});
+// watch(defaultExamBoardId, (newVal) => {
+//   if (newVal != null && props.examBoards.length > 0) {
+//     formData.value.examBoardId = newVal;
+//   }
+// });
 
 /**
  * Fetches all exam boards from the backend. These exam boards are used

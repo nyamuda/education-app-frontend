@@ -26,7 +26,7 @@
       </template>
       <template #footer>
         <div class="row justify-content-md-end mt-1 g-2">
-          <!--Button to see more details-->
+          <!-- Edit button -->
           <div class="col-6 col-md-3 col-lg-2">
             <router-link :to="'/exam-boards/' + examBoard.id + '/edit'">
               <Button
@@ -39,6 +39,7 @@
                 fluid
             /></router-link>
           </div>
+          <!-- Delete button -->
           <div class="col-6 col-md-3 col-lg-2">
             <DeletePopup
               :delete-callback="deleteExamBoard"
@@ -114,7 +115,7 @@ const getExamBoardById = (id: number) => {
     .finally(() => (isGettingExamBoard.value = false));
 };
 
-//Delete a exam board with a given ID
+//Delete an exam board with a given ID
 const deleteExamBoard = () => {
   const id = examBoardId.value;
   if (!id) return;

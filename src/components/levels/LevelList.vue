@@ -100,7 +100,7 @@
           <template #body="slotProps">
             <div class="d-flex justify-content-start align-items-center gap-2">
               <!--Button to see more details-->
-              <router-link :to="'exam-boards/' + slotProps.data.id + '/details'">
+              <router-link :to="'levels/' + slotProps.data.id + '/details'">
                 <Button
                   label="More details"
                   severity="contrast"

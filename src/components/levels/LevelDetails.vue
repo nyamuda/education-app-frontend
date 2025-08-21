@@ -7,18 +7,18 @@
         <h2 class="mb-2">{{ level.name }}</h2>
       </template>
       <template #subtitle
-        ><h6 class="text-muted mb-3">
-          Curriculum: <strong>{{ level.examBoard?.curriculum?.name}}</strong>
-        </h6>
+        ><h5 class="text-muted mb-3">
+          Curriculum: <strong>{{ level.examBoard?.curriculum?.name }}</strong>
+        </h5>
         <h6 class="text-muted mb-3">
           Exam board: <strong>{{ level.examBoard?.name }}</strong>
         </h6>
       </template>
       <template #content>
-        <h5>Levels:</h5>
+        <h5>Subjects:</h5>
         <div class="d-flex flex-wrap gap-2">
-          <span v-for="level in level.levels" :key="level.id" class="badge bg-primary">
-            {{ level.name }}
+          <span v-for="subject in level.subjects" :key="subject.id" class="badge bg-primary">
+            {{ subject.name }}
           </span>
         </div>
       </template>
