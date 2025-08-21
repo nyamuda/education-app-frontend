@@ -11,6 +11,7 @@
             id="levelName"
             v-model="v$.name.$model"
             :invalid="v$.name.$error"
+            :disabled="isGettingLevel"
           />
           <label for="levelName">Level name</label>
         </FloatLabel>
@@ -20,7 +21,7 @@
           </div>
         </Message>
       </div>
-      <!-- Curriculum and exam board inputs -->
+      <!-- Curriculum and exam board select inputs -->
       <div class="form-group mb-3">
         <CurriculumExamBoardSelect
           :default-curriculum-id="formData.curriculumId ?? undefined"
@@ -28,6 +29,8 @@
           @change-curriculum="(val: Curriculum) => (formData.curriculumId = val.id)"
           @change-exam-board="(val: ExamBoard) => (formData.examBoardId = val.id)"
           :is-required="true"
+          @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
+
           ref="curriculumExamBoardSelectRef"
         />
       </div>
@@ -35,10 +38,17 @@
       <Button
         fluid
         type="submit"
-        :label="isUpdatingLevel ? 'Saving changes...' : 'Update level'"
+        :label="
+          isUpdatingLevel
+            ? 'Saving changes...'
+            : isGettingLevel
+              ? 'Retrieving level information…'
+              : 'Update level'
+        "
         :loading="isUpdatingLevel"
         :disabled="v$.$errors.length > 0 || isUpdatingLevel || isLoadingCurriculums"
         size="small"
+        :variant="isGettingLevel ? 'outlined' : ''"
         severity="primary"
       />
     </form>
@@ -142,13 +152,13 @@ const getLevelById = async (id: number) => {
     formData.value.curriculumId = level.examBoard?.curriculumId ?? null;
     formData.value.examBoardId = level.examBoardId;
 
-    //fetch curriculums for the curriculum and exam board inputs
+    //fetch curriculums for the curriculum and exam board select inputs
     curriculumExamBoardSelectRef.value.getAllCurriculums();
-  } catch (error) {
+  } catch {
     toast.add({
       severity: "error",
       summary: "Fetch Failed",
-      detail: error,
+      detail: "Failed to fetch level details.",
       life: 10000,
     });
   } finally {

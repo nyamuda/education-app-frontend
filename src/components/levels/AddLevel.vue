@@ -29,6 +29,8 @@
           @change-curriculum="(val: Curriculum) => (formData.curriculumId = val.id)"
           @change-exam-board="(val: ExamBoard) => (formData.examBoardId = val.id)"
           :is-required="true"
+          @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
+          ref="curriculumExamBoardSelectRef"
         />
       </div>
       <!-- Submit button -->
@@ -65,6 +67,8 @@ import type { LevelFormData } from "@/interfaces/levels/levelFormData";
 
 onMounted(() => {
   v$.value.$touch();
+  //fetch curriculums for the curriculum and exam board select inputs
+  curriculumExamBoardSelectRef.value.getAllCurriculums();
 });
 
 // Access the store
@@ -74,6 +78,7 @@ const router = useRouter();
 const isAddingLevel = ref(false);
 //check if the curriculums for the select input are being loaded
 const isLoadingCurriculums = ref(false);
+const curriculumExamBoardSelectRef = ref();
 //form validation start
 const formData: Ref<LevelFormData> = ref({
   name: "",

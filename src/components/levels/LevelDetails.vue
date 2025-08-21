@@ -127,7 +127,7 @@ const deleteLevel = () => {
         detail: "The level was successfully deleted.",
         life: 5000,
       });
-      router.push("/exam-boards");
+      router.push("/levels");
     })
     .catch((message) => {
       toast.add({

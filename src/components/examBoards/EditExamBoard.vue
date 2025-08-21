@@ -26,7 +26,7 @@
         <CurriculumSelectInput
           @change="(val: Curriculum) => (formData.curriculumId = val.id)"
           @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
-          :default-curriculum-id="initialCurriculumId || 0"
+          :default-curriculum-id="initialCurriculumId || undefined"
           placeholder="Select a curriculum"
           :is-required="true"
           size="normal"
