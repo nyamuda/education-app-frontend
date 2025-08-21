@@ -21,24 +21,14 @@
         </Message>
       </div>
       <!-- Curriculum input -->
+      <!-- Curriculum and exam board inputs -->
       <div class="form-group mb-3">
-        <CurriculumSelectInput
-          @change="onCurriculumChange"
-          @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
-          placeholder="Select curriculum"
-          size="normal"
+        <CurriculumExamBoardSelect
+          :default-curriculum-id="formData.curriculumId ?? undefined"
+          :default-exam-board-id="formData.examBoardId ?? undefined"
+          @change-curriculum="(val: Curriculum) => (formData.curriculumId = val.id)"
+          @change-exam-board="(val: ExamBoard) => (formData.examBoardId = val.id)"
           :is-required="true"
-        />
-      </div>
-      <!-- Exam board input -->
-      <div class="form-group mb-3">
-        <ExamBoardSelectInput
-          @change="(val: ExamBoard) => (formData.examBoardId = val.id)"
-          :exam-boards="selectedCurriculum?.examBoards"
-          placeholder="Select exam board"
-          :is-required="true"
-          size="normal"
-          ref="examBoardSelectInputRef"
         />
       </div>
       <!-- Submit button -->
@@ -68,10 +58,9 @@ import { useToast } from "primevue/usetoast";
 import { useRouter } from "vue-router";
 import TitleSection from "../shared/TitleSection.vue";
 import { useLevelStore } from "@/stores/level";
-import CurriculumSelectInput from "../curriculums/CurriculumSelectInput.vue";
 import type { Curriculum } from "@/models/curriculum";
-import ExamBoardSelectInput from "../examBoards/ExamBoardSelectInput.vue";
 import type { ExamBoard } from "@/models/examBoard";
+import CurriculumExamBoardSelect from "../shared/CurriculumExamBoardSelect.vue";
 import type { LevelFormData } from "@/interfaces/levels/levelFormData";
 
 onMounted(() => {
@@ -85,8 +74,6 @@ const router = useRouter();
 const isAddingLevel = ref(false);
 //check if the curriculums for the select input are being loaded
 const isLoadingCurriculums = ref(false);
-const selectedCurriculum: Ref<Curriculum | null> = ref(null);
-const examBoardSelectInputRef = ref();
 //form validation start
 const formData: Ref<LevelFormData> = ref({
   name: "",
@@ -131,21 +118,6 @@ const submitForm = async () => {
       });
     })
     .finally(() => (isAddingLevel.value = false));
-};
-
-//Called when the curriculum select input value changes
-const onCurriculumChange = (curriculum: Curriculum) => {
-  resetSelectedInputValues();
-  selectedCurriculum.value = curriculum;
-  formData.value.curriculumId = curriculum.id;
-};
-//resets selected curriculum and exam board values
-const resetSelectedInputValues = () => {
-  selectedCurriculum.value = null;
-  formData.value.curriculumId = null;
-  formData.value.examBoardId = null;
-  //reset exam board select input component value
-  examBoardSelectInputRef.value.resetSelectedValue();
 };
 </script>
 
