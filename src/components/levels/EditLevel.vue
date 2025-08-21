@@ -1,7 +1,7 @@
 <template>
   <div class="">
     <form class="level-form m-auto" @submit.prevent="submitForm">
-      <TitleSection title="Add educational level" title-size="small" />
+      <TitleSection title="Update educational level" title-size="small" />
 
       <!-- Name input -->
       <div class="form-group mb-3">
@@ -45,9 +45,9 @@
       <Button
         fluid
         type="submit"
-        :label="isAddingLevel ? 'Adding...' : 'Add level'"
-        :loading="isAddingLevel"
-        :disabled="v$.$errors.length > 0 || isAddingLevel || isLoadingCurriculums"
+        :label="isUpdatingLevel ? 'Saving changes...' : 'Update level'"
+        :loading="isUpdatingLevel"
+        :disabled="v$.$errors.length > 0 || isUpdatingLevel || isLoadingCurriculums"
         size="small"
         severity="primary"
       />
@@ -75,19 +75,25 @@ import type { ExamBoard } from "@/models/examBoard";
 import type { LevelFormData } from "@/interfaces/levels/levelFormData";
 import type { Level } from "@/models/level";
 
-onMounted(() => {
+onMounted(async () => {
   v$.value.$touch();
+  //get the ID route parameter
+  const id = router.currentRoute.value.params["id"];
+  if (!id) return;
+  levelId.value = Number(id);
+  await getLevelById(levelId.value);
 });
 
 // Access the store
 const levelStore = useLevelStore();
 const toast = useToast();
 const router = useRouter();
-const isAddingLevel = ref(false);
+const isUpdatingLevel = ref(false);
 //check if the curriculums for the select input are being loaded
 const isLoadingCurriculums = ref(false);
 const selectedCurriculum: Ref<Curriculum | null> = ref(null);
 const examBoardSelectInputRef = ref();
+const levelId: Ref<number | null> = ref(null);
 const isGettingLevel = ref(false);
 //form validation start
 const formData: Ref<LevelFormData> = ref({
@@ -112,7 +118,7 @@ const submitForm = async () => {
   const { name, examBoardId } = formData.value;
   if (examBoardId == null) return;
 
-  isAddingLevel.value = true;
+  isUpdatingLevel.value = true;
   levelStore
     .addLevel({ name, examBoardId })
     .then((message) => {
@@ -132,7 +138,7 @@ const submitForm = async () => {
         life: 10000,
       });
     })
-    .finally(() => (isAddingLevel.value = false));
+    .finally(() => (isUpdatingLevel.value = false));
 };
 
 //Called when the curriculum select input value changes

@@ -71,7 +71,7 @@ import Button from "primevue/button";
 import DeletePopup from "../shared/DeletePopup.vue";
 import Card from "primevue/card";
 import { DeletionState } from "@/models/deletionState";
-import ExamBoardDetailsSkeletons from "./skeletons/ExamBoardDetailsSkeletons.vue";
+import ExamBoardDetailsSkeletons from "./skeletons/ExamBoardDetailsSkeleton.vue";
 
 const examBoardStore = useExamBoardStore();
 const toast = useToast();
