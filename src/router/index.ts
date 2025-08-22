@@ -27,6 +27,10 @@ import LevelList from "@/components/levels/LevelList.vue";
 import AddLevel from "@/components/levels/AddLevel.vue";
 import EditLevel from "@/components/levels/EditLevel.vue";
 import LevelDetails from "@/components/levels/LevelDetails.vue";
+import SubjectList from "@/components/subjects/SubjectList.vue";
+import AddSubject from "@/components/subjects/AddSubject.vue";
+import SubjectDetails from "@/components/subjects/SubjectDetails.vue";
+import EditSubject from "@/components/subjects/EditSubject.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -200,7 +204,37 @@ const router = createRouter({
     {
       path: "/subjects",
       component: SubjectView,
-      children: [],
+      // This is a protected route: only authenticated admins can access it
+      beforeEnter: async (to) => {
+        const authStore = useAuthStore();
+
+        // If the user is not logged in or is not an admin
+        if (!authStore.isAuthenticated || authStore.userRole != UserRole.Admin) {
+          //store the attempted URL
+          authStore.attemptedUrl = to.fullPath;
+          // Redirect to login page
+          return { name: "Login" };
+        }
+        return true;
+      },
+      children: [
+        {
+          path: "",
+          component: SubjectList,
+        },
+        {
+          path: "add",
+          component: AddSubject,
+        },
+        {
+          path: ":id/details",
+          component: SubjectDetails,
+        },
+        {
+          path: ":id/edit",
+          component: EditSubject,
+        },
+      ],
     },
     //topic routes
     {

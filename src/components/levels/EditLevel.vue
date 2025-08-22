@@ -30,7 +30,6 @@
           @change-exam-board="(val: ExamBoard) => (formData.examBoardId = val.id)"
           :is-required="true"
           @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
-
           ref="curriculumExamBoardSelectRef"
         />
       </div>
@@ -45,7 +44,7 @@
               ? 'Retrieving level information…'
               : 'Update level'
         "
-        :loading="isUpdatingLevel"
+        :loading="isUpdatingLevel || isGettingLevel"
         :disabled="v$.$errors.length > 0 || isUpdatingLevel || isLoadingCurriculums"
         size="small"
         :variant="isGettingLevel ? 'outlined' : ''"
@@ -126,7 +125,7 @@ const submitForm = async () => {
       toast.add({
         severity: "success",
         summary: "Update Successful",
-        detail: "Changes to the exam board have been saved.",
+        detail: "Changes to the level have been saved.",
         life: 5000,
       });
       router.push(`/levels/${levelId.value}/details`);
