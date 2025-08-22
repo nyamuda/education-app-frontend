@@ -23,14 +23,16 @@
       <!-- Curriculum input -->
       <!-- Curriculum and exam board inputs -->
       <div class="form-group mb-3">
-        <CurriculumExamBoardSelect
+        <CurriculumExamBoardLevelSelect
           :default-curriculum-id="formData.curriculumId ?? undefined"
           :default-exam-board-id="formData.examBoardId ?? undefined"
+          :default-level-id="formData.levelId ?? undefined"
           @change-curriculum="(val: Curriculum) => (formData.curriculumId = val.id)"
           @change-exam-board="(val: ExamBoard) => (formData.examBoardId = val.id)"
+          @change-level="(val: Level) => (formData.levelId = val.id)"
           :is-required="true"
           @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
-          ref="curriculumExamBoardSelectRef"
+          ref="curriculumExamBoardLevelSelectRef"
         />
       </div>
       <!-- Submit button -->
@@ -64,11 +66,13 @@ import type { Curriculum } from "@/models/curriculum";
 import type { ExamBoard } from "@/models/examBoard";
 import CurriculumExamBoardSelect from "../shared/selects/multi-selects/CurriculumExamBoardSelect.vue";
 import type { SubjectFormData } from "@/interfaces/subjects/subjectFormData";
+import CurriculumExamBoardLevelSelect from "../shared/selects/multi-selects/CurriculumExamBoardLevelSelect.vue";
+import type { Level } from "@/models/level";
 
 onMounted(() => {
   v$.value.$touch();
   //fetch curriculums for the curriculum and exam board select inputs
-  curriculumExamBoardSelectRef.value.getAllCurriculums();
+  curriculumExamBoardLevelSelectRef.value.getAllCurriculums();
 });
 
 // Access the store
@@ -78,7 +82,7 @@ const router = useRouter();
 const isAddingSubject = ref(false);
 //check if the curriculums for the select input are being loaded
 const isLoadingCurriculums = ref(false);
-const curriculumExamBoardSelectRef = ref();
+const curriculumExamBoardLevelSelectRef = ref();
 //form validation start
 const formData: Ref<SubjectFormData> = ref({
   name: "",
@@ -90,6 +94,7 @@ const rules = {
   name: { required },
   curriculumId: { required },
   examBoardId: { required },
+  levelId: { required },
 };
 
 const v$ = useVuelidate(rules, formData.value);
@@ -99,12 +104,12 @@ const submitForm = async () => {
   const isFormCorrect = await v$.value.$validate();
   if (!isFormCorrect) return;
 
-  const { name, examBoardId } = formData.value;
-  if (examBoardId == null) return;
+  const { name, levelId } = formData.value;
+  if (levelId == null) return;
 
   isAddingSubject.value = true;
   subjectStore
-    .addSubject({ name, examBoardId })
+    .addSubject({ name, levelId })
     .then((message) => {
       toast.add({
         severity: "success",

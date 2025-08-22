@@ -41,23 +41,23 @@ export const useSubjectStore = defineStore("subject", () => {
           resolve(response.data);
         })
         .catch((err) => {
-          const message = err.response.data?.message || ErrorResponse.Unexpected();
+          const message = err.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
     });
   };
 
   //Creates a new subject
-  const addSubject = (details: { name: string; examBoardIds: number[] }) => {
+  const addSubject = (details: { name: string; levelId: number }) => {
     return new Promise((resolve, reject) => {
       //add access token to the request
       //to access the protected route
       setAuthToken();
       axios
         .post(`${apiUrl.value}`, details)
-        .then(() => resolve({}))
+        .then(() => resolve("Subject added successfully."))
         .catch((err) => {
-          const message = err.response.data?.message || ErrorResponse.Unexpected();
+          const message = err.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
     });
@@ -89,7 +89,7 @@ export const useSubjectStore = defineStore("subject", () => {
         .delete(`${apiUrl.value}/${id}`)
         .then(() => resolve({}))
         .catch((err) => {
-          const message = err.response.data?.message || ErrorResponse.Unexpected();
+          const message = err.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
     });

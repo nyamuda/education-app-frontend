@@ -117,6 +117,10 @@ const props = defineProps({
     type: Number,
     default: null,
   },
+  defaultLevelId: {
+    type: Number,
+    default: null,
+  },
 });
 
 const emit = defineEmits(["isLoading", "changeCurriculum", "changeExamBoard", "changeLevel"]);
@@ -218,7 +222,7 @@ const getAllCurriculums = () => {
     .getCurriculums(page, pageSize)
     .then((data) => {
       curriculums.value = data.items;
-      // Once the list of curriculums is loaded, apply the default value (if provided).
+      // Once the list of curriculums is loaded, apply the default values (if provided).
       // This makes sure the correct option shows up in the select input instead of staying empty.
       if (props.defaultCurriculumId) {
         formData.value.curriculumId = props.defaultCurriculumId;
@@ -227,6 +231,9 @@ const getAllCurriculums = () => {
       }
       if (props.defaultExamBoardId) {
         formData.value.examBoardId = props.defaultExamBoardId;
+      }
+      if (props.defaultLevelId) {
+        formData.value.levelId = props.defaultLevelId;
       }
     })
     .catch((message) => {
