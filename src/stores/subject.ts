@@ -5,6 +5,7 @@ import type { Subject } from "@/models/subject";
 import { UrlHelper } from "@/helpers/urlHelper";
 import { ErrorResponse } from "@/models/errorResponse";
 import type { PageInfo } from "@/models/pageInfo";
+import type { SubjectQueryParams } from "@/interfaces/subjects/subjectQueryParams";
 
 export const useSubjectStore = defineStore("subject", () => {
   const apiUrl = ref(`${UrlHelper.apiUrl}/subjects`);
@@ -29,14 +30,11 @@ export const useSubjectStore = defineStore("subject", () => {
   };
 
   //Gets a paginated list of subjects along with pagination metadata
-  const getSubjects = (page: number, pageSize: number): Promise<PageInfo<Subject>> => {
+  const getSubjects = (params: SubjectQueryParams): Promise<PageInfo<Subject>> => {
     return new Promise((resolve, reject) => {
       axios
         .get<PageInfo<Subject>>(`${apiUrl.value}`, {
-          params: {
-            page: page,
-            pageSize: pageSize,
-          },
+          params: params,
         })
         .then((response) => {
           //return the subjects

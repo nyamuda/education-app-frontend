@@ -163,6 +163,7 @@ import type { Ref } from "vue";
 import type { ExamBoard } from "@/models/examBoard";
 import CurriculumSelectInput from "../shared/selects/CurriculumSelect.vue";
 import ExamBoardSelectInput from "../shared/selects/ExamBoardSelect.vue";
+import type { SubjectQueryParams } from "@/interfaces/subjects/subjectQueryParams";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));
@@ -192,10 +193,17 @@ onMounted(() => {
 const getAllSubjects = () => {
   isGettingSubjects.value = true;
   const { page, pageSize } = subjects.value;
-  const curriculumId = selectedCurriculumFilter.value?.id;
-  const examBoardId = selectedExamBoardFilter.value?.id;
+  const curriculumId = selectedCurriculumFilter.value?.id ?? null;
+  const examBoardId = selectedExamBoardFilter.value?.id ?? null;
+  const params: SubjectQueryParams = {
+    page,
+    pageSize,
+    sortBy: selectedSortOption.value,
+    curriculumId,
+    examBoardId,
+  };
   subjectStore
-    .getSubjects(page, pageSize, selectedSortOption.value, curriculumId, examBoardId)
+    .getSubjects(params)
     .then((data) => (subjects.value = data))
     .catch((message) => {
       toast.add({
