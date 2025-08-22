@@ -1,25 +1,28 @@
 <template>
   <div class="">
-    <LevelDetailsSkeleton v-if="isGettingLevel" />
+    <SubjectDetailsSkeleton v-if="isGettingSubject" />
 
-    <Card v-else-if="level">
+    <Card v-else-if="subject">
       <template #title>
-        <h6><Chip label="Educational Level" /></h6>
-        <h2 class="mb-2">{{ level.name }}</h2>
+        <h6><Chip label="Subject" /></h6>
+        <h2 class="mb-2">{{ subject.name }}</h2>
       </template>
       <template #subtitle
         ><h5 class="text-muted mb-3">
-          Curriculum: <strong>{{ level.examBoard?.curriculum?.name }}</strong>
+          Curriculum: <strong>{{ subject.level?.examBoard?.curriculum?.name }}</strong>
         </h5>
         <h5 class="text-muted mb-3">
-          Exam board: <strong>{{ level.examBoard?.name }}</strong>
+          Exam board: <strong>{{ subject.level?.examBoard?.name }}</strong>
+        </h5>
+        <h5 class="text-muted mb-3">
+          Level: <strong>{{ subject.level?.name }}</strong>
         </h5>
       </template>
       <template #content>
-        <h5>Subjects:</h5>
+        <h5>Topics:</h5>
         <div class="d-flex flex-wrap gap-2">
-          <span v-for="subject in level.subjects" :key="subject.id" class="badge bg-primary">
-            {{ subject.name }}
+          <span v-for="topic in subject.topics" :key="topic.id" class="badge bg-primary">
+            {{ topic.name }}
           </span>
         </div>
       </template>
@@ -27,7 +30,7 @@
         <div class="row justify-content-md-end mt-1 g-2">
           <!-- Edit button -->
           <div class="col-6 col-md-3 col-lg-2">
-            <router-link :to="'/levels/' + level.id + '/edit'">
+            <router-link :to="'/subjects/' + subject.id + '/edit'">
               <Button
                 label="Edit"
                 severity="contrast"
@@ -41,10 +44,10 @@
           <!-- Delete button -->
           <div class="col-6 col-md-3 col-lg-2">
             <DeletePopup
-              :delete-callback="deleteLevel"
-              :is-deleting-item="deletingLevel.inProgress"
+              :delete-callback="deleteSubject"
+              :is-deleting-item="deletingSubject.inProgress"
               title="Are You Sure?"
-              message="Deleting this level is permanent. Proceed?"
+              message="Deleting this subject is permanent. Proceed?"
             />
           </div>
         </div>
@@ -52,57 +55,56 @@
     </Card>
     <ItemNotFound
       v-else
-      title="Level Not Found"
-      message="The level you are looking for does not exist or may have been removed."
+      title="Subject Not Found"
+      message="The subject you are looking for does not exist or may have been removed."
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Level } from "@/models/level";
-import { useLevelStore } from "@/stores/level";
+import { Subject } from "@/models/subject";
+import { useSubjectStore } from "@/stores/subject";
 import { useToast } from "primevue";
 import { onMounted, ref, type Ref } from "vue";
 import { useRouter } from "vue-router";
 import ItemNotFound from "../shared/ItemNotFound.vue";
-
 import Button from "primevue/button";
 import DeletePopup from "../shared/DeletePopup.vue";
 import Card from "primevue/card";
 import { DeletionState } from "@/models/deletionState";
-import LevelDetailsSkeleton from "./skeletons/LevelDetailsSkeleton.vue";
+import SubjectDetailsSkeleton from "./skeletons/SubjectDetailsSkeleton.vue";
 import Chip from "primevue/chip";
 
-const levelStore = useLevelStore();
+const subjectStore = useSubjectStore();
 const toast = useToast();
 const router = useRouter();
 
-const level: Ref<Level | null> = ref(null);
-const levelId: Ref<number | null> = ref(null);
-const deletingLevel = ref(new DeletionState());
-const isGettingLevel = ref(false);
+const subject: Ref<Subject | null> = ref(null);
+const subjectId: Ref<number | null> = ref(null);
+const deletingSubject = ref(new DeletionState());
+const isGettingSubject = ref(false);
 
 onMounted(() => {
   //scroll up to the top of the page
   window.scrollTo(0, 0);
 
-  //get the level ID from a query parameter
+  //get the subject ID from a query parameter
   const id = router.currentRoute.value.params["id"];
 
-  //fetch level with the given ID from the backend
+  //fetch subject with the given ID from the backend
   if (id) {
-    levelId.value = Number(id);
-    getLevelById(levelId.value);
+    subjectId.value = Number(id);
+    getSubjectById(subjectId.value);
   }
 });
 
-//fetch a level with a given ID
-const getLevelById = (id: number) => {
-  isGettingLevel.value = true;
-  levelStore
-    .getLevelById(id)
+//fetch a subject with a given ID
+const getSubjectById = (id: number) => {
+  isGettingSubject.value = true;
+  subjectStore
+    .getSubjectById(id)
     .then((data) => {
-      level.value = data;
+      subject.value = data;
     })
     .catch((message) => {
       toast.add({
@@ -112,24 +114,24 @@ const getLevelById = (id: number) => {
         life: 10000,
       });
     })
-    .finally(() => (isGettingLevel.value = false));
+    .finally(() => (isGettingSubject.value = false));
 };
 
-//Delete a level with a given ID
-const deleteLevel = () => {
-  const id = levelId.value;
+//Delete a subject with a given ID
+const deleteSubject = () => {
+  const id = subjectId.value;
   if (!id) return;
-  deletingLevel.value = { id, inProgress: true };
-  levelStore
-    .deleteLevel(id)
+  deletingSubject.value = { id, inProgress: true };
+  subjectStore
+    .deleteSubject(id)
     .then(() => {
       toast.add({
         severity: "success",
         summary: "Done",
-        detail: "The level was successfully deleted.",
+        detail: "The subject was successfully deleted.",
         life: 5000,
       });
-      router.push("/levels");
+      router.push("/subjects");
     })
     .catch((message) => {
       toast.add({
@@ -139,6 +141,6 @@ const deleteLevel = () => {
         life: 10000,
       });
     })
-    .finally(() => (deletingLevel.value.inProgress = false));
+    .finally(() => (deletingSubject.value.inProgress = false));
 };
 </script>
