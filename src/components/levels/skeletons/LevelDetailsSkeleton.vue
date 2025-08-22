@@ -2,6 +2,8 @@
   <div>
     <Card>
       <template #title>
+        <!-- Skeleton for chip -->
+        <Skeleton width="20%" height="1.7rem" class="mb-2" />
         <!-- Skeleton for title -->
         <Skeleton width="60%" height="2rem" class="mb-2" />
       </template>
@@ -10,7 +12,7 @@
         <!-- Skeleton for curriculum -->
         <Skeleton width="40%" height="1.2rem" class="mb-3" />
         <!-- Skeleton for exam board -->
-        <Skeleton width="30%" height="1rem" class="mb-3" />
+        <Skeleton width="40%" height="1.2rem" class="mb-3" />
       </template>
 
       <template #content>

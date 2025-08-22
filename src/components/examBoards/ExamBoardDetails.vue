@@ -9,6 +9,7 @@
 
     <Card v-else-if="examBoard">
       <template #title>
+        <h6><Chip label="Exam Board" /></h6>
         <h2 class="mb-2">{{ examBoard.name }}</h2>
       </template>
       <template #subtitle
@@ -73,6 +74,7 @@ import DeletePopup from "../shared/DeletePopup.vue";
 import Card from "primevue/card";
 import { DeletionState } from "@/models/deletionState";
 import ExamBoardDetailsSkeletons from "./skeletons/ExamBoardDetailsSkeleton.vue";
+import Chip from "primevue/chip";
 
 const examBoardStore = useExamBoardStore();
 const toast = useToast();

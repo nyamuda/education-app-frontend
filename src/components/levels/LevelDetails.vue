@@ -4,15 +4,16 @@
 
     <Card v-else-if="level">
       <template #title>
+        <h6><Chip label="Educational Level" /></h6>
         <h2 class="mb-2">{{ level.name }}</h2>
       </template>
       <template #subtitle
         ><h5 class="text-muted mb-3">
           Curriculum: <strong>{{ level.examBoard?.curriculum?.name }}</strong>
         </h5>
-        <h6 class="text-muted mb-3">
+        <h5 class="text-muted mb-3">
           Exam board: <strong>{{ level.examBoard?.name }}</strong>
-        </h6>
+        </h5>
       </template>
       <template #content>
         <h5>Subjects:</h5>
@@ -70,6 +71,7 @@ import DeletePopup from "../shared/DeletePopup.vue";
 import Card from "primevue/card";
 import { DeletionState } from "@/models/deletionState";
 import LevelDetailsSkeleton from "./skeletons/LevelDetailsSkeleton.vue";
+import Chip from "primevue/chip";
 
 const levelStore = useLevelStore();
 const toast = useToast();
