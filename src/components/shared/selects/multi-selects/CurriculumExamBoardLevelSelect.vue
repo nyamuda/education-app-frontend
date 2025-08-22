@@ -56,7 +56,7 @@
         id="levelSelectInput"
         :placeholder="isGettingCurriculums ? 'Loading levels...' : 'Level'"
         checkmark
-        :options="selectedCurriculum?.examBoards"
+        :options="selectedExamBoard?.levels"
         option-label="name"
         option-value="id"
         v-model="v$.levelId.$model"
@@ -166,6 +166,9 @@ const onCurriculumSelect = async (event: SelectChangeEvent) => {
   const curriculum = curriculums.value.find((c) => c.id === event.value) ?? null;
   selectedCurriculum.value = curriculum;
   formData.value.examBoardId = null; // reset exam board when curriculum changes
+  // reset level when curriculum changes
+  formData.value.levelId = null;
+  selectedExamBoard.value = null;
   emit("changeCurriculum", curriculum);
 };
 
@@ -176,9 +179,6 @@ const onExamBoardSelect = async (event: SelectChangeEvent) => {
   formData.value.levelId = null;
   // emit selected exam board
   emit("changeExamBoard", examBoard);
-  // since level value has been cleared,
-  // emit null to show that level value has been cleared
-  // emit("changeLevel", null);
 };
 
 const onLevelSelect = async (event: SelectChangeEvent) => {
@@ -194,8 +194,6 @@ const resetSelectedValues = () => {
   formData.value.examBoardId = null;
   formData.value.levelId = null;
 };
-
-defineExpose({ resetSelectedValues });
 
 /**
  * Fetches all curriculums from the backend. These curriculums are used
@@ -249,5 +247,5 @@ const getAllCurriculums = () => {
       emit("isLoading", false);
     });
 };
-defineExpose({ getAllCurriculums });
+defineExpose({ getAllCurriculums, resetSelectedValues });
 </script>

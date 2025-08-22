@@ -1,7 +1,7 @@
 <template>
   <div class="">
     <form class="subject-form m-auto" @submit.prevent="submitForm">
-      <TitleSection title="Add educational subject" title-size="small" />
+      <TitleSection title="Add subject" title-size="small" />
 
       <!-- Name input -->
       <div class="form-group mb-3">
@@ -20,8 +20,7 @@
           </div>
         </Message>
       </div>
-      <!-- Curriculum input -->
-      <!-- Curriculum and exam board inputs -->
+      <!-- Curriculum, exam board and level inputs -->
       <div class="form-group mb-3">
         <CurriculumExamBoardLevelSelect
           :default-curriculum-id="formData.curriculumId ?? undefined"
