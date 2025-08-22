@@ -1,0 +1,6 @@
+export interface SubjectFormData {
+  name: string;
+  curriculumId: number | null;
+  examBoardId: number | null;
+  levelId: number | null;
+}

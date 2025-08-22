@@ -1,18 +1,18 @@
 <template>
   <div class="">
-    <form class="level-form m-auto" @submit.prevent="submitForm">
-      <TitleSection title="Add educational level" title-size="small" />
+    <form class="subject-form m-auto" @submit.prevent="submitForm">
+      <TitleSection title="Add educational subject" title-size="small" />
 
       <!-- Name input -->
       <div class="form-group mb-3">
         <FloatLabel variant="on">
           <InputText
             class="w-100"
-            id="levelName"
+            id="subjectName"
             v-model="v$.name.$model"
             :invalid="v$.name.$error"
           />
-          <label for="levelName">Level name</label>
+          <label for="subjectName">Subject name</label>
         </FloatLabel>
         <Message size="small" severity="error" v-if="v$.name.$error" variant="simple">
           <div v-for="error of v$.name.$errors" :key="error.$uid">
@@ -37,9 +37,9 @@
       <Button
         fluid
         type="submit"
-        :label="isAddingLevel ? 'Adding...' : 'Add level'"
-        :loading="isAddingLevel"
-        :disabled="v$.$errors.length > 0 || isAddingLevel || isLoadingCurriculums"
+        :label="isAddingSubject ? 'Adding...' : 'Add subject'"
+        :loading="isAddingSubject"
+        :disabled="v$.$errors.length > 0 || isAddingSubject || isLoadingCurriculums"
         size="small"
         severity="primary"
       />
@@ -59,11 +59,11 @@ import { required } from "@vuelidate/validators";
 import { useToast } from "primevue/usetoast";
 import { useRouter } from "vue-router";
 import TitleSection from "../shared/TitleSection.vue";
-import { useLevelStore } from "@/stores/level";
+import { useSubjectStore } from "@/stores/subject";
 import type { Curriculum } from "@/models/curriculum";
 import type { ExamBoard } from "@/models/examBoard";
 import CurriculumExamBoardSelect from "../shared/selects/multi-selects/CurriculumExamBoardSelect.vue";
-import type { LevelFormData } from "@/interfaces/levels/levelFormData";
+import type { SubjectFormData } from "@/interfaces/subjects/subjectFormData";
 
 onMounted(() => {
   v$.value.$touch();
@@ -72,15 +72,15 @@ onMounted(() => {
 });
 
 // Access the store
-const levelStore = useLevelStore();
+const subjectStore = useSubjectStore();
 const toast = useToast();
 const router = useRouter();
-const isAddingLevel = ref(false);
+const isAddingSubject = ref(false);
 //check if the curriculums for the select input are being loaded
 const isLoadingCurriculums = ref(false);
 const curriculumExamBoardSelectRef = ref();
 //form validation start
-const formData: Ref<LevelFormData> = ref({
+const formData: Ref<SubjectFormData> = ref({
   name: "",
   curriculumId: null,
   examBoardId: null,
@@ -102,9 +102,9 @@ const submitForm = async () => {
   const { name, examBoardId } = formData.value;
   if (examBoardId == null) return;
 
-  isAddingLevel.value = true;
-  levelStore
-    .addLevel({ name, examBoardId })
+  isAddingSubject.value = true;
+  subjectStore
+    .addSubject({ name, examBoardId })
     .then((message) => {
       toast.add({
         severity: "success",
@@ -112,17 +112,17 @@ const submitForm = async () => {
         detail: message,
         life: 5000,
       });
-      router.push("/levels");
+      router.push("/subjects");
     })
     .catch((message) => {
       toast.add({
         severity: "error",
-        summary: "Adding Level Failed",
+        summary: "Adding Subject Failed",
         detail: message,
         life: 10000,
       });
     })
-    .finally(() => (isAddingLevel.value = false));
+    .finally(() => (isAddingSubject.value = false));
 };
 </script>
 
@@ -131,7 +131,7 @@ a {
   text-decoration: none;
 }
 @media (min-width: 768px) {
-  .level-form {
+  .subject-form {
     max-width: 30rem;
   }
 }
