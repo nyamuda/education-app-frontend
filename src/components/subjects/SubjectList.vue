@@ -1,6 +1,6 @@
 <template>
   <div class="container mx-auto">
-    <TitleSection title="Educational Subjects" title-size="small" align-items="center" />
+    <TitleSection title="Subjects" title-size="small" align-items="center" />
 
     <div class="list-actions row mt-3 justify-content-md-end g-3">
       <!-- Filter by curriculum -->
@@ -26,7 +26,7 @@
         <LevelSelect
           @change="onLevelChange"
           :levels="selectedExamBoardFilter?.levels"
-          placeholder="Exam board"
+          placeholder="Level"
           :is-required="false"
           ref="levelSelectInputRef"
         />
@@ -64,6 +64,11 @@
             <Skeleton></Skeleton>
           </template>
         </Column>
+        <Column field="level" header="Level">
+          <template #body>
+            <Skeleton></Skeleton>
+          </template>
+        </Column>
         <Column field="examBoard" header="Exam Board">
           <template #body>
             <Skeleton></Skeleton>
@@ -93,16 +98,22 @@
             <span>{{ slotProps.data.name }}</span>
           </template>
         </Column>
+        <!--Level name-->
+        <Column field="level" header="Level">
+          <template #body="slotProps">
+            <span>{{ slotProps.data.level?.name }}</span>
+          </template>
+        </Column>
         <!--Exam board name-->
         <Column field="examBoard" header="Exam Board">
           <template #body="slotProps">
-            <span>{{ slotProps.data.examBoard?.name }}</span>
+            <span>{{ slotProps.data.level?.examBoard?.name }}</span>
           </template>
         </Column>
         <!--Curriculum name-->
         <Column field="curriculum" header="Curriculum">
           <template #body="slotProps">
-            <span>{{ slotProps.data.examBoard?.curriculum?.name }}</span>
+            <span>{{ slotProps.data.level?.examBoard?.curriculum?.name }}</span>
           </template>
         </Column>
 
@@ -112,9 +123,9 @@
               <!--Button to see more details-->
               <router-link :to="'subjects/' + slotProps.data.id + '/details'">
                 <Button
-                  label="More details"
+                  label=""
                   severity="contrast"
-                  variant="outlined"
+                  variant="text"
                   size="small"
                   icon="pi pi-info-circle"
                   class="no-wrap-btn me-2"
@@ -122,6 +133,9 @@
 
               <!--Delete subject button-->
               <DeletePopup
+                class="no-wrap-btn"
+                button-label=""
+                button-variant="text"
                 title="Are You Sure?"
                 message="Deleting this subject is permanent. Proceed?"
                 :delete-callback="() => deleteSubject(slotProps.data.id)"
@@ -270,9 +284,10 @@ const resetFilters = () => {
   selectedCurriculumFilter.value = null;
   selectedExamBoardFilter.value = null;
   selectedLevelFilter.value = null;
-  //reset exam board select input component value
+  //reset exam board select input value
+  examBoardSelectInputRef.value.resetSelectedValue();
+  //reset level select input value
   levelSelectInputRef.value.resetSelectedValue();
-  //reset level select input component value
 };
 
 //Delete a subject with a given ID

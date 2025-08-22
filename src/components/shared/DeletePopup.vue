@@ -8,6 +8,7 @@
       icon="pi pi-trash"
       @click="confirmDelete"
       :loading="isDeletingItem"
+      :variant="buttonVariant"
       fluid
     />
     <ConfirmPopup></ConfirmPopup>
@@ -31,6 +32,10 @@ const props = defineProps({
   buttonLabel: {
     type: String,
     default: "Delete",
+  },
+  buttonVariant: {
+    type: String,
+    default: "",
   },
   //Method that will be called when the delete action is confirmed
   deleteCallback: {
