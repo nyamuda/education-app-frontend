@@ -224,11 +224,16 @@ const getAllCurriculums = () => {
       // This makes sure the correct option shows up in the select input instead of staying empty.
       if (props.defaultCurriculumId) {
         formData.value.curriculumId = props.defaultCurriculumId;
+        //set the default curriculum
         selectedCurriculum.value =
           curriculums.value.find((c) => c.id == props.defaultCurriculumId) ?? null;
       }
       if (props.defaultExamBoardId) {
         formData.value.examBoardId = props.defaultExamBoardId;
+        //set the default exam board
+        selectedExamBoard.value =
+          selectedCurriculum.value?.examBoards.find((e) => e.id === props.defaultExamBoardId) ??
+          null;
       }
       if (props.defaultLevelId) {
         formData.value.levelId = props.defaultLevelId;

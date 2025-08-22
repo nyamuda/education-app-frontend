@@ -66,11 +66,13 @@ onMounted(() => {
   //get the curriculum ID from a query parameter
   const id = router.currentRoute.value.params["id"];
 
-  //fetch curriculum with the given ID from the backend
-  if (id) {
+  if (!id) return;
+
+  try {
+    //fetch curriculum with the given ID from the backend
     curriculumId.value = Number(id);
     getCurriculumById(curriculumId.value);
-  }
+  } catch {}
 });
 const isUpdatingCurriculum = ref(false);
 const isGettingCurriculum = ref(false);

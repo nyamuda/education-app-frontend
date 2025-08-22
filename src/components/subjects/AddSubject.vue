@@ -63,7 +63,6 @@ import TitleSection from "../shared/TitleSection.vue";
 import { useSubjectStore } from "@/stores/subject";
 import type { Curriculum } from "@/models/curriculum";
 import type { ExamBoard } from "@/models/examBoard";
-import CurriculumExamBoardSelect from "../shared/selects/multi-selects/CurriculumExamBoardSelect.vue";
 import type { SubjectFormData } from "@/interfaces/subjects/subjectFormData";
 import CurriculumExamBoardLevelSelect from "../shared/selects/multi-selects/CurriculumExamBoardLevelSelect.vue";
 import type { Level } from "@/models/level";
@@ -87,6 +86,7 @@ const formData: Ref<SubjectFormData> = ref({
   name: "",
   curriculumId: null,
   examBoardId: null,
+  levelId: null,
 });
 
 const rules = {

@@ -64,13 +64,13 @@ export const useSubjectStore = defineStore("subject", () => {
   };
 
   //Updates a subject with a given ID
-  const updateSubject = (id: number, updateDetails: { name: string; examBoardIds: number[] }) => {
+  const updateSubject = (id: number, details: { name: string; levelId: number }) => {
     return new Promise((resolve, reject) => {
       //add access token to the request
       //to access the protected route
       setAuthToken();
       axios
-        .put(`${apiUrl.value}/${id}`, updateDetails)
+        .put(`${apiUrl.value}/${id}`, details)
         .then(() => resolve({}))
         .catch((err) => {
           const message = err.response.data?.message || ErrorResponse.Unexpected();

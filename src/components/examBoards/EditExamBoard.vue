@@ -79,11 +79,12 @@ onMounted(() => {
   //get the exam board ID from a query parameter
   const id = router.currentRoute.value.params["id"];
 
-  //fetch exam board with the given ID from the backend
-  if (id) {
+  if (!id) return;
+  try {
+    //fetch exam board with the given ID from the backend
     examBoardId.value = Number(id);
     getExamBoardById(examBoardId.value);
-  }
+  } catch {}
 });
 const isUpdatingExamBoard = ref(false);
 const isGettingExamBoard = ref(false);

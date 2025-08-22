@@ -12,9 +12,9 @@
         <!-- Skeleton for curriculum -->
         <Skeleton width="40%" height="1.2rem" class="mb-3" />
         <!-- Skeleton for exam board -->
-        <Skeleton width="40%" height="1.2rem" class="mb-3" />
+        <Skeleton width="35%" height="1.2rem" class="mb-3" />
         <!-- Skeleton for exam level -->
-        <Skeleton width="40%" height="1.2rem" class="mb-3" />
+        <Skeleton width="30%" height="1.2rem" class="mb-3" />
       </template>
 
       <template #content>

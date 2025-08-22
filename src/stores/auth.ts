@@ -200,6 +200,7 @@ export const useAuthStore = defineStore("auth", () => {
   //check to see if user is authenticated by using the Jwt token
   const authenticateUser = async () => {
     try {
+      isAuthenticated.value = false;
       //check if there is a token in local storage
       const token = localStorage.getItem("jwt_token");
 
@@ -223,9 +224,7 @@ export const useAuthStore = defineStore("auth", () => {
         //get all user details
         await getUserDetails();
       }
-    } catch {
-      isAuthenticated.value = false;
-    }
+    } catch {}
   };
 
   //Logs out a user

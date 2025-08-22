@@ -77,9 +77,11 @@ onMounted(async () => {
   v$.value.$touch();
   //get the ID route parameter
   const id = router.currentRoute.value.params["id"];
-  if (!id) return;
-  levelId.value = Number(id);
-  await getLevelById(levelId.value);
+  try {
+    if (!id) return;
+    levelId.value = Number(id);
+    await getLevelById(levelId.value);
+  } catch {}
 });
 
 // Access the store
