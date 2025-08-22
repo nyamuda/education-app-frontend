@@ -21,6 +21,16 @@
           ref="examBoardSelectInputRef"
         />
       </div>
+      <!-- Filter by level -->
+      <div class="col-6 col-md-3">
+        <LevelSelect
+          @change="onLevelChange"
+          :levels="selectedExamBoardFilter?.levels"
+          placeholder="Exam board"
+          :is-required="false"
+          ref="levelSelectInputRef"
+        />
+      </div>
 
       <!-- Sorting -->
       <div class="col-6 col-md-3">
@@ -164,6 +174,8 @@ import type { ExamBoard } from "@/models/examBoard";
 import CurriculumSelectInput from "../shared/selects/CurriculumSelect.vue";
 import ExamBoardSelectInput from "../shared/selects/ExamBoardSelect.vue";
 import type { SubjectQueryParams } from "@/interfaces/subjects/subjectQueryParams";
+import LevelSelect from "../shared/selects/LevelSelect.vue";
+import type { Level } from "@/models/level";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));
@@ -174,7 +186,9 @@ const toast = useToast();
 const subjects = ref(new PageInfo<Subject>());
 const selectedCurriculumFilter: Ref<Curriculum | null> = ref(null);
 const selectedExamBoardFilter: Ref<ExamBoard | null> = ref(null);
+const selectedLevelFilter: Ref<Level | null> = ref(null);
 const examBoardSelectInputRef = ref();
+const levelSelectInputRef = ref();
 const isGettingSubjects = ref(false);
 const deletingSubject = ref(new DeletionState());
 
@@ -195,12 +209,14 @@ const getAllSubjects = () => {
   const { page, pageSize } = subjects.value;
   const curriculumId = selectedCurriculumFilter.value?.id ?? null;
   const examBoardId = selectedExamBoardFilter.value?.id ?? null;
+  const levelId = selectedLevelFilter.value?.id ?? null;
   const params: SubjectQueryParams = {
     page,
     pageSize,
     sortBy: selectedSortOption.value,
     curriculumId,
     examBoardId,
+    levelId,
   };
   subjectStore
     .getSubjects(params)
@@ -244,12 +260,19 @@ const onExamBoardChange = (examBoard: ExamBoard) => {
   selectedExamBoardFilter.value = examBoard;
   getAllSubjects();
 };
+//Called when the level select input filter value changes
+const onLevelChange = (level: Level) => {
+  selectedLevelFilter.value = level;
+  getAllSubjects();
+};
 //Resets filters
 const resetFilters = () => {
   selectedCurriculumFilter.value = null;
   selectedExamBoardFilter.value = null;
+  selectedLevelFilter.value = null;
   //reset exam board select input component value
-  examBoardSelectInputRef.value.resetSelectedValue();
+  levelSelectInputRef.value.resetSelectedValue();
+  //reset level select input component value
 };
 
 //Delete a subject with a given ID
