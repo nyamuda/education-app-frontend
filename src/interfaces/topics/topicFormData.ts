@@ -3,4 +3,5 @@ export interface TopicFormData {
   curriculumId: number | null;
   examBoardId: number | null;
   levelId: number | null;
+  subjectId: number | null;
 }

@@ -2,7 +2,7 @@
   <div class="container mx-auto">
     <TitleSection title="Topics" title-size="small" align-items="center" />
 
-    <div class="list-actions row mt-3 justify-content-md-end g-3">
+    <div class="list-actions row mt-3 justify-content-start g-3">
       <!-- Filter by curriculum -->
       <div class="col-6 col-md-3">
         <CurriculumSelectInput
@@ -13,7 +13,7 @@
       </div>
       <!-- Filter by exam board -->
       <div class="col-6 col-md-3">
-      <ExamBoardSelectInput
+        <ExamBoardSelectInput
           @change="onExamBoardChange"
           :exam-boards="selectedCurriculumFilter?.examBoards"
           placeholder="Exam board"
@@ -301,12 +301,19 @@ const onCurriculumChange = (curriculum: Curriculum) => {
 const onExamBoardChange = (examBoard: ExamBoard) => {
   selectedExamBoardFilter.value = examBoard;
   selectedLevelFilter.value = null; //reset selected level
+  selectedSubjectFilter.value = null; //reset selected subject
+  //reset level select input value
+  levelSelectInputRef.value.resetSelectedValue();
+  //reset subject select input value
+  subjectSelectInputRef.value.resetSelectedValue();
   getAllTopics();
 };
 //Called when the level select input filter value changes
 const onLevelChange = (level: Level) => {
   selectedLevelFilter.value = level;
-  selectedSubjectFilter.value = null; //reset selected level
+  selectedSubjectFilter.value = null; //reset selected subject
+  //reset subject select input value
+  subjectSelectInputRef.value.resetSelectedValue();
   getAllTopics();
 };
 //Called when the subject select input filter value changes
@@ -319,10 +326,13 @@ const resetFilters = () => {
   selectedCurriculumFilter.value = null;
   selectedExamBoardFilter.value = null;
   selectedLevelFilter.value = null;
+  selectedSubjectFilter.value = null;
   //reset exam board select input value
   examBoardSelectInputRef.value.resetSelectedValue();
   //reset level select input value
   levelSelectInputRef.value.resetSelectedValue();
+  //reset subject select input value
+  subjectSelectInputRef.value.resetSelectedValue();
 };
 
 //Delete a topic with a given ID

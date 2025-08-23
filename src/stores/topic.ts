@@ -48,7 +48,7 @@ export const useTopicStore = defineStore("topic", () => {
   };
 
   //Creates a new topic
-  const addTopic = (details: { name: string; subjectIds: number[] }) => {
+  const addTopic = (details: { name: string; subjectId: number }) => {
     return new Promise((resolve, reject) => {
       //add access token to the request
       //to access the protected route
