@@ -118,5 +118,5 @@ export const useTopicStore = defineStore("topic", () => {
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   };
 
-  return { getTopicById, getTopics, updateTopic, deleteTopic, addTopic };
+  return { getTopicById, getTopics, updateTopic, deleteTopic, addTopic, uploadTopics };
 });
