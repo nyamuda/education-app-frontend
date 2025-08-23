@@ -31,6 +31,10 @@ import SubjectList from "@/components/subjects/SubjectList.vue";
 import AddSubject from "@/components/subjects/AddSubject.vue";
 import SubjectDetails from "@/components/subjects/SubjectDetails.vue";
 import EditSubject from "@/components/subjects/EditSubject.vue";
+import TopicList from "@/components/topics/TopicList.vue";
+import AddTopic from "@/components/topics/AddTopic.vue";
+import TopicDetails from "@/components/topics/TopicDetails.vue";
+import EditTopic from "@/components/topics/EditTopic.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -240,7 +244,37 @@ const router = createRouter({
     {
       path: "/topics",
       component: TopicView,
-      children: [],
+      // This is a protected route: only authenticated admins can access it
+      beforeEnter: async (to) => {
+        const authStore = useAuthStore();
+
+        // If the user is not logged in or is not an admin
+        if (!authStore.isAuthenticated || authStore.userRole != UserRole.Admin) {
+          //store the attempted URL
+          authStore.attemptedUrl = to.fullPath;
+          // Redirect to login page
+          return { name: "Login" };
+        }
+        return true;
+      },
+      children: [
+        {
+          path: "",
+          component: TopicList,
+        },
+        {
+          path: "add",
+          component: AddTopic,
+        },
+        {
+          path: ":id/details",
+          component: TopicDetails,
+        },
+        {
+          path: ":id/edit",
+          component: EditTopic,
+        },
+      ],
     },
     //subtopic routes
     {

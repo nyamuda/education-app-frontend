@@ -13,7 +13,7 @@
       </div>
       <!-- Filter by exam board -->
       <div class="col-6 col-md-3">
-        <ExamBoardSelectInput
+      <ExamBoardSelectInput
           @change="onExamBoardChange"
           :exam-boards="selectedCurriculumFilter?.examBoards"
           placeholder="Exam board"
