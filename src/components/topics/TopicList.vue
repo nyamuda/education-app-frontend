@@ -64,6 +64,17 @@
           <Button label="New topic" icon="pi pi-plus" size="small" severity="primary" />
         </router-link>
       </div>
+      <div class="col-auto">
+        <router-link to="/topics/upload">
+          <Button
+            label="Upload topics"
+            icon="pi pi-upload"
+            size="small"
+            severity="primary"
+            variant="outlined"
+          />
+        </router-link>
+      </div>
     </div>
 
     <!--Skeleton table start-->

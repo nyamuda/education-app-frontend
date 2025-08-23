@@ -35,6 +35,7 @@ import TopicList from "@/components/topics/TopicList.vue";
 import AddTopic from "@/components/topics/AddTopic.vue";
 import TopicDetails from "@/components/topics/TopicDetails.vue";
 import EditTopic from "@/components/topics/EditTopic.vue";
+import UploadTopics from "@/components/topics/UploadTopics.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -265,6 +266,10 @@ const router = createRouter({
         {
           path: "add",
           component: AddTopic,
+        },
+        {
+          path: "upload",
+          component: UploadTopics,
         },
         {
           path: ":id/details",

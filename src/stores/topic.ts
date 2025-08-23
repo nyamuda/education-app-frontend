@@ -63,6 +63,12 @@ export const useTopicStore = defineStore("topic", () => {
     });
   };
 
+  /**
+   * Uploads a JSON file containing topics to a specified subject.
+   *
+   * @param subjectId - The ID of the subject to which the topics will be added.
+   * @param details - The FormData containing the uploaded JSON file.
+   */
   const uploadTopics = (subjectId: number, details: FormData) => {
     return new Promise((resolve, reject) => {
       //add access token to the request

@@ -43,15 +43,15 @@
         <FileUpload
           mode="basic"
           @select="onFileSelect"
-          accept="json/*"
+          accept=".json,application/json"
           customUpload
           severity="secondary"
           choose-icon="pi pi-file"
           choose-label="Select JSON file"
           class="p-button-outlined p-button-secondary mb-2"
         />
-        <Message size="small" severity="error" v-if="v$.imageFile.$error" variant="simple">
-          <div v-for="error of v$.imageFile.$errors" :key="error.$uid">
+        <Message size="small" severity="error" v-if="v$.file.$error" variant="simple">
+          <div v-for="error of v$.file.$errors" :key="error.$uid">
             <div>{{ error.$message }}</div>
           </div>
         </Message>
@@ -60,9 +60,9 @@
       <Button
         fluid
         type="submit"
-        :label="isAddingTopic ? 'Adding...' : 'Add topic'"
-        :loading="isAddingTopic"
-        :disabled="v$.$errors.length > 0 || isAddingTopic || isLoadingCurriculums"
+        :label="isAddingTopics ? 'Uploading...' : 'Add topics'"
+        :loading="isAddingTopics"
+        :disabled="v$.$errors.length > 0 || isAddingTopics || isLoadingCurriculums"
         size="small"
         severity="primary"
       />
@@ -101,7 +101,7 @@ onMounted(() => {
 const topicStore = useTopicStore();
 const toast = useToast();
 const router = useRouter();
-const isAddingTopic = ref(false);
+const isAddingTopics = ref(false);
 //check if the curriculums for the select input are being loaded
 const isLoadingCurriculums = ref(false);
 const curriculumDownToSubjectSelectRef = ref();
@@ -137,14 +137,14 @@ const submitForm = async () => {
   const uploadData = new FormData();
   uploadData.append("File", file);
 
-  isAddingTopic.value = true;
+  isAddingTopics.value = true;
   topicStore
     .uploadTopics(subjectId, uploadData)
     .then(() => {
       toast.add({
         severity: "success",
         summary: "Success",
-        detail: "Topics have been successfully added to the subject.",
+        detail: "The topics have been successfully added to the subject.",
         life: 5000,
       });
       router.push("/topics");
@@ -157,7 +157,7 @@ const submitForm = async () => {
         life: 10000,
       });
     })
-    .finally(() => (isAddingTopic.value = false));
+    .finally(() => (isAddingTopics.value = false));
 };
 
 //Topics file upload
