@@ -1,6 +1,6 @@
 <template>
   <div class="container mx-auto">
-    <TitleSection title="Subjects" title-size="small" align-items="center" />
+    <TitleSection title="Topics" title-size="small" align-items="center" />
 
     <div class="list-actions row mt-3 justify-content-md-end g-3">
       <!-- Filter by curriculum -->
@@ -41,7 +41,7 @@
           :options="sortOptions"
           option-label="name"
           option-value="value"
-          @change="getAllSubjects"
+          @change="getAllTopics"
           size="small"
           class="w-100"
           show-clear
@@ -50,16 +50,16 @@
 
       <!-- Button -->
       <div class="col-auto">
-        <router-link to="/subjects/add">
-          <Button label="New subject" icon="pi pi-plus" size="small" severity="primary" />
+        <router-link to="/topics/add">
+          <Button label="New topic" icon="pi pi-plus" size="small" severity="primary" />
         </router-link>
       </div>
     </div>
 
     <!--Skeleton table start-->
-    <div id="subject-list" v-if="isGettingSubjects" class="card">
+    <div id="topic-list" v-if="isGettingTopics" class="card">
       <DataTable :value="rowSkeletons">
-        <Column field="subjectName" header="Subject Name">
+        <Column field="topicName" header="Topic Name">
           <template #body>
             <Skeleton></Skeleton>
           </template>
@@ -90,10 +90,10 @@
     <!--Skeleton table end-->
 
     <!--Table start-->
-    <div id="subject-list" v-else-if="subjects.items?.length > 0" class="card">
-      <DataTable :value="subjects.items">
-        <!--Subject name-->
-        <Column field="subjectName" header="Subject Name">
+    <div id="topic-list" v-else-if="topics.items?.length > 0" class="card">
+      <DataTable :value="topics.items">
+        <!--Topic name-->
+        <Column field="topicName" header="Topic Name">
           <template #body="slotProps">
             <span>{{ slotProps.data.name }}</span>
           </template>
@@ -121,7 +121,7 @@
           <template #body="slotProps">
             <div class="d-flex justify-content-start align-items-center gap-2">
               <!--Button to see more details-->
-              <router-link :to="'subjects/' + slotProps.data.id + '/details'">
+              <router-link :to="'topics/' + slotProps.data.id + '/details'">
                 <Button
                   label=""
                   severity="contrast"
@@ -131,15 +131,15 @@
                   class="no-wrap-btn me-2"
               /></router-link>
 
-              <!--Delete subject button-->
+              <!--Delete topic button-->
               <DeletePopup
                 button-label=""
                 button-variant="text"
                 title="Are You Sure?"
-                message="Deleting this subject is permanent. Proceed?"
-                :delete-callback="() => deleteSubject(slotProps.data.id)"
+                message="Deleting this topic is permanent. Proceed?"
+                :delete-callback="() => deleteTopic(slotProps.data.id)"
                 :is-deleting-item="
-                  slotProps.data.id == deletingSubject.id && deletingSubject.inProgress
+                  slotProps.data.id == deletingTopic.id && deletingTopic.inProgress
                 "
               />
             </div>
@@ -148,18 +148,18 @@
       </DataTable>
       <!-- Pagination start -->
       <Paginator
-        :rows="subjects.pageSize"
-        :totalRecords="subjects.totalItems"
+        :rows="topics.pageSize"
+        :totalRecords="topics.totalItems"
         @page="onPageChange"
-        :first="(subjects.page - 1) * subjects.pageSize"
+        :first="(topics.page - 1) * topics.pageSize"
       />
       <!-- Pagination end -->
     </div>
     <!--Table end-->
 
-    <!--No Subjects Start-->
-    <EmptyList v-else message="No subject data to display at the moment." />
-    <!--No Subjects End-->
+    <!--No Topics Start-->
+    <EmptyList v-else message="No topic data to display at the moment." />
+    <!--No Topics End-->
   </div>
 </template>
 
@@ -173,57 +173,57 @@ import EmptyList from "../shared/EmptyList.vue";
 import TitleSection from "../shared/TitleSection.vue";
 import { PageInfo } from "@/models/pageInfo";
 import Select from "primevue/select";
-import type { Subject } from "@/models/subject";
-import { SubjectSortOption } from "@/enums/subjects/subjectSortOption";
+import type { Topic } from "@/models/topic";
+import { TopicSortOption } from "@/enums/topics/topicSortOption";
 import { DataTable } from "primevue";
 import Paginator, { type PageState } from "primevue/paginator";
 import DeletePopup from "../shared/DeletePopup.vue";
 import { DeletionState } from "@/models/deletionState";
 import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
-import { useSubjectStore } from "@/stores/subject";
+import { useTopicStore } from "@/stores/topic";
 import { Curriculum } from "@/models/curriculum";
 import type { Ref } from "vue";
 import type { ExamBoard } from "@/models/examBoard";
 import CurriculumSelectInput from "../shared/selects/CurriculumSelect.vue";
 import ExamBoardSelectInput from "../shared/selects/ExamBoardSelect.vue";
-import type { SubjectQueryParams } from "@/interfaces/subjects/subjectQueryParams";
+import type { TopicQueryParams } from "@/interfaces/topics/topicQueryParams";
 import LevelSelect from "../shared/selects/LevelSelect.vue";
 import type { Level } from "@/models/level";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));
 
-const subjectStore = useSubjectStore();
+const topicStore = useTopicStore();
 
 const toast = useToast();
-const subjects = ref(new PageInfo<Subject>());
+const topics = ref(new PageInfo<Topic>());
 const selectedCurriculumFilter: Ref<Curriculum | null> = ref(null);
 const selectedExamBoardFilter: Ref<ExamBoard | null> = ref(null);
 const selectedLevelFilter: Ref<Level | null> = ref(null);
 const examBoardSelectInputRef = ref();
 const levelSelectInputRef = ref();
-const isGettingSubjects = ref(false);
-const deletingSubject = ref(new DeletionState());
+const isGettingTopics = ref(false);
+const deletingTopic = ref(new DeletionState());
 
 //sorting info
 const sortOptions = ref([
-  { name: "Name", value: SubjectSortOption.Name },
-  { name: "Date Created", value: SubjectSortOption.DateCreated },
+  { name: "Name", value: TopicSortOption.Name },
+  { name: "Date Created", value: TopicSortOption.DateCreated },
 ]);
-const selectedSortOption = ref(SubjectSortOption.DateCreated);
+const selectedSortOption = ref(TopicSortOption.DateCreated);
 
 onMounted(() => {
-  //get all subjects
-  getAllSubjects();
+  //get all topics
+  getAllTopics();
 });
-//get all subjects
-const getAllSubjects = () => {
-  isGettingSubjects.value = true;
-  const { page, pageSize } = subjects.value;
+//get all topics
+const getAllTopics = () => {
+  isGettingTopics.value = true;
+  const { page, pageSize } = topics.value;
   const curriculumId = selectedCurriculumFilter.value?.id ?? null;
   const examBoardId = selectedExamBoardFilter.value?.id ?? null;
   const levelId = selectedLevelFilter.value?.id ?? null;
-  const params: SubjectQueryParams = {
+  const params: TopicQueryParams = {
     page,
     pageSize,
     sortBy: selectedSortOption.value,
@@ -231,9 +231,9 @@ const getAllSubjects = () => {
     examBoardId,
     levelId,
   };
-  subjectStore
-    .getSubjects(params)
-    .then((data) => (subjects.value = data))
+  topicStore
+    .getTopics(params)
+    .then((data) => (topics.value = data))
     .catch((message) => {
       toast.add({
         severity: "error",
@@ -242,23 +242,23 @@ const getAllSubjects = () => {
         life: 5000,
       });
     })
-    .finally(() => (isGettingSubjects.value = false));
+    .finally(() => (isGettingTopics.value = false));
 };
 
 /**
  * Called when the user switches pages in the paginator.
  * 1. Converts PrimeVue's 0-based page index to 1-based.
  * 2. Stores the new page in state.
- * 3. Fetches the updated subjects list and scrolls to the top of that list.
+ * 3. Fetches the updated topics list and scrolls to the top of that list.
  */
 const onPageChange = (state: PageState) => {
   // PrimeVue uses a 0-based page index, so add 1 before sending
   // the request to the backend, which expects 1-based indexing.
-  subjects.value.page = state.page + 1;
-  getAllSubjects();
+  topics.value.page = state.page + 1;
+  getAllTopics();
 
   //smoothly scroll to the top of the list
-  const elementId = "subject-list";
+  const elementId = "topic-list";
   SmoothScrollHelper.scrollToElement(elementId);
 };
 
@@ -266,18 +266,18 @@ const onPageChange = (state: PageState) => {
 const onCurriculumChange = (curriculum: Curriculum) => {
   resetFilters();
   selectedCurriculumFilter.value = curriculum;
-  getAllSubjects();
+  getAllTopics();
 };
 //Called when the exam board select input filter value changes
 const onExamBoardChange = (examBoard: ExamBoard) => {
   selectedExamBoardFilter.value = examBoard;
   selectedLevelFilter.value = null;
-  getAllSubjects();
+  getAllTopics();
 };
 //Called when the level select input filter value changes
 const onLevelChange = (level: Level) => {
   selectedLevelFilter.value = level;
-  getAllSubjects();
+  getAllTopics();
 };
 //Resets filters
 const resetFilters = () => {
@@ -290,20 +290,20 @@ const resetFilters = () => {
   levelSelectInputRef.value.resetSelectedValue();
 };
 
-//Delete a subject with a given ID
-const deleteSubject = (id: number) => {
-  deletingSubject.value = { id, inProgress: true };
-  subjectStore
-    .deleteSubject(id)
+//Delete a topic with a given ID
+const deleteTopic = (id: number) => {
+  deletingTopic.value = { id, inProgress: true };
+  topicStore
+    .deleteTopic(id)
     .then(() => {
       toast.add({
         severity: "success",
         summary: "Done",
-        detail: "The subject was successfully deleted.",
+        detail: "The topic was successfully deleted.",
         life: 5000,
       });
-      //refresh the subject list
-      getAllSubjects();
+      //refresh the topic list
+      getAllTopics();
     })
     .catch((message) => {
       toast.add({
@@ -313,7 +313,7 @@ const deleteSubject = (id: number) => {
         life: 10000,
       });
     })
-    .finally(() => (deletingSubject.value.inProgress = false));
+    .finally(() => (deletingTopic.value.inProgress = false));
 };
 </script>
 

@@ -142,7 +142,7 @@ const submitForm = async () => {
     .catch((message) => {
       toast.add({
         severity: "error",
-        summary: "Adding Subject Failed",
+        summary: "Update Failed",
         detail: message,
         life: 10000,
       });

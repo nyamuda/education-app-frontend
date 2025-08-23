@@ -2,6 +2,7 @@
   <div>
     <!--Delete Button-->
     <Button
+      class="no-wrap-btn"
       severity="danger"
       :label="isDeletingItem ? 'Deleting...' : buttonLabel"
       size="small"
