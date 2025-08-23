@@ -63,6 +63,21 @@ export const useTopicStore = defineStore("topic", () => {
     });
   };
 
+  const uploadTopics = (subjectId: number, details: FormData) => {
+    return new Promise((resolve, reject) => {
+      //add access token to the request
+      //to access the protected route
+      setAuthToken();
+      axios
+        .post(`${UrlHelper.apiUrl}/subjects/${subjectId}/upload-topics`, details)
+        .then(() => resolve({}))
+        .catch((err) => {
+          const message = err.response.data?.message || ErrorResponse.Unexpected();
+          reject(message);
+        });
+    });
+  };
+
   //Updates a topic with a given ID
   const updateTopic = (id: number, updateDetails: { name: string; subjectIds: number[] }) => {
     return new Promise((resolve, reject) => {

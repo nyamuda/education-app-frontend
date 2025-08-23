@@ -225,6 +225,7 @@ const onExamBoardSelect = async (event: SelectChangeEvent) => {
 
 const onLevelSelect = async (event: SelectChangeEvent) => {
   const level = selectedExamBoard.value?.levels?.find((l) => l.id === event.value) ?? null;
+  selectedLevel.value = level;
   // since subject depends on exam board, reset subject when exam board changes
   formData.value.subjectId = null;
   emit("changeLevel", level);

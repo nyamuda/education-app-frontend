@@ -73,7 +73,7 @@ import type { Subject } from "@/models/subject";
 onMounted(() => {
   v$.value.$touch();
   //fetch curriculums for the curriculum and exam board select inputs
-  curriculumExamBoardLevelSelectRef.value.getAllCurriculums();
+  curriculumDownToSubjectSelectRef.value.getAllCurriculums();
 });
 
 // Access the store
@@ -83,7 +83,7 @@ const router = useRouter();
 const isAddingTopic = ref(false);
 //check if the curriculums for the select input are being loaded
 const isLoadingCurriculums = ref(false);
-const curriculumExamBoardLevelSelectRef = ref();
+const curriculumDownToSubjectSelectRef = ref();
 //form validation start
 const formData: Ref<TopicFormData> = ref({
   name: "",
