@@ -189,6 +189,7 @@ import ExamBoardSelectInput from "../shared/selects/ExamBoardSelect.vue";
 import type { TopicQueryParams } from "@/interfaces/topics/topicQueryParams";
 import LevelSelect from "../shared/selects/LevelSelect.vue";
 import type { Level } from "@/models/level";
+import type { Subject } from "@/models/subject";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));
@@ -200,6 +201,7 @@ const topics = ref(new PageInfo<Topic>());
 const selectedCurriculumFilter: Ref<Curriculum | null> = ref(null);
 const selectedExamBoardFilter: Ref<ExamBoard | null> = ref(null);
 const selectedLevelFilter: Ref<Level | null> = ref(null);
+const selectedSubjectFilter: Ref<Subject | null> = ref(null);
 const examBoardSelectInputRef = ref();
 const levelSelectInputRef = ref();
 const isGettingTopics = ref(false);
@@ -219,10 +221,12 @@ onMounted(() => {
 //get all topics
 const getAllTopics = () => {
   isGettingTopics.value = true;
+  //prepare the query parameter before fetching the topics
   const { page, pageSize } = topics.value;
   const curriculumId = selectedCurriculumFilter.value?.id ?? null;
   const examBoardId = selectedExamBoardFilter.value?.id ?? null;
   const levelId = selectedLevelFilter.value?.id ?? null;
+  const subjectId = selectedSubjectFilter.value?.id ?? null;
   const params: TopicQueryParams = {
     page,
     pageSize,
@@ -230,7 +234,9 @@ const getAllTopics = () => {
     curriculumId,
     examBoardId,
     levelId,
+    subjectId,
   };
+  //fetch the topics
   topicStore
     .getTopics(params)
     .then((data) => (topics.value = data))

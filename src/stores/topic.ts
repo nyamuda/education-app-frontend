@@ -5,6 +5,7 @@ import type { Topic } from "@/models/topic";
 import { UrlHelper } from "@/helpers/urlHelper";
 import { ErrorResponse } from "@/models/errorResponse";
 import type { PageInfo } from "@/models/pageInfo";
+import type { TopicQueryParams } from "@/interfaces/topics/topicQueryParams";
 
 export const useTopicStore = defineStore("topic", () => {
   const apiUrl = ref(`${UrlHelper.apiUrl}/topics`);
@@ -29,14 +30,11 @@ export const useTopicStore = defineStore("topic", () => {
   };
 
   //Gets a paginated list of topics along with pagination metadata
-  const getTopics = (page: number, pageSize: number): Promise<PageInfo<Topic>> => {
+  const getTopics = (params: TopicQueryParams): Promise<PageInfo<Topic>> => {
     return new Promise((resolve, reject) => {
       axios
         .get<PageInfo<Topic>>(`${apiUrl.value}`, {
-          params: {
-            page: page,
-            pageSize: pageSize,
-          },
+          params,
         })
         .then((response) => {
           //return the topics

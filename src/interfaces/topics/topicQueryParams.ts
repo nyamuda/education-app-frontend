@@ -1,6 +1,6 @@
 import type { TopicSortOption } from "@/enums/topics/topicSortOption";
 
-export interface SubjectQueryParams {
+export interface TopicQueryParams {
   page: number;
   pageSize: number;
   sortBy: TopicSortOption;
