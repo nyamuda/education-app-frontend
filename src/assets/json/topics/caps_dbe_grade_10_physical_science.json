@@ -1,0 +1,78 @@
+[
+  {
+    "name": "Skills for physical sciences",
+    "subtopics": [
+      { "name": "Units and conversions" },
+      { "name": "Graphs" },
+      { "name": "Systems" },
+      { "name": "Vectors and scalars (introduction)" }
+    ]
+  },
+  {
+    "name": "Motion in one dimension",
+    "subtopics": [
+      { "name": "Reference frames" },
+      { "name": "Position, displacement and distance" },
+      {
+        "name": "Average speed, average velocity, acceleration"
+      }
+    ]
+  },
+  {
+    "name": "Gravity",
+    "subtopics": [
+      { "name": "Newton’s Law of Universal Gravitation" },
+      { "name": "Weight" },
+      { "name": "Gravitational acceleration" }
+    ]
+  },
+  {
+    "name": "Mechanical energy",
+    "subtopics": [
+      { "name": "Gravitational potential energy" },
+      { "name": "Kinetic energy" },
+      { "name": "Conservation of mechanical energy" }
+    ]
+  },
+  {
+    "name": "Matter and materials",
+    "subtopics": [
+      { "name": "States of matter" },
+      { "name": "Change of state" },
+      { "name": "Kinetic molecular theory" },
+      { "name": "Density" },
+      { "name": "Mixtures and pure substances" },
+      { "name": "Methods of separation" }
+    ]
+  },
+  {
+    "name": "Chemical change",
+    "subtopics": [
+      { "name": "Physical and chemical change" },
+      { "name": "Rearrangement of atoms in reactions" },
+      { "name": "Conservation of mass" },
+      { "name": "Energy and chemical change" },
+      { "name": "Exothermic and endothermic reactions" },
+      { "name": "Introduction to reaction rates" }
+    ]
+  },
+  {
+    "name": "Waves, sound and light",
+    "subtopics": [
+      { "name": "Transverse and longitudinal pulses" },
+      { "name": "Wave properties" },
+      { "name": "Sound waves" },
+      { "name": "Electromagnetic spectrum" },
+      { "name": "Light: reflection and refraction" }
+    ]
+  },
+  {
+    "name": "Electricity and magnetism",
+    "subtopics": [
+      { "name": "Electrostatics" },
+      { "name": "Potential difference, current, resistance" },
+      { "name": "Ohm’s Law" },
+      { "name": "Series and parallel circuits" }
+    ]
+  }
+]

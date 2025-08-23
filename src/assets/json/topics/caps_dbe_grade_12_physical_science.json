@@ -1,0 +1,80 @@
+[
+  {
+    "name": "Momentum and impulse",
+    "subtopics": [
+      { "name": "Momentum in two dimensions" },
+      { "name": "Elastic and inelastic collisions" },
+      { "name": "Conservation of momentum" }
+    ]
+  },
+  {
+    "name": "Work, energy and power",
+    "subtopics": [
+      { "name": "Work-energy principle (advanced)" },
+      { "name": "Power in mechanical systems" },
+      { "name": "Conservation of energy" }
+    ]
+  },
+  {
+    "name": "Vertical projectile motion",
+    "subtopics": [
+      { "name": "Equations of motion vertically" },
+      { "name": "Graphs of vertical motion" }
+    ]
+  },
+  {
+    "name": "Newton’s law of universal gravitation and fields",
+    "subtopics": [
+      { "name": "Newton’s Law of Gravitation" },
+      { "name": "Gravitational field" },
+      { "name": "Electric field" },
+      { "name": "Field patterns" }
+    ]
+  },
+  {
+    "name": "Electrodynamics",
+    "subtopics": [
+      { "name": "Electromagnetic induction" },
+      { "name": "Alternating current" },
+      { "name": "Motors" },
+      { "name": "Generators" },
+      { "name": "Transformers" }
+    ]
+  },
+  {
+    "name": "Electrochemistry",
+    "subtopics": [
+      { "name": "Oxidation and reduction" },
+      { "name": "Electrochemical cells" },
+      { "name": "Galvanic cells" },
+      { "name": "Electrolytic cells" },
+      { "name": "Applications of electrochemistry" }
+    ]
+  },
+  {
+    "name": "Waves, sound and light",
+    "subtopics": [
+      { "name": "Interference of waves" },
+      { "name": "Diffraction" },
+      { "name": "Doppler effect (applications)" },
+      { "name": "Photoelectric effect" },
+      { "name": "Electromagnetic radiation" }
+    ]
+  },
+  {
+    "name": "Matter and materials",
+    "subtopics": [
+      { "name": "Organic molecules" },
+      { "name": "Polymers" },
+      { "name": "Properties and uses of materials" }
+    ]
+  },
+  {
+    "name": "Chemical change",
+    "subtopics": [
+      { "name": "Rates of reaction" },
+      { "name": "Chemical equilibrium" },
+      { "name": "Acids and bases (pH, Ka, Kw)" }
+    ]
+  }
+]

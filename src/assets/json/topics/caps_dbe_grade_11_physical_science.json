@@ -1,0 +1,79 @@
+[
+  {
+    "name": "Kinematics in one dimension",
+    "subtopics": [
+      { "name": "Instantaneous velocity" },
+      { "name": "Instantaneous acceleration" },
+      { "name": "Equations of motion" },
+      { "name": "Graphs of motion" },
+      { "name": "Relative velocity" }
+    ]
+  },
+  {
+    "name": "Newton’s laws and application of forces",
+    "subtopics": [
+      { "name": "Vectors in two dimensions" },
+      { "name": "Resultant forces" },
+      { "name": "Newton’s First Law" },
+      { "name": "Newton’s Second Law" },
+      { "name": "Newton’s Third Law" },
+      { "name": "Free-body diagrams" }
+    ]
+  },
+  {
+    "name": "Momentum and impulse",
+    "subtopics": [
+      { "name": "Momentum in one dimension" },
+      { "name": "Impulse and change in momentum" },
+      { "name": "Conservation of momentum" }
+    ]
+  },
+  {
+    "name": "Work, energy and power",
+    "subtopics": [
+      { "name": "Work done by a force" },
+      { "name": "Work-energy theorem" },
+      { "name": "Power" }
+    ]
+  },
+  {
+    "name": "Waves, sound and light",
+    "subtopics": [
+      { "name": "Transverse pulses and waves" },
+      { "name": "Longitudinal waves" },
+      { "name": "Superposition of waves" },
+      { "name": "Standing waves" },
+      { "name": "Doppler effect (introduction)" }
+    ]
+  },
+  {
+    "name": "Matter and materials",
+    "subtopics": [
+      { "name": "Atomic structure" },
+      { "name": "Periodic table trends" },
+      { "name": "Chemical bonding" },
+      { "name": "Intermolecular forces" },
+      { "name": "Properties of materials" }
+    ]
+  },
+  {
+    "name": "Chemical change",
+    "subtopics": [
+      { "name": "Stoichiometry and mole concept" },
+      { "name": "Energy changes in reactions" },
+      { "name": "Types of reactions" },
+      { "name": "Acids and bases" },
+      { "name": "Chemical equilibrium (intro)" }
+    ]
+  },
+  {
+    "name": "Electricity and magnetism",
+    "subtopics": [
+      { "name": "Electric circuits" },
+      { "name": "Ohmic and non-ohmic resistors" },
+      { "name": "Series and parallel resistors" },
+      { "name": "Electromagnetism" },
+      { "name": "Electromagnetic induction (intro)" }
+    ]
+  }
+]

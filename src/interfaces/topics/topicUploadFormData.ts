@@ -1,5 +1,4 @@
 export interface TopicUploadFormData {
-  name: string;
   curriculumId: number | null;
   examBoardId: number | null;
   levelId: number | null;
