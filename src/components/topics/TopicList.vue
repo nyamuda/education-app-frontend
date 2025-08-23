@@ -133,7 +133,7 @@
         <!--Level name-->
         <Column field="level" header="Level">
           <template #body="slotProps">
-            <span>{{ slotProps.data.level?.name }}</span>
+            <span>{{ slotProps.data.subject?.level?.name }}</span>
           </template>
         </Column>
         <!--Exam board name-->

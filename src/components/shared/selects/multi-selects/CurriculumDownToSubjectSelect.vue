@@ -206,9 +206,10 @@ const onCurriculumSelect = async (event: SelectChangeEvent) => {
   const curriculum = curriculums.value.find((c) => c.id === event.value) ?? null;
   selectedCurriculum.value = curriculum;
   formData.value.examBoardId = null; // reset exam board when curriculum changes
-  // reset level when curriculum changes
-  formData.value.levelId = null;
+  formData.value.levelId = null; // reset exam level when curriculum changes
+  formData.value.subjectId = null; // reset subject when curriculum changes
   selectedExamBoard.value = null;
+  selectedLevel.value = null;
   emit("changeCurriculum", curriculum);
 };
 

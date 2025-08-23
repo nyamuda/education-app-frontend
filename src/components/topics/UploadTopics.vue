@@ -1,7 +1,7 @@
 <template>
   <div class="">
     <form class="topic-form m-auto" @submit.prevent="submitForm">
-      <TitleSection title="Add topic" title-size="small" />
+      <TitleSection title="Upload topics" title-size="small" />
 
       <!-- Curriculum, exam board and level inputs -->
       <div class="form-group mb-3">
@@ -19,7 +19,6 @@
           ref="curriculumDownToSubjectSelectRef"
         />
       </div>
-
       <!--JSON file upload section-->
       <div class="d-flex flex-column align-items-start gap-1 mb-3">
         <p style="font-size: 0.9rem" class="fst-italic text-muted mb-0">Max file size is 5MB</p>
@@ -28,7 +27,6 @@
           @select="onFileSelect"
           accept=".json,application/json"
           customUpload
-          severity="secondary"
           choose-icon="pi pi-file"
           choose-label="Select JSON file"
           class="p-button-outlined p-button-contrast"
