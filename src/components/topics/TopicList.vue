@@ -31,6 +31,16 @@
           ref="levelSelectInputRef"
         />
       </div>
+      <!-- Filter by subject -->
+      <div class="col-6 col-md-3">
+        <SubjectSelect
+          @change="onSubjectChange"
+          :subjects="selectedLevelFilter?.subjects"
+          placeholder="Subject"
+          :is-required="false"
+          ref="subjectSelectInputRef"
+        />
+      </div>
 
       <!-- Sorting -->
       <div class="col-6 col-md-3">
@@ -64,16 +74,21 @@
             <Skeleton></Skeleton>
           </template>
         </Column>
+        <Column field="subject" header="Subject">
+          <template #body>
+            <Skeleton></Skeleton>
+          </template>
+        </Column>
         <Column field="level" header="Level">
           <template #body>
             <Skeleton></Skeleton>
           </template>
         </Column>
-        <Column field="examBoard" header="Exam Board">
+        <!-- <Column field="examBoard" header="Exam Board">
           <template #body>
             <Skeleton></Skeleton>
           </template>
-        </Column>
+        </Column> -->
         <Column field="curriculum" header="Curriculum">
           <template #body>
             <Skeleton></Skeleton>
@@ -98,6 +113,12 @@
             <span>{{ slotProps.data.name }}</span>
           </template>
         </Column>
+        <!--Subject name-->
+        <Column field="subject" header="Subject">
+          <template #body="slotProps">
+            <span>{{ slotProps.data.subject?.name }}</span>
+          </template>
+        </Column>
         <!--Level name-->
         <Column field="level" header="Level">
           <template #body="slotProps">
@@ -105,15 +126,15 @@
           </template>
         </Column>
         <!--Exam board name-->
-        <Column field="examBoard" header="Exam Board">
+        <!-- <Column field="examBoard" header="Exam Board">
           <template #body="slotProps">
             <span>{{ slotProps.data.level?.examBoard?.name }}</span>
           </template>
-        </Column>
+        </Column> -->
         <!--Curriculum name-->
         <Column field="curriculum" header="Curriculum">
           <template #body="slotProps">
-            <span>{{ slotProps.data.level?.examBoard?.curriculum?.name }}</span>
+            <span>{{ slotProps.data.subject?.level?.examBoard?.curriculum?.name }}</span>
           </template>
         </Column>
 
@@ -190,6 +211,7 @@ import type { TopicQueryParams } from "@/interfaces/topics/topicQueryParams";
 import LevelSelect from "../shared/selects/LevelSelect.vue";
 import type { Level } from "@/models/level";
 import type { Subject } from "@/models/subject";
+import SubjectSelect from "../shared/selects/SubjectSelect.vue";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));
@@ -204,6 +226,7 @@ const selectedLevelFilter: Ref<Level | null> = ref(null);
 const selectedSubjectFilter: Ref<Subject | null> = ref(null);
 const examBoardSelectInputRef = ref();
 const levelSelectInputRef = ref();
+const subjectSelectInputRef = ref();
 const isGettingTopics = ref(false);
 const deletingTopic = ref(new DeletionState());
 
@@ -277,12 +300,18 @@ const onCurriculumChange = (curriculum: Curriculum) => {
 //Called when the exam board select input filter value changes
 const onExamBoardChange = (examBoard: ExamBoard) => {
   selectedExamBoardFilter.value = examBoard;
-  selectedLevelFilter.value = null;
+  selectedLevelFilter.value = null; //reset selected level
   getAllTopics();
 };
 //Called when the level select input filter value changes
 const onLevelChange = (level: Level) => {
   selectedLevelFilter.value = level;
+  selectedSubjectFilter.value = null; //reset selected level
+  getAllTopics();
+};
+//Called when the subject select input filter value changes
+const onSubjectChange = (subject: Subject) => {
+  selectedSubjectFilter.value = subject;
   getAllTopics();
 };
 //Resets filters
