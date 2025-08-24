@@ -18,7 +18,7 @@
         :size="size"
         :show-clear="showClear"
       />
-
+      <!-- Validation errors -->
       <Message size="small" severity="error" v-if="v$.curriculumId.$error" variant="simple">
         <div v-for="error of v$.curriculumId.$errors" :key="error.$uid">
           <div>{{ error.$message }}</div>
@@ -43,7 +43,7 @@
         :size="size"
         :show-clear="showClear"
       />
-
+      <!-- Validation errors -->
       <Message size="small" severity="error" v-if="v$.examBoardId.$error" variant="simple">
         <div v-for="error of v$.examBoardId.$errors" :key="error.$uid">
           <div>{{ error.$message }}</div>
@@ -68,7 +68,7 @@
         :size="size"
         :show-clear="showClear"
       />
-
+      <!-- Validation errors -->
       <Message size="small" severity="error" v-if="v$.levelId.$error" variant="simple">
         <div v-for="error of v$.levelId.$errors" :key="error.$uid">
           <div>{{ error.$message }}</div>
@@ -93,7 +93,7 @@
         :size="size"
         :show-clear="showClear"
       />
-
+      <!-- Validation errors -->
       <Message size="small" severity="error" v-if="v$.subjectId.$error" variant="simple">
         <div v-for="error of v$.subjectId.$errors" :key="error.$uid">
           <div>{{ error.$message }}</div>
@@ -104,6 +104,19 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Multi-step select component:
+ *  Curriculum → Exam Board → Educational Level → Subject
+ *
+ * Each select filters the next one.
+ * Example:
+ *   - Choosing a curriculum enables exam boards tied to that curriculum
+ *   - Choosing an exam board enables levels tied to that exam board
+ *   - Choosing a level enables subjects tied to that level
+ *
+ * Emits change events upwards so the parent component can react.
+ */
+
 import Select, { type SelectChangeEvent } from "primevue/select";
 import { Curriculum } from "@/models/curriculum";
 import { useCurriculumStore } from "@/stores/curriculum";
@@ -128,7 +141,7 @@ const props = defineProps({
     default: true,
   },
 
-  //whether the input value is required or not
+  //whether the input values are required or not
   //controls whether to show error messages or not
   isRequired: {
     type: Boolean,
@@ -173,9 +186,7 @@ const selectedLevel: Ref<Level | null> = ref(null);
 const curriculumStore = useCurriculumStore();
 const isGettingCurriculums = ref(false);
 
-//const initialCurriculumId = computed(() => props.curriculumId);
-
-//select input validation start
+//select inputs validation start
 const formData: Ref<{
   curriculumId: number | null;
   examBoardId: number | null;
@@ -200,7 +211,7 @@ const rules = computed(() => {
 });
 
 const v$ = useVuelidate(rules, formData);
-//select input validation end
+//select inputs validation end
 
 const onCurriculumSelect = async (event: SelectChangeEvent) => {
   const curriculum = curriculums.value.find((c) => c.id === event.value) ?? null;
@@ -303,8 +314,11 @@ const getAllCurriculums = () => {
 };
 defineExpose({ getAllCurriculums, resetAllSelectedValues });
 
-// Once the list of curriculums is loaded, apply the default values (if provided).
-// This makes sure the correct option shows up in the select input instead of staying empty.
+/**
+ * Applies the default values for the select inputs (if provided).
+ * This method is called once the list of curriculums is loaded.
+ * This makes sure the correct option shows up in the select input instead of staying empty.
+ */
 const applyDefaultValues = () => {
   if (props.defaultCurriculumId) {
     formData.value.curriculumId = props.defaultCurriculumId;
