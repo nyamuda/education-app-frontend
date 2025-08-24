@@ -20,7 +20,7 @@
           </div>
         </Message>
       </div>
-      <!-- Curriculum, exam board and level inputs -->
+      <!-- Curriculum, exam board, level and subject inputs -->
       <div class="form-group mb-3">
         <CurriculumDownToSubjectSelect
           :default-curriculum-id="formData.curriculumId ?? undefined"

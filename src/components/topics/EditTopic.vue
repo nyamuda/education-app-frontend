@@ -21,18 +21,20 @@
           </div>
         </Message>
       </div>
-      <!-- Curriculum, exam board and level inputs -->
+      <!-- Curriculum, exam board, level and subject inputs -->
       <div class="form-group mb-3">
-        <CurriculumExamBoardLevelSelect
+        <CurriculumDownToSubjectSelect
           :default-curriculum-id="formData.curriculumId ?? undefined"
           :default-exam-board-id="formData.examBoardId ?? undefined"
           :default-level-id="formData.levelId ?? undefined"
+          :default-subject-id="formData.subjectId ?? undefined"
           @change-curriculum="(val: Curriculum) => (formData.curriculumId = val.id)"
           @change-exam-board="(val: ExamBoard) => (formData.examBoardId = val.id)"
           @change-level="(val: Level) => (formData.levelId = val.id)"
+          @change-subject="(val: Subject) => (formData.subjectId = val.id)"
           :is-required="true"
           @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
-          ref="curriculumExamBoardLevelSelectRef"
+          ref="curriculumDownToSubjectSelectRef"
         />
       </div>
       <!-- Submit button -->
@@ -74,8 +76,9 @@ import { useTopicStore } from "@/stores/topic";
 import type { Curriculum } from "@/models/curriculum";
 import type { ExamBoard } from "@/models/examBoard";
 import type { TopicFormData } from "@/interfaces/topics/topicFormData";
-import CurriculumExamBoardLevelSelect from "../shared/selects/multi-selects/CurriculumExamBoardLevelSelect.vue";
 import type { Level } from "@/models/level";
+import type { Subject } from "@/models/subject";
+import CurriculumDownToSubjectSelect from "../shared/selects/multi-selects/CurriculumDownToSubjectSelect.vue";
 import type { Topic } from "@/models/topic";
 
 onMounted(async () => {
@@ -101,7 +104,7 @@ const isGettingTopic = ref(false);
 const topicId: Ref<number | null> = ref(null);
 //check if the curriculums for the select input are being loaded
 const isLoadingCurriculums = ref(false);
-const curriculumExamBoardLevelSelectRef = ref();
+const curriculumDownToSubjectSelectRef = ref();
 //form validation start
 const formData: Ref<TopicFormData> = ref({
   name: "",
@@ -167,8 +170,9 @@ const getTopicById = async (id: number) => {
     formData.value.levelId = topic.subject?.levelId ?? null;
     formData.value.subjectId = topic.subjectId;
 
-    //fetch curriculums for the curriculums, exam board and level select inputs
-    curriculumExamBoardLevelSelectRef.value.getAllCurriculums();
+    //fetch curriculums for the curriculum, exam board, level and subject select inputs
+    // this makes sure the correct option shows up in the select input instead of staying empty.
+    curriculumDownToSubjectSelectRef.value.getAllCurriculums();
   } catch {
     toast.add({
       severity: "error",
