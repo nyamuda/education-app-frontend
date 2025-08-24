@@ -86,13 +86,13 @@ export const useTopicStore = defineStore("topic", () => {
   };
 
   //Updates a topic with a given ID
-  const updateTopic = (id: number, updateDetails: { name: string; subjectIds: number[] }) => {
+  const updateTopic = (id: number, details: { name: string; subjectId: number }) => {
     return new Promise((resolve, reject) => {
       //add access token to the request
       //to access the protected route
       setAuthToken();
       axios
-        .put(`${apiUrl.value}/${id}`, updateDetails)
+        .put(`${apiUrl.value}/${id}`, details)
         .then(() => resolve({}))
         .catch((err) => {
           const message = err.response.data?.message || ErrorResponse.Unexpected();
