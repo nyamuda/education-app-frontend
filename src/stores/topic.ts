@@ -57,6 +57,7 @@ export const useTopicStore = defineStore("topic", () => {
         .post(`${apiUrl.value}`, details)
         .then(() => resolve({}))
         .catch((err) => {
+          console.log(err);
           const message = err.response.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });

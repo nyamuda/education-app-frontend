@@ -20,7 +20,7 @@
         />
       </div>
       <!--JSON file upload section-->
-      <div class="d-flex flex-column align-items-start gap-1 mb-3">
+      <div class="d-flex flex-column align-items-start gap-1 mb-4">
         <p style="font-size: 0.9rem" class="fst-italic text-muted mb-0">Max file size is 5MB</p>
         <FileUpload
           mode="basic"
@@ -40,6 +40,7 @@
       </div>
       <!-- Submit button -->
       <Button
+        icon="pi pi-upload"
         fluid
         type="submit"
         :label="isAddingTopics ? 'Uploading...' : 'Add topics'"

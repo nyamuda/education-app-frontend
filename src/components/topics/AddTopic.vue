@@ -114,11 +114,11 @@ const submitForm = async () => {
   isAddingTopic.value = true;
   topicStore
     .addTopic({ name, subjectId })
-    .then((message) => {
+    .then(() => {
       toast.add({
         severity: "success",
         summary: "Success",
-        detail: message,
+        detail: "Topic added successfully.",
         life: 5000,
       });
       router.push("/topics");
