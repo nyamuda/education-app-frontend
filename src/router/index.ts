@@ -36,6 +36,10 @@ import AddTopic from "@/components/topics/AddTopic.vue";
 import TopicDetails from "@/components/topics/TopicDetails.vue";
 import EditTopic from "@/components/topics/EditTopic.vue";
 import UploadTopics from "@/components/topics/UploadTopics.vue";
+import SubtopicList from "@/components/subtopics/SubtopicList.vue";
+import AddSubtopic from "@/components/subtopics/AddSubtopic.vue";
+import SubtopicDetails from "@/components/subtopics/SubtopicDetails.vue";
+import EditSubtopic from "@/components/subtopics/EditSubtopic.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -285,7 +289,37 @@ const router = createRouter({
     {
       path: "/subtopics",
       component: SubtopicView,
-      children: [],
+      // This is a protected route: only authenticated admins can access it
+      beforeEnter: async (to) => {
+        const authStore = useAuthStore();
+
+        // If the user is not logged in or is not an admin
+        if (!authStore.isAuthenticated || authStore.userRole != UserRole.Admin) {
+          //store the attempted URL
+          authStore.attemptedUrl = to.fullPath;
+          // Redirect to login page
+          return { name: "Login" };
+        }
+        return true;
+      },
+      children: [
+        {
+          path: "",
+          component: SubtopicList,
+        },
+        {
+          path: "add",
+          component: AddSubtopic,
+        },
+        {
+          path: ":id/details",
+          component: SubtopicDetails,
+        },
+        {
+          path: ":id/edit",
+          component: EditSubtopic,
+        },
+      ],
     },
     //question routes
     {
