@@ -110,11 +110,11 @@
  *
  * Each select filters the next one.
  * Example:
- *   - Choosing a curriculum enables exam boards tied to that curriculum
- *   - Choosing an exam board enables levels tied to that exam board
- *   - Choosing a level enables subjects tied to that level
+ *   - Choosing a curriculum sets exam boards tied to that curriculum
+ *   - Choosing an exam board sets levels tied to that exam board
+ *   - Choosing a level sets subjects tied to that level
  *
- * Emits change events upwards so the parent component can react.
+ * Emits change events so the parent component can react.
  */
 
 import Select, { type SelectChangeEvent } from "primevue/select";
@@ -147,27 +147,16 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-
-  defaultCurriculumId: {
-    type: Number,
-    default: null,
-  },
-  defaultExamBoardId: {
-    type: Number,
-    default: null,
-  },
-  defaultLevelId: {
-    type: Number,
-    default: null,
-  },
-  defaultSubjectId: {
-    type: Number,
-    default: null,
-  },
+  // Default pre-selected IDs (useful when editing forms)
+  defaultCurriculumId: { type: Number, default: null },
+  defaultExamBoardId: { type: Number, default: null },
+  defaultLevelId: { type: Number, default: null },
+  defaultSubjectId: { type: Number, default: null },
 });
 
+// Events emitted to parent
 const emit = defineEmits([
-  "isLoading",
+  "isLoading", // tells parent when loading state changes
   "changeCurriculum",
   "changeExamBoard",
   "changeLevel",
@@ -213,6 +202,7 @@ const rules = computed(() => {
 const v$ = useVuelidate(rules, formData);
 //select inputs validation end
 
+// When a curriculum is selected, reset dependent values
 const onCurriculumSelect = async (event: SelectChangeEvent) => {
   const curriculum = curriculums.value.find((c) => c.id === event.value) ?? null;
   selectedCurriculum.value = curriculum;
@@ -220,6 +210,7 @@ const onCurriculumSelect = async (event: SelectChangeEvent) => {
   emit("changeCurriculum", curriculum);
 };
 
+// When an exam board is selected, reset dependent values
 const onExamBoardSelect = async (event: SelectChangeEvent) => {
   const examBoard = selectedCurriculum.value?.examBoards.find((e) => e.id === event.value) ?? null;
   selectedExamBoard.value = examBoard;
@@ -227,7 +218,7 @@ const onExamBoardSelect = async (event: SelectChangeEvent) => {
   // emit selected exam board
   emit("changeExamBoard", examBoard);
 };
-
+// When a level is selected, reset subjects
 const onLevelSelect = async (event: SelectChangeEvent) => {
   const level = selectedExamBoard.value?.levels?.find((l) => l.id === event.value) ?? null;
   selectedLevel.value = level;
@@ -235,6 +226,7 @@ const onLevelSelect = async (event: SelectChangeEvent) => {
   emit("changeLevel", level);
 };
 
+// When a subject is selected
 const onSubjectSelect = async (event: SelectChangeEvent) => {
   const subject = selectedLevel.value?.subjects?.find((s) => s.id === event.value) ?? null;
   emit("changeSubject", subject);
@@ -272,9 +264,7 @@ const resetSubjectSelectedValues = () => {
 };
 
 /**
- * Fetches all curriculums from the backend. These curriculums are used
- * to select the curriculum for things like exam boards, subjects, topics in forms
- * and dropdowns and where a user needs to choose which curriculum they are working with.
+ * Loads curriculums (with exam boards, levels, and subjects).
  *
  * Retrieves the first 100 curriculums (page size = 100), which is currently
  * more than enough since the total number of curriculums in the system is small.
@@ -315,7 +305,7 @@ const getAllCurriculums = () => {
 defineExpose({ getAllCurriculums, resetAllSelectedValues });
 
 /**
- * Applies the default values for the select inputs (if provided).
+ * Applies the default values passed via props for the select inputs (if provided).
  * This method is called once the list of curriculums is loaded.
  * This makes sure the correct option shows up in the select input instead of staying empty.
  */
