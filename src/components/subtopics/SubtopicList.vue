@@ -15,7 +15,7 @@
       <div class="col-6 col-md-3">
         <ExamBoardSelectInput
           @change="onExamBoardChange"
-          :exam-boards="selectedCurriculumFilter?.examBoards"
+          :exam-boards="filters?.curriculum?.examBoards"
           placeholder="Exam board"
           :is-required="false"
           ref="examBoardSelectInputRef"
@@ -25,7 +25,7 @@
       <div class="col-6 col-md-3">
         <LevelSelect
           @change="onLevelChange"
-          :levels="selectedExamBoardFilter?.levels"
+          :levels="filters?.examBoard?.levels"
           placeholder="Level"
           :is-required="false"
           ref="levelSelectInputRef"
@@ -35,10 +35,20 @@
       <div class="col-6 col-md-3">
         <SubjectSelect
           @change="onSubjectChange"
-          :subjects="selectedLevelFilter?.subjects"
+          :subjects="filters?.level?.subjects"
           placeholder="Subject"
           :is-required="false"
           ref="subjectSelectInputRef"
+        />
+      </div>
+      <!-- Filter by topic -->
+      <div class="col-6 col-md-3">
+        <TopicSelect
+          @change="onTopicChange"
+          :topics="filters?.subject?.topics"
+          placeholder="Subject"
+          :is-required="false"
+          ref="topicSelectInputRef"
         />
       </div>
 
@@ -85,6 +95,11 @@
             <Skeleton></Skeleton>
           </template>
         </Column>
+        <Column field="topic" header="Topic">
+          <template #body>
+            <Skeleton></Skeleton>
+          </template>
+        </Column>
         <Column field="subject" header="Subject">
           <template #body>
             <Skeleton></Skeleton>
@@ -124,16 +139,22 @@
             <span>{{ slotProps.data.name }}</span>
           </template>
         </Column>
+        <!--Topic name-->
+        <Column field="topic" header="Topic">
+          <template #body="slotProps">
+            <span>{{ slotProps.data.topic?.name }}</span>
+          </template>
+        </Column>
         <!--Subject name-->
         <Column field="subject" header="Subject">
           <template #body="slotProps">
-            <span>{{ slotProps.data.subject?.name }}</span>
+            <span>{{ slotProps.data.topic?.subject?.name }}</span>
           </template>
         </Column>
         <!--Level name-->
         <Column field="level" header="Level">
           <template #body="slotProps">
-            <span>{{ slotProps.data.subject?.level?.name }}</span>
+            <span>{{ slotProps.data.topic?.subject?.level?.name }}</span>
           </template>
         </Column>
         <!--Exam board name-->
@@ -145,7 +166,7 @@
         <!--Curriculum name-->
         <Column field="curriculum" header="Curriculum">
           <template #body="slotProps">
-            <span>{{ slotProps.data.subject?.level?.examBoard?.curriculum?.name }}</span>
+            <span>{{ slotProps.data.topic?.subject?.level?.examBoard?.curriculum?.name }}</span>
           </template>
         </Column>
 
@@ -224,6 +245,8 @@ import type { Level } from "@/models/level";
 import type { Subject } from "@/models/subject";
 import SubjectSelect from "../shared/selects/SubjectSelect.vue";
 import type { Topic } from "@/models/topic";
+import { HierarchyFilter } from "@/models/hierarchyFilter";
+import TopicSelect from "../shared/selects/TopicSelect.vue";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));
@@ -232,14 +255,11 @@ const subtopicStore = useSubtopicStore();
 
 const toast = useToast();
 const subtopics = ref(new PageInfo<Subtopic>());
-const selectedCurriculumFilter: Ref<Curriculum | null> = ref(null);
-const selectedExamBoardFilter: Ref<ExamBoard | null> = ref(null);
-const selectedLevelFilter: Ref<Level | null> = ref(null);
-const selectedSubjectFilter: Ref<Subject | null> = ref(null);
-const selectedTopicFilter:Ref<Topic|null> =ref(null);
+const filters: Ref<HierarchyFilter> = ref(new HierarchyFilter());
 const examBoardSelectInputRef = ref();
 const levelSelectInputRef = ref();
 const subjectSelectInputRef = ref();
+const topicSelectInputRef = ref();
 const isGettingSubtopics = ref(false);
 const deletingSubtopic = ref(new DeletionState());
 
@@ -259,10 +279,11 @@ const getAllSubtopics = () => {
   isGettingSubtopics.value = true;
   //prepare the query parameter before fetching the subtopics
   const { page, pageSize } = subtopics.value;
-  const curriculumId = selectedCurriculumFilter.value?.id ?? null;
-  const examBoardId = selectedExamBoardFilter.value?.id ?? null;
-  const levelId = selectedLevelFilter.value?.id ?? null;
-  const subjectId = selectedSubjectFilter.value?.id ?? null;
+  const curriculumId = filters.value.curriculum?.id ?? null;
+  const examBoardId = filters.value.examBoard?.id ?? null;
+  const levelId = filters.value.level?.id ?? null;
+  const subjectId = filters.value.subject?.id ?? null;
+  const topicId = filters.value.topic?.id ?? null;
 
   const params: SubtopicQueryParams = {
     page,
@@ -272,6 +293,7 @@ const getAllSubtopics = () => {
     examBoardId,
     levelId,
     subjectId,
+    topicId,
   };
   //fetch the subtopics
   subtopicStore
@@ -307,46 +329,48 @@ const onPageChange = (state: PageState) => {
 
 //Called when the curriculum select input filter value changes
 const onCurriculumChange = (curriculum: Curriculum) => {
-  resetFilters();
-  selectedCurriculumFilter.value = curriculum;
-  getAllSubtopics();
-};
-//Called when the exam board select input filter value changes
-const onExamBoardChange = (examBoard: ExamBoard) => {
-  selectedExamBoardFilter.value = examBoard;
-  selectedLevelFilter.value = null; //reset selected level
-  selectedSubjectFilter.value = null; //reset selected subject
-  //reset level select input value
-  levelSelectInputRef.value.resetSelectedValue();
-  //reset subject select input value
-  subjectSelectInputRef.value.resetSelectedValue();
-  getAllSubtopics();
-};
-//Called when the level select input filter value changes
-const onLevelChange = (level: Level) => {
-  selectedLevelFilter.value = level;
-  selectedSubjectFilter.value = null; //reset selected subject
-  //reset subject select input value
-  subjectSelectInputRef.value.resetSelectedValue();
-  getAllSubtopics();
-};
-//Called when the subject select input filter value changes
-const onSubjectChange = (subject: Subject) => {
-  selectedSubjectFilter.value = subject;
-  getAllSubtopics();
-};
-//Resets filters
-const resetFilters = () => {
-  selectedCurriculumFilter.value = null;
-  selectedExamBoardFilter.value = null;
-  selectedLevelFilter.value = null;
-  selectedSubjectFilter.value = null;
+  filters.value.reset();
+  filters.value.onCurriculumChange(curriculum);
   //reset exam board select input value
   examBoardSelectInputRef.value.resetSelectedValue();
   //reset level select input value
   levelSelectInputRef.value.resetSelectedValue();
   //reset subject select input value
   subjectSelectInputRef.value.resetSelectedValue();
+  //reset topic select input value
+  topicSelectInputRef.value.resetSelectedValue();
+  getAllSubtopics();
+};
+//Called when the exam board select input filter value changes
+const onExamBoardChange = (examBoard: ExamBoard) => {
+  filters.value.onExamBoardChange(examBoard);
+  //reset level select input value
+  levelSelectInputRef.value.resetSelectedValue();
+  //reset subject select input value
+  subjectSelectInputRef.value.resetSelectedValue();
+  //reset topic select input value
+  topicSelectInputRef.value.resetSelectedValue();
+  getAllSubtopics();
+};
+//Called when the level select input filter value changes
+const onLevelChange = (level: Level) => {
+  filters.value.onLevelChange(level);
+  //reset subject select input value
+  subjectSelectInputRef.value.resetSelectedValue();
+  //reset topic select input value
+  topicSelectInputRef.value.resetSelectedValue();
+  getAllSubtopics();
+};
+//Called when the subject select input filter value changes
+const onSubjectChange = (subject: Subject) => {
+  filters.value.onSubjectChange(subject);
+  //reset topic select input value
+  topicSelectInputRef.value.resetSelectedValue();
+  getAllSubtopics();
+};
+const onTopicChange = (topic: Topic) => {
+  filters.value.onTopicChange(topic);
+  getAllSubtopics();
 };
 
 //Delete a subtopic with a given ID

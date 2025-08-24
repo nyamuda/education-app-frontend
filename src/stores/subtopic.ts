@@ -5,6 +5,7 @@ import type { Subtopic } from "@/models/subtopic";
 import { UrlHelper } from "@/helpers/urlHelper";
 import { ErrorResponse } from "@/models/errorResponse";
 import type { PageInfo } from "@/models/pageInfo";
+import type { SubtopicQueryParams } from "@/interfaces/subtopics/subtopicQueryParams";
 
 export const useSubtopicStore = defineStore("subtopic", () => {
   const apiUrl = ref(`${UrlHelper.apiUrl}/subtopics`);
@@ -29,14 +30,11 @@ export const useSubtopicStore = defineStore("subtopic", () => {
   };
 
   //Gets a paginated list of subtopics along with pagination metadata
-  const getSubtopics = (page: number, pageSize: number): Promise<PageInfo<Subtopic>> => {
+  const getSubtopics = (params: SubtopicQueryParams): Promise<PageInfo<Subtopic>> => {
     return new Promise((resolve, reject) => {
       axios
         .get<PageInfo<Subtopic>>(`${apiUrl.value}`, {
-          params: {
-            page: page,
-            pageSize: pageSize,
-          },
+          params: params,
         })
         .then((response) => {
           //return the subtopics
