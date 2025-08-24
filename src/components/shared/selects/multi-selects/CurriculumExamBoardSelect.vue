@@ -18,7 +18,7 @@
         :size="size"
         :show-clear="showClear"
       />
-
+      <!-- Validation errors -->
       <Message size="small" severity="error" v-if="v$.curriculumId.$error" variant="simple">
         <div v-for="error of v$.curriculumId.$errors" :key="error.$uid">
           <div>{{ error.$message }}</div>
@@ -43,7 +43,7 @@
         :size="size"
         :show-clear="showClear"
       />
-
+      <!-- Validation errors -->
       <Message size="small" severity="error" v-if="v$.examBoardId.$error" variant="simple">
         <div v-for="error of v$.examBoardId.$errors" :key="error.$uid">
           <div>{{ error.$message }}</div>
@@ -54,6 +54,16 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Multi-step select component:
+ *  Curriculum → Exam Board
+ *
+ * Each select filters the next one.
+ * Example:
+ *   - Choosing a curriculum sets exam boards tied to that curriculum
+ *
+ * Emits change events so the parent component can react.
+ */
 import Select, { type SelectChangeEvent } from "primevue/select";
 import { Curriculum } from "@/models/curriculum";
 import { useCurriculumStore } from "@/stores/curriculum";
@@ -83,16 +93,12 @@ const props = defineProps({
     default: false,
   },
 
-  defaultCurriculumId: {
-    type: Number,
-    default: null,
-  },
-  defaultExamBoardId: {
-    type: Number,
-    default: null,
-  },
+  // Default pre-selected IDs (useful when editing forms)
+  defaultCurriculumId: { type: Number, default: null },
+  defaultExamBoardId: { type: Number, default: null },
 });
 
+// Events emitted to parent
 const emit = defineEmits(["isLoading", "changeCurriculum", "changeExamBoard"]);
 
 onMounted(() => {
@@ -124,6 +130,7 @@ const rules = computed(() => {
 const v$ = useVuelidate(rules, formData);
 //select input validation end
 
+// When a curriculum is selected, reset exam board value
 const onCurriculumSelect = async (event: SelectChangeEvent) => {
   const curriculum = curriculums.value.find((c) => c.id === event.value) ?? null;
   selectedCurriculum.value = curriculum;
@@ -137,9 +144,7 @@ const onExamBoardSelect = async (event: SelectChangeEvent) => {
 };
 
 /**
- * Fetches all curriculums from the backend. These curriculums are used
- * to select the curriculum for things like exam boards, subjects, topics in forms
- * and dropdowns and where a user needs to choose which curriculum they are working with.
+ * Loads curriculums (with exam boards).
  *
  * Retrieves the first 100 curriculums (page size = 100), which is currently
  * more than enough since the total number of curriculums in the system is small.
