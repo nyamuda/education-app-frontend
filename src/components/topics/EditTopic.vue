@@ -23,7 +23,7 @@
       </div>
       <!-- Curriculum, exam board, level and subject inputs -->
       <div class="form-group mb-3">
-        <CurriculumDownToSubjectSelect
+        <CurriculumExamBoardLevelSubjectSelect
           :default-curriculum-id="formData.curriculumId ?? undefined"
           :default-exam-board-id="formData.examBoardId ?? undefined"
           :default-level-id="formData.levelId ?? undefined"
@@ -34,7 +34,7 @@
           @change-subject="(val: Subject) => (formData.subjectId = val.id)"
           :is-required="true"
           @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
-          ref="curriculumDownToSubjectSelectRef"
+          ref="curriculumExamBoardLevelSubjectSelectRef"
         />
       </div>
       <!-- Submit button -->
@@ -78,7 +78,7 @@ import type { ExamBoard } from "@/models/examBoard";
 import type { TopicFormData } from "@/interfaces/topics/topicFormData";
 import type { Level } from "@/models/level";
 import type { Subject } from "@/models/subject";
-import CurriculumDownToSubjectSelect from "../shared/selects/multi-selects/CurriculumDownToSubjectSelect.vue";
+import CurriculumExamBoardLevelSubjectSelect from "../shared/selects/multi-selects/CurriculumExamBoardLevelSubjectSelect.vue";
 import type { Topic } from "@/models/topic";
 
 onMounted(async () => {
@@ -104,7 +104,7 @@ const isGettingTopic = ref(false);
 const topicId: Ref<number | null> = ref(null);
 //check if the curriculums for the select input are being loaded
 const isLoadingCurriculums = ref(false);
-const curriculumDownToSubjectSelectRef = ref();
+const curriculumExamBoardLevelSubjectSelectRef = ref();
 //form validation start
 const formData: Ref<TopicFormData> = ref({
   name: "",
@@ -172,7 +172,7 @@ const getTopicById = async (id: number) => {
 
     //fetch curriculums for the curriculum, exam board, level and subject select inputs
     // this makes sure the correct option shows up in the select input instead of staying empty.
-    curriculumDownToSubjectSelectRef.value.getAllCurriculums();
+    curriculumExamBoardLevelSubjectSelectRef.value.getAllCurriculums();
   } catch {
     toast.add({
       severity: "error",

@@ -205,21 +205,14 @@ const v$ = useVuelidate(rules, formData);
 const onCurriculumSelect = async (event: SelectChangeEvent) => {
   const curriculum = curriculums.value.find((c) => c.id === event.value) ?? null;
   selectedCurriculum.value = curriculum;
-  formData.value.examBoardId = null; // reset exam board when curriculum changes
-  formData.value.levelId = null; // reset exam level when curriculum changes
-  formData.value.subjectId = null; // reset subject when curriculum changes
-  selectedExamBoard.value = null;
-  selectedLevel.value = null;
+  resetExamBoardLevelSubjectSelectedValues();
   emit("changeCurriculum", curriculum);
 };
 
 const onExamBoardSelect = async (event: SelectChangeEvent) => {
   const examBoard = selectedCurriculum.value?.examBoards.find((e) => e.id === event.value) ?? null;
   selectedExamBoard.value = examBoard;
-  // since level depends on exam board, reset level when exam board changes
-  formData.value.levelId = null;
-  // since subject depends on exam board, reset subject when exam board changes
-  formData.value.subjectId = null;
+  resetLevelSubjectSelectedValues();
   // emit selected exam board
   emit("changeExamBoard", examBoard);
 };
@@ -227,8 +220,7 @@ const onExamBoardSelect = async (event: SelectChangeEvent) => {
 const onLevelSelect = async (event: SelectChangeEvent) => {
   const level = selectedExamBoard.value?.levels?.find((l) => l.id === event.value) ?? null;
   selectedLevel.value = level;
-  // since subject depends on exam board, reset subject when exam board changes
-  formData.value.subjectId = null;
+  resetSubjectSelectedValues();
   emit("changeLevel", level);
 };
 
@@ -238,13 +230,33 @@ const onSubjectSelect = async (event: SelectChangeEvent) => {
 };
 
 //Resets all selections
-const resetSelectedValues = () => {
+const resetAllSelectedValues = () => {
   selectedCurriculum.value = null;
   selectedExamBoard.value = null;
   selectedLevel.value = null;
   formData.value.curriculumId = null;
   formData.value.examBoardId = null;
   formData.value.levelId = null;
+  formData.value.subjectId = null;
+};
+
+//Resets exam board, level and subject => when a curriculum is changed
+const resetExamBoardLevelSubjectSelectedValues = () => {
+  selectedExamBoard.value = null;
+  selectedLevel.value = null;
+  formData.value.examBoardId = null;
+  formData.value.levelId = null;
+  formData.value.subjectId = null;
+};
+
+//Resets level and subject => when an exam board is changed
+const resetLevelSubjectSelectedValues = () => {
+  selectedLevel.value = null;
+  formData.value.levelId = null;
+  formData.value.subjectId = null;
+};
+//Resets subject => when a level is changed
+const resetSubjectSelectedValues = () => {
   formData.value.subjectId = null;
 };
 
@@ -289,7 +301,7 @@ const getAllCurriculums = () => {
       emit("isLoading", false);
     });
 };
-defineExpose({ getAllCurriculums, resetSelectedValues });
+defineExpose({ getAllCurriculums, resetAllSelectedValues });
 
 // Once the list of curriculums is loaded, apply the default values (if provided).
 // This makes sure the correct option shows up in the select input instead of staying empty.
@@ -313,6 +325,7 @@ const applyDefaultValues = () => {
       selectedExamBoard.value?.levels.find((l) => l.id === props.defaultLevelId) ?? null;
   }
   if (props.defaultSubjectId) {
+    //set the default subject
     formData.value.subjectId = props.defaultSubjectId;
   }
 };
