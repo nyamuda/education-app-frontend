@@ -6,7 +6,7 @@ export class Topic {
   public constructor(
     public id: number,
     public name: string,
-    public subjects: Subject[],
+    public subject: Subject,
     public subtopics: Subtopic[],
     public questions: Question[],
     public createdAt: Date = new Date(),
