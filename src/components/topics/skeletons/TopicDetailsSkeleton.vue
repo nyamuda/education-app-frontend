@@ -3,25 +3,19 @@
     <Card>
       <template #title>
         <!-- Skeleton for chip -->
-        <Skeleton width="20%" height="1.7rem" class="mb-2" />
+        <Skeleton width="30%" height="1.7rem" class="mb-2" />
         <!-- Skeleton for title -->
-        <Skeleton width="60%" height="2rem" class="mb-2" />
+        <Skeleton width="60%" height="2.5rem" class="mb-2" />
       </template>
 
       <template #subtitle>
-        <!-- Skeleton for curriculum -->
-        <Skeleton width="40%" height="1.2rem" class="mb-3" />
-        <!-- Skeleton for exam board -->
-        <Skeleton width="35%" height="1.2rem" class="mb-3" />
-        <!-- Skeleton for exam level -->
-        <Skeleton width="30%" height="1.2rem" class="mb-3" />
-        <!-- Skeleton for subject -->
-        <Skeleton width="30%" height="1.2rem" class="mb-3" />
+        <!-- Skeleton for curriculum, exam board, level etc -->
+        <Skeleton width="70%" height="7rem" class="mb-3" />
       </template>
 
       <template #content>
         <!-- Skeleton heading -->
-        <Skeleton width="20%" height="1.5rem" class="mb-2" />
+        <Skeleton width="40%" height="2rem" class="mb-2" />
         <!-- Skeleton badges -->
         <div class="d-flex flex-wrap gap-2">
           <Skeleton v-for="n in 12" :key="n" width="60px" height="28px" class="rounded" />

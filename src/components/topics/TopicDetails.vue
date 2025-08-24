@@ -18,7 +18,7 @@
           Level: <strong>{{ topic.subject?.level?.name }}</strong>
         </h5>
         <h5 class="text-muted mb-3">
-          SUbject: <strong>{{ topic.subject?.name }}</strong>
+          Subject: <strong>{{ topic.subject?.name }}</strong>
         </h5>
       </template>
       <template #content>
