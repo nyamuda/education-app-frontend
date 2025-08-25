@@ -2,90 +2,34 @@
   <div class="container mx-auto">
     <TitleSection title="Subtopics" title-size="small" align-items="center" />
 
-    <div class="list-actions row mt-3 justify-content-start g-3">
-      <!-- Filter by curriculum -->
-      <div class="col-6 col-md-3">
-        <CurriculumSelectInput
-          placeholder="Curriculum"
-          :is-required="false"
-          @change="onCurriculumChange"
-        />
-      </div>
-      <!-- Filter by exam board -->
-      <div class="col-6 col-md-3">
-        <ExamBoardSelectInput
-          @change="onExamBoardChange"
-          :exam-boards="filters?.curriculum?.examBoards"
-          placeholder="Exam board"
-          :is-required="false"
-          ref="examBoardSelectInputRef"
-        />
-      </div>
-      <!-- Filter by level -->
-      <div class="col-6 col-md-3">
-        <LevelSelect
-          @change="onLevelChange"
-          :levels="filters?.examBoard?.levels"
-          placeholder="Level"
-          :is-required="false"
-          ref="levelSelectInputRef"
-        />
-      </div>
-      <!-- Filter by subject -->
-      <div class="col-6 col-md-3">
-        <SubjectSelect
-          @change="onSubjectChange"
-          :subjects="filters?.level?.subjects"
-          placeholder="Subject"
-          :is-required="false"
-          ref="subjectSelectInputRef"
-        />
-      </div>
-      <!-- Filter by topic -->
-      <div class="col-6 col-md-3">
-        <TopicSelect
-          @change="onTopicChange"
-          :topics="filters?.subject?.topics"
-          placeholder="Subject"
-          :is-required="false"
-          ref="topicSelectInputRef"
-        />
-      </div>
-
-      <!-- Sorting -->
-      <div class="col-6 col-md-3">
-        <Select
-          placeholder="Sort by"
-          checkmark
-          v-model="selectedSortOption"
-          :options="sortOptions"
-          option-label="name"
-          option-value="value"
-          @change="getAllSubtopics"
-          size="small"
-          class="w-100"
-          show-clear
-        />
-      </div>
-
-      <!-- Button -->
-      <div class="col-auto">
-        <router-link to="/subtopics/add">
-          <Button label="New subtopic" icon="pi pi-plus" size="small" severity="primary" />
-        </router-link>
-      </div>
-      <div class="col-auto">
-        <router-link to="/subtopics/upload">
-          <Button
-            label="Upload subtopics"
-            icon="pi pi-upload"
+    <!-- Hierarchy filters start -->
+    <CurriculumHierarchyFilters :callback-method="getAllSubtopics">
+      <template #extraContent>
+        <!-- Sorting -->
+        <div class="col-6 col-md-3">
+          <Select
+            placeholder="Sort by"
+            checkmark
+            v-model="selectedSortOption"
+            :options="sortOptions"
+            option-label="name"
+            option-value="value"
+            @change="getAllSubtopics"
             size="small"
-            severity="primary"
-            variant="outlined"
+            class="w-100"
+            show-clear
           />
-        </router-link>
-      </div>
-    </div>
+        </div>
+
+        <!-- Button -->
+        <div class="col-auto">
+          <router-link to="/subtopics/add">
+            <Button label="New subtopic" icon="pi pi-plus" size="small" severity="primary" />
+          </router-link>
+        </div>
+      </template>
+    </CurriculumHierarchyFilters>
+    <!-- Hierarchy filters end -->
 
     <!--Skeleton table start-->
     <div id="subtopic-list" v-if="isGettingSubtopics" class="card">
@@ -227,16 +171,14 @@ import { useSubtopicStore } from "@/stores/subtopic";
 import { Curriculum } from "@/models/curriculum";
 import type { Ref } from "vue";
 import type { ExamBoard } from "@/models/examBoard";
-import CurriculumSelectInput from "../shared/selects/CurriculumSelect.vue";
-import ExamBoardSelectInput from "../shared/selects/ExamBoardSelect.vue";
 import type { SubtopicQueryParams } from "@/interfaces/subtopics/subtopicQueryParams";
-import LevelSelect from "../shared/selects/LevelSelect.vue";
+
 import type { Level } from "@/models/level";
 import type { Subject } from "@/models/subject";
-import SubjectSelect from "../shared/selects/SubjectSelect.vue";
 import type { Topic } from "@/models/topic";
 import { HierarchyFilter } from "@/models/curriculumHierarchyFilter";
 import TopicSelect from "../shared/selects/TopicSelect.vue";
+import CurriculumHierarchyFilters from "../shared/CurriculumHierarchyFilters.vue";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));

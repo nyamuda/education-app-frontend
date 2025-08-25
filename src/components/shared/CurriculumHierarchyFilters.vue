@@ -50,7 +50,7 @@
     </div>
 
     <!-- Allow parent components to inject extra content (e.g. sort options, buttons, etc.) -->
-    <slot name="otherContent"></slot>
+    <slot name="extraContent"></slot>
   </div>
 </template>
 
@@ -75,7 +75,7 @@
  *
  * Cascading reset: Changing a higher-level filter (e.g. Curriculum) will reset all dependent filters below it.
  *
- * This component emits change events for each level
+ * This component emits change events for each filter
  * so the parent can react to partial or full selections.
  */
 
@@ -121,6 +121,7 @@ const props = defineProps({
   },
 });
 
+// Emit any filter changes to the parent component
 const emit = defineEmits(["filter"]);
 
 // Keep track of the currently applied filters
