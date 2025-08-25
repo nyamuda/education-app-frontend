@@ -12,7 +12,7 @@
     <div class="col-6 col-md-3" v-if="showExamBoard">
       <ExamBoardSelect
         @change="onExamBoardChange"
-        :exam-boards="filters?.curriculum?.examBoards"
+        :exam-boards="filter?.curriculum?.examBoards"
         placeholder="Exam board"
         :is-required="false"
         ref="examBoardSelectInputRef"
@@ -22,7 +22,7 @@
     <div class="col-6 col-md-3" v-if="showLevel">
       <LevelSelect
         @change="onLevelChange"
-        :levels="filters?.examBoard?.levels"
+        :levels="filter?.examBoard?.levels"
         placeholder="Level"
         :is-required="false"
         ref="levelSelectInputRef"
@@ -32,7 +32,7 @@
     <div class="col-6 col-md-3" v-if="showSubject">
       <SubjectSelect
         @change="onSubjectChange"
-        :subjects="filters?.level?.subjects"
+        :subjects="filter?.level?.subjects"
         placeholder="Subject"
         :is-required="false"
         ref="subjectSelectInputRef"
@@ -42,7 +42,7 @@
     <div class="col-6 col-md-3" v-if="showTopic">
       <TopicSelect
         @change="onTopicChange"
-        :topics="filters?.subject?.topics"
+        :topics="filter?.subject?.topics"
         placeholder="Topic"
         :is-required="false"
         ref="topicSelectInputRef"
@@ -56,15 +56,32 @@
 
 <script setup lang="ts">
 /**
+ * CurriculumHierarchyFilters
+ *
  * A reusable filter component for narrowing down content using
  * hierarchical education entities (Curriculum → Exam Board → Level → Subject → Topic).
+ * Filters included (in order):
+ *   1. Curriculum
+ *   2. Exam Board
+ *   3. Level
+ *   4. Subject
+ *   5. Topic
+ *
+ * Each level depends on the selection of the previous one.
+ *
+ * Example: Selecting "South African CAPS" → "DBE" → "Grade 11" → "Mathematics" → "Algebra".
+ *
  * Flexible: Each filter can be shown/hidden with props (showCurriculum, showExamBoard, etc).
+ *
  * Cascading reset: Changing a higher-level filter (e.g. Curriculum) will reset all dependent filters below it.
+ *
+ * This component emits change events for each level
+ * so the parent can react to partial or full selections.
  */
 
 import type { Curriculum } from "@/models/curriculum";
 import type { ExamBoard } from "@/models/examBoard";
-import { HierarchyFilter } from "@/models/hierarchyFilter";
+import { CurriculumHierarchyFilter } from "@/models/curriculumHierarchyFilter";
 import type { Level } from "@/models/level";
 import type { Subject } from "@/models/subject";
 import type { Topic } from "@/models/topic";
@@ -104,10 +121,10 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["filters"]);
+const emit = defineEmits(["filter"]);
 
 // Keep track of the currently applied filters
-const filters: Ref<HierarchyFilter> = ref(new HierarchyFilter());
+const filter: Ref<CurriculumHierarchyFilter> = ref(new CurriculumHierarchyFilter());
 const examBoardSelectInputRef = ref();
 const levelSelectInputRef = ref();
 const subjectSelectInputRef = ref();
@@ -119,8 +136,8 @@ const topicSelectInputRef = ref();
  * - Resets all dependent filters (Exam board → Level → Subject → Topic)
  */
 const onCurriculumChange = (curriculum: Curriculum) => {
-  filters.value.reset();
-  filters.value.onCurriculumChange(curriculum);
+  filter.value.reset();
+  filter.value.onCurriculumChange(curriculum);
   //reset exam board select input value
   examBoardSelectInputRef.value?.resetSelectedValue();
   //reset level select input value
@@ -130,7 +147,7 @@ const onCurriculumChange = (curriculum: Curriculum) => {
   //reset topic select input value
   topicSelectInputRef.value?.resetSelectedValue();
 
-  emit("filters", filters.value);
+  emit("filter", filter.value);
   props.callbackMethod();
 };
 
@@ -140,14 +157,14 @@ const onCurriculumChange = (curriculum: Curriculum) => {
  * - Resets Level, Subject, and Topic
  */
 const onExamBoardChange = (examBoard: ExamBoard) => {
-  filters.value.onExamBoardChange(examBoard);
+  filter.value.onExamBoardChange(examBoard);
   //reset level select input value
   levelSelectInputRef.value?.resetSelectedValue();
   //reset subject select input value
   subjectSelectInputRef.value?.resetSelectedValue();
   //reset topic select input value
   topicSelectInputRef.value?.resetSelectedValue();
-  emit("filters", filters.value);
+  emit("filter", filter.value);
   props.callbackMethod();
 };
 
@@ -157,12 +174,12 @@ const onExamBoardChange = (examBoard: ExamBoard) => {
  * - Resets Subject and Topic
  */
 const onLevelChange = (level: Level) => {
-  filters.value.onLevelChange(level);
+  filter.value.onLevelChange(level);
   //reset subject select input value
   subjectSelectInputRef.value?.resetSelectedValue();
   //reset topic select input value
   topicSelectInputRef.value?.resetSelectedValue();
-  emit("filters", filters.value);
+  emit("filter", filter.value);
   props.callbackMethod();
 };
 
@@ -172,7 +189,7 @@ const onLevelChange = (level: Level) => {
  * - Resets Topic
  */
 const onSubjectChange = (subject: Subject) => {
-  filters.value.onSubjectChange(subject);
+  filter.value.onSubjectChange(subject);
   //reset topic select input value
   topicSelectInputRef.value?.resetSelectedValue();
   props.callbackMethod();
@@ -182,8 +199,8 @@ const onSubjectChange = (subject: Subject) => {
  * - Updates filter
  */
 const onTopicChange = (topic: Topic) => {
-  filters.value.onTopicChange(topic);
-  emit("filters", filters.value);
+  filter.value.onTopicChange(topic);
+  emit("filter", filter.value);
   props.callbackMethod();
 };
 </script>

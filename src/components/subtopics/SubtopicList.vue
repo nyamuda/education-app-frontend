@@ -235,7 +235,7 @@ import type { Level } from "@/models/level";
 import type { Subject } from "@/models/subject";
 import SubjectSelect from "../shared/selects/SubjectSelect.vue";
 import type { Topic } from "@/models/topic";
-import { HierarchyFilter } from "@/models/hierarchyFilter";
+import { HierarchyFilter } from "@/models/curriculumHierarchyFilter";
 import TopicSelect from "../shared/selects/TopicSelect.vue";
 
 //table row skeletons

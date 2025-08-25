@@ -9,7 +9,7 @@ import type { Topic } from "./topic";
  * Curriculum → Exam Board → Level → Subject → Topic.
  * Each property can be set to filter items or left as null to include all.
  */
-export class HierarchyFilter {
+export class CurriculumHierarchyFilter {
   public constructor(
     public curriculum: Curriculum | null = null,
     public examBoard: ExamBoard | null = null,

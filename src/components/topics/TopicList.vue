@@ -2,10 +2,10 @@
   <div class="container mx-auto">
     <TitleSection title="Topics" title-size="small" align-items="center" />
 
-    <MultiLevelFilters
+    <CurriculumHierarchyFilters
       :callback-method="getAllTopics"
       :show-topic="false"
-      @filters="(val: HierarchyFilter) => (filters = val)"
+      @filters="(val: CurriculumHierarchyFilter) => (filter = val)"
     >
       <template #otherContent>
         <!-- Sorting -->
@@ -42,7 +42,7 @@
           </router-link>
         </div>
       </template>
-    </MultiLevelFilters>
+    </CurriculumHierarchyFilters>
 
     <div class="list-actions row mt-3 justify-content-start g-3">
       <!-- Filter by curriculum -->
@@ -265,8 +265,7 @@ import LevelSelect from "../shared/selects/LevelSelect.vue";
 import type { Level } from "@/models/level";
 import type { Subject } from "@/models/subject";
 import SubjectSelect from "../shared/selects/SubjectSelect.vue";
-import MultiLevelFilters from "../shared/MultiLevelFilters.vue";
-import { HierarchyFilter } from "@/models/hierarchyFilter";
+import { CurriculumHierarchyFilter } from "@/models/curriculumHierarchyFilter";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));
@@ -284,7 +283,7 @@ const levelSelectInputRef = ref();
 const subjectSelectInputRef = ref();
 const isGettingTopics = ref(false);
 const deletingTopic = ref(new DeletionState());
-const filters = ref(new HierarchyFilter());
+const filter = ref(new CurriculumHierarchyFilter());
 
 //sorting info
 const sortOptions = ref([
@@ -302,10 +301,10 @@ const getAllTopics = () => {
   isGettingTopics.value = true;
   //prepare the query parameter before fetching the topics
   const { page, pageSize } = topics.value;
-  const curriculumId = filters.value.curriculum?.id ?? null;
-  const examBoardId = filters.value.examBoard?.id ?? null;
-  const levelId = filters.value.level?.id ?? null;
-  const subjectId = filters.value.subject?.id ?? null;
+  const curriculumId = filter.value.curriculum?.id ?? null;
+  const examBoardId = filter.value.examBoard?.id ?? null;
+  const levelId = filter.value.level?.id ?? null;
+  const subjectId = filter.value.subject?.id ?? null;
   const params: TopicQueryParams = {
     page,
     pageSize,
