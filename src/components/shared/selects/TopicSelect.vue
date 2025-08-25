@@ -59,9 +59,9 @@ const props = defineProps({
 
   //Topics to use as options
   topics: {
-    type: [] as PropType<Topic[]>,
+    type: Array as PropType<Topic[]>,
     required: false,
-    default: [],
+    default: new Array<Topic>(),
   },
   isGettingTopics: {
     type: Boolean,

@@ -59,9 +59,9 @@ const props = defineProps({
 
   //Levels to use as options
   levels: {
-    type: [] as PropType<Level[]>,
+    type: Array as PropType<Level[]>,
     required: false,
-    default: [],
+    default: new Array<Level>(),
   },
   isGettingLevels: {
     type: Boolean,
@@ -74,7 +74,6 @@ const emit = defineEmits(["change", "isLoading"]);
 onMounted(() => {
   v$.value.$touch();
 });
-
 
 //select input validation start
 const formData: Ref<{ levelId: number | null }> = ref({
@@ -101,6 +100,4 @@ const resetSelectedValue = () => {
 };
 //expose the `resetSelectedValue` method to call it in parent components
 defineExpose({ resetSelectedValue });
-
-
 </script>

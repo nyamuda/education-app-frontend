@@ -2,6 +2,48 @@
   <div class="container mx-auto">
     <TitleSection title="Topics" title-size="small" align-items="center" />
 
+    <MultiLevelFilters
+      :callback-method="getAllTopics"
+      :show-topic="false"
+      @filters="(val: HierarchyFilter) => (filters = val)"
+    >
+      <template #otherContent>
+        <!-- Sorting -->
+        <div class="col-6 col-md-3">
+          <Select
+            placeholder="Sort by"
+            checkmark
+            v-model="selectedSortOption"
+            :options="sortOptions"
+            option-label="name"
+            option-value="value"
+            @change="getAllTopics"
+            size="small"
+            class="w-100"
+            show-clear
+          />
+        </div>
+
+        <!-- Button -->
+        <div class="col-auto">
+          <router-link to="/topics/add">
+            <Button label="New topic" icon="pi pi-plus" size="small" severity="primary" />
+          </router-link>
+        </div>
+        <div class="col-auto">
+          <router-link to="/topics/upload">
+            <Button
+              label="Upload topics"
+              icon="pi pi-upload"
+              size="small"
+              severity="primary"
+              variant="outlined"
+            />
+          </router-link>
+        </div>
+      </template>
+    </MultiLevelFilters>
+
     <div class="list-actions row mt-3 justify-content-start g-3">
       <!-- Filter by curriculum -->
       <div class="col-6 col-md-3">
@@ -223,6 +265,8 @@ import LevelSelect from "../shared/selects/LevelSelect.vue";
 import type { Level } from "@/models/level";
 import type { Subject } from "@/models/subject";
 import SubjectSelect from "../shared/selects/SubjectSelect.vue";
+import MultiLevelFilters from "../shared/MultiLevelFilters.vue";
+import { HierarchyFilter } from "@/models/hierarchyFilter";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));
@@ -240,6 +284,7 @@ const levelSelectInputRef = ref();
 const subjectSelectInputRef = ref();
 const isGettingTopics = ref(false);
 const deletingTopic = ref(new DeletionState());
+const filters = ref(new HierarchyFilter());
 
 //sorting info
 const sortOptions = ref([
@@ -257,10 +302,10 @@ const getAllTopics = () => {
   isGettingTopics.value = true;
   //prepare the query parameter before fetching the topics
   const { page, pageSize } = topics.value;
-  const curriculumId = selectedCurriculumFilter.value?.id ?? null;
-  const examBoardId = selectedExamBoardFilter.value?.id ?? null;
-  const levelId = selectedLevelFilter.value?.id ?? null;
-  const subjectId = selectedSubjectFilter.value?.id ?? null;
+  const curriculumId = filters.value.curriculum?.id ?? null;
+  const examBoardId = filters.value.examBoard?.id ?? null;
+  const levelId = filters.value.level?.id ?? null;
+  const subjectId = filters.value.subject?.id ?? null;
   const params: TopicQueryParams = {
     page,
     pageSize,

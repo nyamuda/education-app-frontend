@@ -110,11 +110,6 @@
             <Skeleton></Skeleton>
           </template>
         </Column>
-        <!-- <Column field="examBoard" header="Exam Board">
-          <template #body>
-            <Skeleton></Skeleton>
-          </template>
-        </Column> -->
         <Column field="curriculum" header="Curriculum">
           <template #body>
             <Skeleton></Skeleton>
@@ -157,19 +152,14 @@
             <span>{{ slotProps.data.topic?.subject?.level?.name }}</span>
           </template>
         </Column>
-        <!--Exam board name-->
-        <!-- <Column field="examBoard" header="Exam Board">
-          <template #body="slotProps">
-            <span>{{ slotProps.data.level?.examBoard?.name }}</span>
-          </template>
-        </Column> -->
+
         <!--Curriculum name-->
         <Column field="curriculum" header="Curriculum">
           <template #body="slotProps">
             <span>{{ slotProps.data.topic?.subject?.level?.examBoard?.curriculum?.name }}</span>
           </template>
         </Column>
-
+        <!-- Actions -->
         <Column field="id" header="Actions">
           <template #body="slotProps">
             <div class="d-flex justify-content-start align-items-center gap-2">

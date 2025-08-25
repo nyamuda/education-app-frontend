@@ -62,9 +62,9 @@ const props = defineProps({
 
   //Exam boards to use as options
   examBoards: {
-    type: [] as PropType<ExamBoard[]>,
+    type: Array as PropType<ExamBoard[]>,
     required: false,
-    default: [],
+    default: new Array<ExamBoard>(),
   },
   isGettingExamBoards: {
     type: Boolean,
@@ -77,7 +77,6 @@ const emit = defineEmits(["change", "isLoading"]);
 onMounted(() => {
   v$.value.$touch();
 });
-
 
 //select input validation start
 const formData: Ref<{ examBoardId: number | null }> = ref({
@@ -104,6 +103,4 @@ const resetSelectedValue = () => {
 };
 //expose the `resetSelectedValue` method to call it in parent components
 defineExpose({ resetSelectedValue });
-
-
 </script>
