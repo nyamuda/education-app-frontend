@@ -3,7 +3,10 @@
     <TitleSection title="Subtopics" title-size="small" align-items="center" />
 
     <!-- Hierarchy filters start -->
-    <CurriculumHierarchyFilters :callback-method="getAllSubtopics">
+    <CurriculumHierarchyFilters
+      :callback-method="getAllSubtopics"
+      @filter="(val: CurriculumHierarchyFilter) => (filter = val)"
+    >
       <template #extraContent>
         <!-- Sorting -->
         <div class="col-6 col-md-3">
@@ -168,17 +171,9 @@ import DeletePopup from "../shared/DeletePopup.vue";
 import { DeletionState } from "@/models/deletionState";
 import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 import { useSubtopicStore } from "@/stores/subtopic";
-import { Curriculum } from "@/models/curriculum";
-import type { Ref } from "vue";
-import type { ExamBoard } from "@/models/examBoard";
 import type { SubtopicQueryParams } from "@/interfaces/subtopics/subtopicQueryParams";
-
-import type { Level } from "@/models/level";
-import type { Subject } from "@/models/subject";
-import type { Topic } from "@/models/topic";
-import { HierarchyFilter } from "@/models/curriculumHierarchyFilter";
-import TopicSelect from "../shared/selects/TopicSelect.vue";
 import CurriculumHierarchyFilters from "../shared/CurriculumHierarchyFilters.vue";
+import { CurriculumHierarchyFilter } from "@/models/curriculumHierarchyFilter";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));
@@ -187,11 +182,7 @@ const subtopicStore = useSubtopicStore();
 
 const toast = useToast();
 const subtopics = ref(new PageInfo<Subtopic>());
-const filters: Ref<HierarchyFilter> = ref(new HierarchyFilter());
-const examBoardSelectInputRef = ref();
-const levelSelectInputRef = ref();
-const subjectSelectInputRef = ref();
-const topicSelectInputRef = ref();
+const filter = ref(new CurriculumHierarchyFilter());
 const isGettingSubtopics = ref(false);
 const deletingSubtopic = ref(new DeletionState());
 
@@ -211,11 +202,11 @@ const getAllSubtopics = () => {
   isGettingSubtopics.value = true;
   //prepare the query parameter before fetching the subtopics
   const { page, pageSize } = subtopics.value;
-  const curriculumId = filters.value.curriculum?.id ?? null;
-  const examBoardId = filters.value.examBoard?.id ?? null;
-  const levelId = filters.value.level?.id ?? null;
-  const subjectId = filters.value.subject?.id ?? null;
-  const topicId = filters.value.topic?.id ?? null;
+  const curriculumId = filter.value.curriculum?.id ?? null;
+  const examBoardId = filter.value.examBoard?.id ?? null;
+  const levelId = filter.value.level?.id ?? null;
+  const subjectId = filter.value.subject?.id ?? null;
+  const topicId = filter.value.topic?.id ?? null;
 
   const params: SubtopicQueryParams = {
     page,
@@ -257,52 +248,6 @@ const onPageChange = (state: PageState) => {
   //smoothly scroll to the top of the list
   const elementId = "subtopic-list";
   SmoothScrollHelper.scrollToElement(elementId);
-};
-
-//Called when the curriculum select input filter value changes
-const onCurriculumChange = (curriculum: Curriculum) => {
-  filters.value.reset();
-  filters.value.onCurriculumChange(curriculum);
-  //reset exam board select input value
-  examBoardSelectInputRef.value.resetSelectedValue();
-  //reset level select input value
-  levelSelectInputRef.value.resetSelectedValue();
-  //reset subject select input value
-  subjectSelectInputRef.value.resetSelectedValue();
-  //reset topic select input value
-  topicSelectInputRef.value.resetSelectedValue();
-  getAllSubtopics();
-};
-//Called when the exam board select input filter value changes
-const onExamBoardChange = (examBoard: ExamBoard) => {
-  filters.value.onExamBoardChange(examBoard);
-  //reset level select input value
-  levelSelectInputRef.value.resetSelectedValue();
-  //reset subject select input value
-  subjectSelectInputRef.value.resetSelectedValue();
-  //reset topic select input value
-  topicSelectInputRef.value.resetSelectedValue();
-  getAllSubtopics();
-};
-//Called when the level select input filter value changes
-const onLevelChange = (level: Level) => {
-  filters.value.onLevelChange(level);
-  //reset subject select input value
-  subjectSelectInputRef.value.resetSelectedValue();
-  //reset topic select input value
-  topicSelectInputRef.value.resetSelectedValue();
-  getAllSubtopics();
-};
-//Called when the subject select input filter value changes
-const onSubjectChange = (subject: Subject) => {
-  filters.value.onSubjectChange(subject);
-  //reset topic select input value
-  topicSelectInputRef.value.resetSelectedValue();
-  getAllSubtopics();
-};
-const onTopicChange = (topic: Topic) => {
-  filters.value.onTopicChange(topic);
-  getAllSubtopics();
 };
 
 //Delete a subtopic with a given ID
