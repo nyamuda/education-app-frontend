@@ -6,7 +6,7 @@ export class Subtopic {
     public id: number,
     public name: string,
     public topicId: number,
-    public Topic: Topic | null,
+    public topic: Topic | null,
     public questions: Question[],
     public createdAt: Date = new Date(),
   ) {}

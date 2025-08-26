@@ -161,8 +161,8 @@ const getSubjectById = async (id: number) => {
     formData.value.examBoardId = subject.level?.examBoardId ?? null;
     formData.value.levelId = subject.levelId;
 
-    //fetch curriculums for the curriculums, exam board and level select inputs
-    //This makes sure the correct option shows up in the select input instead of staying empty
+    // fetch curriculums for the curriculum select input and its dependant select inputs (e.g exam board, level)
+    // this makes sure the correct options show up in the select inputs instead of staying empty.
     curriculumExamBoardLevelSelectRef.value.getAllCurriculums();
   } catch {
     toast.add({
