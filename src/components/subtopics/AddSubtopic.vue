@@ -22,7 +22,7 @@
       </div>
       <!-- Curriculum, exam board, level and subject inputs -->
       <div class="form-group mb-3">
-        <CurriculumExamBoardLevelSubjectSelect
+        <CurriculumExamBoardLevelSubjectTopicSelect
           :default-curriculum-id="formData.curriculumId ?? undefined"
           :default-exam-board-id="formData.examBoardId ?? undefined"
           :default-level-id="formData.levelId ?? undefined"
@@ -33,7 +33,7 @@
           @change-subject="(val: Subject) => (formData.subjectId = val.id)"
           :is-required="true"
           @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
-          ref="curriculumExamBoardLevelSubjectSelectRef"
+          ref="curriculumExamBoardLevelSubjectTopicSelectRef"
         />
       </div>
       <!-- Submit button -->
@@ -67,13 +67,13 @@ import type { Curriculum } from "@/models/curriculum";
 import type { ExamBoard } from "@/models/examBoard";
 import type { SubtopicFormData } from "@/interfaces/subtopics/subtopicFormData";
 import type { Level } from "@/models/level";
-import CurriculumExamBoardLevelSubjectSelect from "../shared/selects/multi-selects/CurriculumExamBoardLevelSubjectSelect.vue";
 import type { Subject } from "@/models/subject";
+import CurriculumExamBoardLevelSubjectTopicSelect from "../shared/selects/multi-selects/CurriculumExamBoardLevelSubjectTopicSelect.vue";
 
 onMounted(() => {
   v$.value.$touch();
   //fetch curriculums for the curriculum and exam board select inputs
-  curriculumExamBoardLevelSubjectSelectRef.value.getAllCurriculums();
+  curriculumExamBoardLevelSubjectTopicSelectRef.value.getAllCurriculums();
 });
 
 // Access the store
@@ -83,7 +83,7 @@ const router = useRouter();
 const isAddingSubtopic = ref(false);
 //check if the curriculums for the select input are being loaded
 const isLoadingCurriculums = ref(false);
-const curriculumExamBoardLevelSubjectSelectRef = ref();
+const curriculumExamBoardLevelSubjectTopicSelectRef = ref();
 //form validation start
 const formData: Ref<SubtopicFormData> = ref({
   name: "",
@@ -91,6 +91,7 @@ const formData: Ref<SubtopicFormData> = ref({
   examBoardId: null,
   levelId: null,
   subjectId: null,
+  topicId: null,
 });
 
 const rules = {
@@ -99,6 +100,7 @@ const rules = {
   examBoardId: { required },
   levelId: { required },
   subjectId: { required },
+  topicId: { required },
 };
 
 const v$ = useVuelidate(rules, formData.value);
@@ -108,12 +110,12 @@ const submitForm = async () => {
   const isFormCorrect = await v$.value.$validate();
   if (!isFormCorrect) return;
 
-  const { name, subjectId } = formData.value;
-  if (subjectId == null) return;
+  const { name, topicId } = formData.value;
+  if (topicId == null) return;
 
   isAddingSubtopic.value = true;
   subtopicStore
-    .addSubtopic({ name, subjectId })
+    .addSubtopic({ name, topicId })
     .then(() => {
       toast.add({
         severity: "success",
