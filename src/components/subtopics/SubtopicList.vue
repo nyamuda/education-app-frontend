@@ -177,9 +177,7 @@ import { CurriculumHierarchyFilter } from "@/models/curriculumHierarchyFilter";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));
-
 const subtopicStore = useSubtopicStore();
-
 const toast = useToast();
 const subtopics = ref(new PageInfo<Subtopic>());
 const filter = ref(new CurriculumHierarchyFilter());

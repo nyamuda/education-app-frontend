@@ -1,5 +1,5 @@
 <template>
-  <div class="list-actions row mt-3 justify-content-start g-3">
+  <div class="list-actions row mt-0 justify-content-start g-3">
     <!-- Filter by curriculum -->
     <div class="col-6 col-md-3" v-if="showCurriculum">
       <CurriculumSelect
@@ -93,7 +93,7 @@ import TopicSelect from "./selects/TopicSelect.vue";
 import { ref, type Ref } from "vue";
 
 const props = defineProps({
-  // Props control which filters should be visible
+  // Props to control which filters should be visible
   showCurriculum: {
     type: Boolean,
     default: true,
@@ -114,7 +114,7 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-  // method that is called called after a filter changes
+  // Method that is called called after a filter changes
   callbackMethod: {
     type: Function,
     required: true,

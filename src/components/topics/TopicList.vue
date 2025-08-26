@@ -6,7 +6,7 @@
     <CurriculumHierarchyFilters
       :callback-method="getAllTopics"
       :show-topic="false"
-      @filters="(val: CurriculumHierarchyFilter) => (filter = val)"
+      @filter="(val: CurriculumHierarchyFilter) => (filter = val)"
     >
       <template #extraContent>
         <!-- Sorting -->
@@ -174,6 +174,7 @@ import { DeletionState } from "@/models/deletionState";
 import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 import { useTopicStore } from "@/stores/topic";
 import type { TopicQueryParams } from "@/interfaces/topics/topicQueryParams";
+import CurriculumHierarchyFilters from "../shared/CurriculumHierarchyFilters.vue";
 import { CurriculumHierarchyFilter } from "@/models/curriculumHierarchyFilter";
 
 //table row skeletons
