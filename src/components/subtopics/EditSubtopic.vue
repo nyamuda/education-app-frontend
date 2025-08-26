@@ -28,10 +28,12 @@
           :default-exam-board-id="formData.examBoardId ?? undefined"
           :default-level-id="formData.levelId ?? undefined"
           :default-subject-id="formData.subjectId ?? undefined"
+          v-bind:default-topic-id="formData.topicId ?? undefined"
           @change-curriculum="(val: Curriculum) => (formData.curriculumId = val.id)"
           @change-exam-board="(val: ExamBoard) => (formData.examBoardId = val.id)"
           @change-level="(val: Level) => (formData.levelId = val.id)"
           @change-subject="(val: Subject) => (formData.subjectId = val.id)"
+          @change-topic="(val: Topic) => (formData.topicId = val.id)"
           :is-required="true"
           @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
           ref="curriculumExamBoardLevelSubjectTopicSelectRef"
@@ -80,6 +82,7 @@ import type { Level } from "@/models/level";
 import type { Subject } from "@/models/subject";
 import CurriculumExamBoardLevelSubjectTopicSelect from "../shared/selects/multi-selects/CurriculumExamBoardLevelSubjectTopicSelect.vue";
 import type { Subtopic } from "@/models/subtopic";
+import type { Topic } from "@/models/topic";
 
 onMounted(async () => {
   v$.value.$touch();

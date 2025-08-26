@@ -385,6 +385,8 @@ const applyDefaultValues = () => {
   if (props.defaultSubjectId) {
     //set the default subject
     formData.value.subjectId = props.defaultSubjectId;
+    selectedSubject.value =
+      selectedLevel.value?.subjects.find((s) => s.id == props.defaultSubjectId) ?? null;
   }
   if (props.defaultTopicId) {
     //set the default topic
