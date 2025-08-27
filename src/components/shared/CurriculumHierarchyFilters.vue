@@ -35,6 +35,7 @@
         :subjects="filter?.level?.subjects"
         placeholder="Subject"
         :is-required="false"
+        :level-id="filter?.level?.id ?? null"
         ref="subjectSelectInputRef"
       />
     </div>

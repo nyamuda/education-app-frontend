@@ -65,7 +65,7 @@ const props = defineProps({
   },
   //the level the subjects are under
   levelId: {
-    type: Number,
+    type: [Number, null],
     required: true,
   },
 });
@@ -107,11 +107,11 @@ const resetSelectedValue = () => {
 
 /**
  * Fetches all subjects from the backend. These subjects are used
- * to select the subject for things like exam boards, subjects, topics in forms
+ * to select the subject for things like topics, subtopics,questions in forms
  * and dropdowns and where a user needs to choose which subject they are working with.
  *
  * Retrieves the first 100 subjects (page size = 100), which is currently
- * more than enough since the total number of subjects in the system is small.
+ * more than enough since the total number of subjects per educational level in the system is small.
  *
  * Using 100 ensures all available subjects are fetched in one request.
  * If the dataset grows significantly in the future, the page size can be
