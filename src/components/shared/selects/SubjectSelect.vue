@@ -28,10 +28,13 @@
 <script setup lang="ts">
 import Select, { type SelectChangeEvent } from "primevue/select";
 import { Subject } from "@/models/subject";
-import { computed, onMounted, ref, type PropType, type Ref } from "vue";
+import { computed, onMounted, ref, type Ref } from "vue";
 import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
-import { Message } from "primevue";
+import { Message, useToast } from "primevue";
+import { useSubjectStore } from "@/stores/subject";
+import type { SubjectQueryParams } from "@/interfaces/subjects/subjectQueryParams";
+import { SubjectSortOption } from "@/enums/subjects/subjectSortOption";
 
 const props = defineProps({
   //placeholder text of the select input
@@ -56,20 +59,23 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-
-  //Subjects to use as options
-  subjects: {
-    type: Array as PropType<Subject[]>,
+  defaultSubjectId: {
+    type: Number,
     required: false,
-    default: new Array<Subject>(),
   },
-  isGettingSubjects: {
-    type: Boolean,
-    default: false,
+  //the level the subjects are under
+  levelId: {
+    type: Number,
+    required: true,
   },
 });
 
 const emit = defineEmits(["change", "isLoading"]);
+
+const subjectStore = useSubjectStore();
+const isGettingSubjects = ref(false);
+const subjects: Ref<Subject[]> = ref([]);
+const toast = useToast();
 
 onMounted(() => {
   v$.value.$touch();
@@ -81,7 +87,7 @@ const formData: Ref<{ subjectId: number | null }> = ref({
 });
 
 const rules = computed(() => {
-  if (props.isGettingSubjects || !props.isRequired) return { subjectId: {} };
+  if (isGettingSubjects.value || !props.isRequired) return { subjectId: {} };
   return { subjectId: { required: helpers.withMessage("Select subject", required) } };
 });
 
@@ -90,7 +96,7 @@ const v$ = useVuelidate(rules, formData);
 
 const onSelect = async (event: SelectChangeEvent) => {
   //get and emit the selected subject
-  const subject = props.subjects.find((x) => x.id == event.value);
+  const subject = subjects.value.find((x) => x.id == event.value);
 
   emit("change", subject);
 };
@@ -98,6 +104,62 @@ const onSelect = async (event: SelectChangeEvent) => {
 const resetSelectedValue = () => {
   formData.value.subjectId = null;
 };
-//expose the `resetSelectedValue` method to call it in parent componentsrea
-defineExpose({ resetSelectedValue });
+
+/**
+ * Fetches all subjects from the backend. These subjects are used
+ * to select the subject for things like exam boards, subjects, topics in forms
+ * and dropdowns and where a user needs to choose which subject they are working with.
+ *
+ * Retrieves the first 100 subjects (page size = 100), which is currently
+ * more than enough since the total number of subjects in the system is small.
+ *
+ * Using 100 ensures all available subjects are fetched in one request.
+ * If the dataset grows significantly in the future, the page size can be
+ * reduced or proper pagination logic can be implemented.
+ */
+const getAllSubjects = () => {
+  isGettingSubjects.value = true;
+
+  //tell the parent component that the subjects are being loaded
+  emit("isLoading", true);
+
+  const page = 1;
+  const pageSize = 100;
+
+  const queryParams: SubjectQueryParams = {
+    page,
+    pageSize,
+    levelId: props.levelId,
+    sortBy: SubjectSortOption.Name,
+    curriculumId: null,
+    examBoardId: null,
+  };
+
+  subjectStore
+    .getSubjects(queryParams)
+    .then((data) => {
+      subjects.value = data.items;
+      // Once the list of subjects is loaded, apply the default value (if provided).
+      // This makes sure the correct option shows up in the select input instead of staying empty.
+      if (props.defaultSubjectId) {
+        formData.value.subjectId = props.defaultSubjectId;
+      }
+    })
+    .catch((message) => {
+      toast.add({
+        severity: "error",
+        summary: "Error",
+        detail: message,
+        life: 5000,
+      });
+    })
+    .finally(() => {
+      isGettingSubjects.value = false;
+      emit("isLoading", false);
+    });
+};
+
+//expose the `resetSelectedValue` method to call it in parent component
+//expose the `GetAllSubjects` method to call it in the parent component
+defineExpose({ resetSelectedValue, getAllSubjects });
 </script>
