@@ -6,6 +6,8 @@ import { UrlHelper } from "@/helpers/urlHelper";
 import { ErrorResponse } from "@/models/errorResponse";
 import type { PageInfo } from "@/models/pageInfo";
 import { LevelSortOption } from "@/enums/levels/levelSortOption";
+import type { SubjectQueryParams } from "@/interfaces/subjects/subjectQueryParams";
+import type { Subject } from "@/models/subject";
 
 export const useLevelStore = defineStore("level", () => {
   const apiUrl = ref(`${UrlHelper.apiUrl}/levels`);
@@ -50,6 +52,24 @@ export const useLevelStore = defineStore("level", () => {
         })
         .then((response) => {
           //return the levels
+          resolve(response.data);
+        })
+        .catch((err) => {
+          const message = err.response?.data?.message || ErrorResponse.Unexpected();
+          reject(message);
+        });
+    });
+  };
+
+  //Gets a paginated list of subjects for given educational level along with pagination metadata
+  const getSubjectsForLevel = (params: SubjectQueryParams): Promise<PageInfo<Subject>> => {
+    return new Promise((resolve, reject) => {
+      axios
+        .get<PageInfo<Subject>>(`${UrlHelper.apiUrl}/levels/${params.levelId}/subjects`, {
+          params: params,
+        })
+        .then((response) => {
+          //return the subjects
           resolve(response.data);
         })
         .catch((err) => {

@@ -179,6 +179,8 @@ const onLevelChange = (level: Level) => {
   filter.value.onLevelChange(level);
   //reset subject select input value
   subjectSelectInputRef.value?.resetSelectedValue();
+//get all subject for the selected level
+
   //reset topic select input value
   topicSelectInputRef.value?.resetSelectedValue();
   emit("filter", filter.value);

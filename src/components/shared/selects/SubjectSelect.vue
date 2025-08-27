@@ -106,7 +106,7 @@ const resetSelectedValue = () => {
 };
 
 /**
- * Fetches all subjects from the backend. These subjects are used
+ * Fetches all subjects from the backend for a given educational level. These subjects are used
  * to select the subject for things like topics, subtopics,questions in forms
  * and dropdowns and where a user needs to choose which subject they are working with.
  *
@@ -118,6 +118,7 @@ const resetSelectedValue = () => {
  * reduced or proper pagination logic can be implemented.
  */
 const getAllSubjects = () => {
+  if (!props.levelId) return;
   isGettingSubjects.value = true;
 
   //tell the parent component that the subjects are being loaded
