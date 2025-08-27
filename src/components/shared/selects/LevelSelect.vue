@@ -31,7 +31,10 @@ import { Level } from "@/models/level";
 import { computed, onMounted, ref, type PropType, type Ref } from "vue";
 import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
-import { Message } from "primevue";
+import { Message, useToast } from "primevue";
+import { useSubjectStore } from "@/stores/subject";
+import type { SubjectQueryParams } from "@/interfaces/subjects/subjectQueryParams";
+import { SubjectSortOption } from "@/enums/subjects/subjectSortOption";
 
 const props = defineProps({
   //placeholder text of the select input
@@ -69,11 +72,15 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["change", "isLoading"]);
+const emit = defineEmits(["change", "isLoadingLevels", "isLoadingSubjects", "subjects"]);
 
 onMounted(() => {
   v$.value.$touch();
 });
+
+const subjectStore = useSubjectStore();
+const isGettingSubjects = ref(false);
+const toast = useToast();
 
 //select input validation start
 const formData: Ref<{ levelId: number | null }> = ref({
@@ -90,9 +97,13 @@ const v$ = useVuelidate(rules, formData);
 
 const onSelect = async (event: SelectChangeEvent) => {
   //get and emit the selected level
-  const level = props.levels.find((x) => x.id == event.value);
+  const level = props.levels.find((x) => x.id == event.value) ?? null;
 
   emit("change", level);
+
+  //fetch subjects for the level
+  if (!level) return;
+  getSubjectsForLevel(level.id);
 };
 
 const resetSelectedValue = () => {
@@ -100,4 +111,54 @@ const resetSelectedValue = () => {
 };
 //expose the `resetSelectedValue` method to call it in parent components
 defineExpose({ resetSelectedValue });
+
+/**
+ * Fetches all subjects from the backend for a given educational level. These subjects are used
+ * to select the subject for things like topics, subtopics,questions in forms
+ * and dropdowns and where a user needs to choose which subject they are working with.
+ *
+ * Retrieves the first 100 subjects (page size = 100), which is currently
+ * more than enough since the total number of subjects per educational level in the system is small.
+ *
+ * Using 100 ensures all available subjects are fetched in one request.
+ * If the dataset grows significantly in the future, the page size can be
+ * reduced or proper pagination logic can be implemented.
+ */
+const getSubjectsForLevel = (levelId: number) => {
+  if (!levelId) return;
+  isGettingSubjects.value = true;
+
+  //tell the parent component that the subjects are being loaded
+  emit("isLoadingSubjects", true);
+
+  const page = 1;
+  const pageSize = 100;
+
+  const queryParams: SubjectQueryParams = {
+    page,
+    pageSize,
+    levelId,
+    sortBy: SubjectSortOption.Name,
+    curriculumId: null,
+    examBoardId: null,
+  };
+
+  subjectStore
+    .getSubjectsForLevel(queryParams)
+    .then((data) => {
+      emit("subjects", data.items);
+    })
+    .catch((message) => {
+      toast.add({
+        severity: "error",
+        summary: "Error",
+        detail: message,
+        life: 5000,
+      });
+    })
+    .finally(() => {
+      isGettingSubjects.value = false;
+      emit("isLoadingSubjects", false);
+    });
+};
 </script>

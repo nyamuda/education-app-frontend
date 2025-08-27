@@ -29,11 +29,38 @@ export const useSubjectStore = defineStore("subject", () => {
     });
   };
 
-  //Gets a paginated list of subjects along with pagination metadata
+  /**
+   * Retrieves a paginated list of subjects along with pagination metadata.
+   * Note: Each subject includes its related level, exam board, and curriculum.
+   *
+   * @param params Query parameters for filtering, sorting, and pagination.
+   */
   const getSubjects = (params: SubjectQueryParams): Promise<PageInfo<Subject>> => {
     return new Promise((resolve, reject) => {
       axios
         .get<PageInfo<Subject>>(`${apiUrl.value}`, {
+          params: params,
+        })
+        .then((response) => {
+          //return the subjects
+          resolve(response.data);
+        })
+        .catch((err) => {
+          const message = err.response?.data?.message || ErrorResponse.Unexpected();
+          reject(message);
+        });
+    });
+  };
+  /**
+   * Retrieves a paginated list of subjects for a given educational level along with pagination metadata.
+   * Note: Each subject includes its related topics and subtopics.
+   *
+   * @param params Query parameters for filtering, sorting, and pagination.
+   */
+  const getSubjectsForLevel = (params: SubjectQueryParams): Promise<PageInfo<Subject>> => {
+    return new Promise((resolve, reject) => {
+      axios
+        .get<PageInfo<Subject>>(`${UrlHelper.apiUrl}/levels/${params.levelId}/subjects`, {
           params: params,
         })
         .then((response) => {
@@ -103,5 +130,12 @@ export const useSubjectStore = defineStore("subject", () => {
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   };
 
-  return { getSubjectById, getSubjects, updateSubject, deleteSubject, addSubject };
+  return {
+    getSubjectById,
+    getSubjects,
+    updateSubject,
+    deleteSubject,
+    addSubject,
+    getSubjectsForLevel,
+  };
 });

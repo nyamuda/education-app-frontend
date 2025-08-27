@@ -22,6 +22,8 @@
     <div class="col-6 col-md-3" v-if="showLevel">
       <LevelSelect
         @change="onLevelChange"
+        @subjects="(val: Subject[]) => (filter.level ? (filter.level.subjects = val) : null)"
+        @is-loading-subjects="(val: boolean) => (isLoadingSubjects = val)"
         :levels="filter?.examBoard?.levels"
         placeholder="Level"
         :is-required="false"
@@ -35,7 +37,7 @@
         :subjects="filter?.level?.subjects"
         placeholder="Subject"
         :is-required="false"
-        :level-id="filter?.level?.id ?? null"
+        :is-loading-subjects="isLoadingSubjects"
         ref="subjectSelectInputRef"
       />
     </div>
@@ -132,6 +134,9 @@ const levelSelectInputRef = ref();
 const subjectSelectInputRef = ref();
 const topicSelectInputRef = ref();
 
+// Show a loader in the select input when its items are being fetched
+const isLoadingSubjects = ref(false);
+
 /**
  * Called when Curriculum changes
  * - Updates filter
@@ -179,8 +184,6 @@ const onLevelChange = (level: Level) => {
   filter.value.onLevelChange(level);
   //reset subject select input value
   subjectSelectInputRef.value?.resetSelectedValue();
-//get all subject for the selected level
-
   //reset topic select input value
   topicSelectInputRef.value?.resetSelectedValue();
   emit("filter", filter.value);
