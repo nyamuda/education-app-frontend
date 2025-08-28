@@ -36,6 +36,7 @@
           @change-topic="(val: Topic) => (formData.topicId = val.id)"
           :is-required="true"
           @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
+          :crud-context="CrudContext.Update"
           ref="curriculumExamBoardLevelSubjectTopicSelectRef"
         />
       </div>
@@ -83,6 +84,7 @@ import type { Subject } from "@/models/subject";
 import CurriculumExamBoardLevelSubjectTopicSelect from "../shared/selects/multi-selects/CurriculumExamBoardLevelSubjectTopicSelect.vue";
 import type { Subtopic } from "@/models/subtopic";
 import type { Topic } from "@/models/topic";
+import { CrudContext } from "@/enums/crudContext";
 
 onMounted(async () => {
   v$.value.$touch();
@@ -179,12 +181,7 @@ const getSubtopicById = async (id: number) => {
     // fetch curriculums for the curriculum select input and
     // its dependant select inputs (e.g exam board and level)
     // this makes sure the correct options show up in the select inputs instead of staying empty.
-    curriculumExamBoardLevelSubjectTopicSelectRef.value.getAllCurriculums();
-
-    // fetch subjects for the level that was selected
-    // this also will include topics and subtopic
-    if (!formData.value.levelId) return;
-    curriculumExamBoardLevelSubjectTopicSelectRef.value.getSubjectsForLevel(formData.value.levelId);
+    curriculumExamBoardLevelSubjectTopicSelectRef.value.getAllCurriculums(formData.value.levelId);
   } catch {
     toast.add({
       severity: "error",

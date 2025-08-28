@@ -132,7 +132,10 @@
       </Message>
     </div>
   </div>
-  --- {{ selectedSubject }}
+
+  <p>subject id: {{ defaultSubjectId }}</p>
+  <p>selected subject: {{ selectedSubject }}</p>
+  <p>selected level: {{ selectedLevel }}</p>
 </template>
 
 <script setup lang="ts">
@@ -141,20 +144,33 @@
  *  Curriculum → Exam Board → Educational Level → Subject → Topic
  *
  * Each select filters the next one.
- * Example:
+ *   Example:
  *   - Choosing a curriculum sets exam boards tied to that curriculum
  *   - Choosing an exam board sets levels tied to that exam board
  *   - Choosing a level sets subjects tied to that level
  *   - Choosing a subject sets topics tied to that subject
  *
- * Emits change events so the parent component can react.
+ * Features:
+ * - Each selection filters the options of the next level.
+ * - Handles validation with Vuelidate (`isRequired` prop).
+ * - Supports both creation and update contexts (`crudContext` prop).
+ * - Can pre-populate values via `defaultId` props.
+ * - Emits change events and loading states so the parent can react.
+ *
+ * Example use case:
+ *   - In a question creation form: select curriculum, then exam board, then subject, etc.
+ *   - In an editing form: pre-select the hierarchy with default IDs.
+ *
+ * Key exposed methods (via `defineExpose`):
+ *   - `getAllCurriculums()` → Load curriculums (and cascade data).
+ *   - `resetAllSelectedValues()` → Clear all selections.
  */
 
 import Select, { type SelectChangeEvent } from "primevue/select";
 import { Curriculum } from "@/models/curriculum";
 import { useCurriculumStore } from "@/stores/curriculum";
 //import FloatLabel from "primevue/floatlabel";
-import { computed, onMounted, ref, type Ref } from "vue";
+import { computed, onMounted, ref, type PropType, type Ref } from "vue";
 import { useToast } from "primevue";
 import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
@@ -165,8 +181,14 @@ import type { Subject } from "@/models/subject";
 import { useSubjectStore } from "@/stores/subject";
 import type { SubjectQueryParams } from "@/interfaces/subjects/subjectQueryParams";
 import { SubjectSortOption } from "@/enums/subjects/subjectSortOption";
+import { CrudContext } from "@/enums/crudContext";
 
 const props = defineProps({
+  // whether the component is being used for updating or creating a new entity
+  crudContext: {
+    type: String as PropType<CrudContext>,
+    default: CrudContext.Create,
+  },
   //size of the input
   size: {
     type: String,
@@ -355,16 +377,20 @@ const resetTopicSelectedValues = () => {
 };
 
 /**
- * Loads curriculums (with exam boards, levels, subjects, and topics).
+ * Loads curriculums along with their related data (exam boards, levels, subjects, and topics).
  *
- * Retrieves the first 100 curriculums (page size = 100), which is currently
- * more than enough since the total number of curriculums in the system is small.
+ * - By default, retrieves the first 100 curriculums (page size = 100).
+ *   This is sufficient for now because the total number of curriculums in the system is small.
+ * - Fetching 100 at once avoids the need for multiple requests.
+ * - If the dataset grows in the future, the page size can be reduced or full pagination logic added.
  *
- * Using 100 ensures all available curriculums are fetched in one request.
- * If the dataset grows significantly in the future, the page size can be
- * reduced or proper pagination logic can be implemented.
+ * @param levelId (optional)
+ *   - Used only when editing (Update mode).
+ *   - If provided, once curriculums are loaded, the method will also fetch the subjects tied to that level.
+ *   - This ensures the UI is pre-populated with the correct subjects (including their topics and subtopics)
+ *     for the level being updated.
  */
-const getAllCurriculums = () => {
+const getAllCurriculums = (levelId: number | null = null) => {
   isGettingCurriculums.value = true;
 
   //tell the parent component that the curriculums are being loaded
@@ -375,8 +401,16 @@ const getAllCurriculums = () => {
 
   curriculumStore
     .getCurriculums(page, pageSize)
-    .then((data) => {
+    .then(async (data) => {
       curriculums.value = data.items;
+      // Apply default selections (if any were passed as props)
+      applyDefaultValues();
+
+      // If a level was already selected and we are in "Update" mode,
+      // fetch subjects for that level (this will also bring in topics & subtopics)
+      if (levelId != null && props.crudContext == CrudContext.Update) {
+        await getSubjectsForLevel(levelId);
+      }
     })
     .catch((message) => {
       toast.add({
@@ -400,6 +434,7 @@ const getAllCurriculums = () => {
 const applyDefaultValues = () => {
   if (props.defaultCurriculumId) {
     formData.value.curriculumId = props.defaultCurriculumId;
+
     //set the default curriculum
     selectedCurriculum.value =
       curriculums.value.find((c) => c.id == props.defaultCurriculumId) ?? null;
@@ -429,56 +464,74 @@ const applyDefaultValues = () => {
 };
 
 /**
- * Fetches all subjects from the backend for a given educational level. These subjects are used
- * to select the subject for things like topics, subtopics,questions in forms
- * and dropdowns and where a user needs to choose which subject they are working with.
+ * Fetches all subjects from the backend for a specific educational level.
  *
- * Retrieves the first 100 subjects (page size = 100), which is currently
- * more than enough since the total number of subjects per educational level in the system is small.
+ * Usage:
+ * - Subjects are needed when selecting topics or subtopics.
+ * - They also populate dropdowns and other UI components where a subject choice is required.
  *
- * Using 100 ensures all available subjects are fetched in one request.
- * If the dataset grows significantly in the future, the page size can be
- * reduced or proper pagination logic can be implemented.
+ * Data fetching:
+ * - Retrieves the first 100 subjects (page size = 100).
+ *   This is sufficient since the number of subjects per level is small.
+ * - Using 100 ensures all subjects are fetched in one request.
+ * - If the dataset grows significantly, the page size can be reduced
+ *   or replaced with proper pagination logic.
+ *
+ * @param levelId (number) - The ID of the educational level whose subjects should be retrieved.
+ *   - If no levelId is provided, or if subject selection is disabled (`props.showSubject` is false),
+ *     the request will not run.
  */
-const getSubjectsForLevel = (levelId: number) => {
-  
+const getSubjectsForLevel = async (levelId: number) => {
+  // Skip if no level is selected or if the UI does not require subjects
   if (!levelId || !props.showSubject) return;
+
   isGettingSubjects.value = true;
 
-  //tell the parent component that the subjects are being loaded
+  // Notify parent component that subjects are loading (used for showing loaders/spinners)
   emit("isLoadingSubjects", true);
 
   const page = 1;
   const pageSize = 100;
 
+  // Build query parameters for fetching subjects
   const queryParams: SubjectQueryParams = {
     page,
     pageSize,
-    levelId,
+    levelId, // Ensures we only fetch subjects tied to this level
     sortBy: SubjectSortOption.Name,
     curriculumId: null,
     examBoardId: null,
   };
 
-  subjectStore
-    .getSubjectsForLevel(queryParams)
-    .then((data) => {
-      if (!selectedLevel.value) return;
+  try {
+    const data = await subjectStore.getSubjectsForLevel(queryParams);
+
+    // Attach subjects to the selected level in state
+    if (selectedLevel.value) {
       selectedLevel.value.subjects = data.items;
-    })
-    .catch((message) => {
-      toast.add({
-        severity: "error",
-        summary: "Error",
-        detail: message,
-        life: 5000,
-      });
-    })
-    .finally(() => {
-      isGettingSubjects.value = false;
-      emit("isLoadingSubjects", false);
+    }
+
+    // When editing an existing record (Update mode),
+    // auto-select the default subject so dependent fields
+    // (topic and subtopic) are pre-filled instead of empty
+    if (props.crudContext == CrudContext.Update) {
+      selectedSubject.value = data.items.find((s) => s.id == props.defaultSubjectId) ?? null;
+    }
+  } catch (message) {
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: message,
+      life: 5000,
     });
+  } finally {
+    isGettingSubjects.value = false;
+    emit("isLoadingSubjects", false);
+  }
 };
 
-defineExpose({ getAllCurriculums, getSubjectsForLevel, resetAllSelectedValues });
+defineExpose({
+  getAllCurriculums,
+  resetAllSelectedValues,
+});
 </script>
