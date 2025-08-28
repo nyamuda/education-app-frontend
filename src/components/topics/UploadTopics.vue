@@ -5,7 +5,7 @@
 
       <!-- Curriculum, exam board and level inputs -->
       <div class="form-group mb-3">
-        <CurriculumExamBoardLevelSubjectSelect
+        <CurriculumExamBoardLevelSubjectTopicSelect
           :default-curriculum-id="formData.curriculumId ?? undefined"
           :default-exam-board-id="formData.examBoardId ?? undefined"
           :default-level-id="formData.levelId ?? undefined"
@@ -14,9 +14,13 @@
           @change-exam-board="(val: ExamBoard) => (formData.examBoardId = val.id)"
           @change-level="(val: Level) => (formData.levelId = val.id)"
           @change-subject="(val: Subject) => (formData.subjectId = val.id)"
+          :show-curriculum="true"
+          :show-exam-board="true"
+          :show-level="true"
+          :show-subject="true"
           :is-required="true"
-          @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
-          ref="curriculumExamBoardLevelSubjectSelectRef"
+          @is-loading-data="(val: boolean) => (isLoadingSelectionData = val)"
+          ref="curriculumSelectRef"
         />
       </div>
       <!--JSON file upload section-->
@@ -45,7 +49,7 @@
         type="submit"
         :label="isAddingTopics ? 'Uploading...' : 'Add topics'"
         :loading="isAddingTopics"
-        :disabled="v$.$errors.length > 0 || isAddingTopics || isLoadingCurriculums"
+        :disabled="v$.$errors.length > 0 || isAddingTopics || isLoadingSelectionData"
         size="small"
         severity="primary"
       />
@@ -67,15 +71,16 @@ import { useTopicStore } from "@/stores/topic";
 import type { Curriculum } from "@/models/curriculum";
 import type { ExamBoard } from "@/models/examBoard";
 import type { Level } from "@/models/level";
-import CurriculumExamBoardLevelSubjectSelect from "../shared/selects/multi-selects/CurriculumExamBoardLevelSubjectSelect.vue";
 import type { Subject } from "@/models/subject";
 import FileUpload, { type FileUploadSelectEvent } from "primevue/fileupload";
+import CurriculumExamBoardLevelSubjectTopicSelect from "../shared/selects/multi-selects/CurriculumExamBoardLevelSubjectTopicSelect.vue";
 import type { TopicUploadFormData } from "@/interfaces/topics/topicUploadFormData";
 
 onMounted(() => {
   v$.value.$touch();
-  //fetch curriculums for the select inputs
-  curriculumExamBoardLevelSubjectSelectRef.value.getAllCurriculums();
+  // Load curriculums (with exam boards, levels, and subjects)
+  // so the user can select from the dropdown.
+  curriculumSelectRef.value.getAllCurriculums();
 });
 
 // Access the store
@@ -84,9 +89,9 @@ const toast = useToast();
 const router = useRouter();
 const isAddingTopics = ref(false);
 //check if the curriculums for the select input are being loaded
-const isLoadingCurriculums = ref(false);
+const isLoadingSelectionData = ref(false);
 const maxFileSize = ref(5 * 1024 * 1024);
-const curriculumExamBoardLevelSubjectSelectRef = ref();
+const curriculumSelectRef = ref();
 //form validation start
 const formData: Ref<TopicUploadFormData> = ref({
   curriculumId: null,
