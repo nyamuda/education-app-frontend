@@ -34,6 +34,11 @@
           @change-subject="(val: Subject) => (formData.subjectId = val.id)"
           @change-topic="(val: Topic) => (formData.topicId = val.id)"
           :is-required="true"
+          :show-curriculum="true"
+          :show-exam-board="true"
+          :show-level="true"
+          :show-subject="true"
+          :show-topic="true"
           @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
           ref="curriculumExamBoardLevelSubjectTopicSelectRef"
         />

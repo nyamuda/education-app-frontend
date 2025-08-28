@@ -29,6 +29,8 @@
           @change-curriculum="(val: Curriculum) => (formData.curriculumId = val.id)"
           @change-exam-board="(val: ExamBoard) => (formData.examBoardId = val.id)"
           :is-required="true"
+          :show-curriculum="true"
+          :show-exam-board="true"
           @is-loading-data="(val: boolean) => (isLoadingSelectionData = val)"
           ref="curriculumSelectRef"
         />

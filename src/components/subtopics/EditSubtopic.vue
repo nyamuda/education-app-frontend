@@ -37,6 +37,11 @@
           :is-required="true"
           @is-loading-curriculums="(val: boolean) => (isLoadingCurriculumsOrSubjects = val)"
           @is-loading-subjects="(val: boolean) => (isLoadingCurriculumsOrSubjects = val)"
+          :show-curriculum="true"
+          :show-exam-board="true"
+          :show-level="true"
+          :show-subject="true"
+          :show-topic="true"
           :crud-context="CrudContext.Update"
           ref="curriculumExamBoardLevelSubjectTopicSelectRef"
         />

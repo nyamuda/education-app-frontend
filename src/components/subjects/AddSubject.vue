@@ -30,8 +30,9 @@
           @change-exam-board="(val: ExamBoard) => (formData.examBoardId = val.id)"
           @change-level="(val: Level) => (formData.levelId = val.id)"
           :is-required="true"
-          :show-subject="false"
-          :show-topic="false"
+          :show-curriculum="true"
+          :show-exam-board="true"
+          :show-level="true"
           @is-loading-data="(val: boolean) => (isLoadingSelectionData = val)"
           ref="curriculumSelectRef"
         />

@@ -3,6 +3,7 @@
     <!-- Curriculum select -->
     <div class="mb-3" v-if="showCurriculum">
       <Select
+        editable
         id="curriculumSelectInput"
         :placeholder="isGettingCurriculums ? 'Loading curriculums...' : 'Curriculum'"
         checkmark
@@ -78,6 +79,7 @@
     <!-- Subject select -->
     <div class="mb-3" v-if="showSubject">
       <Select
+        editable
         id="subjectSelectInput"
         :placeholder="isGettingCurriculums || isGettingSubjects ? 'Loading subjects...' : 'Subject'"
         checkmark
@@ -109,6 +111,7 @@
     <!-- Topic select -->
     <div class="mb-3" v-if="showTopic">
       <Select
+        editable
         id="topicSelectInput"
         :placeholder="isGettingCurriculums || isGettingSubjects ? 'Loading topics...' : 'Topic'"
         checkmark
@@ -217,23 +220,27 @@ const props = defineProps({
   // Props to control which select inputs should be visible
   showCurriculum: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   showExamBoard: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   showLevel: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   showSubject: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   showTopic: {
     type: Boolean,
-    default: true,
+    default: false,
+  },
+  showSubtopic: {
+    type: Boolean,
+    default: false,
   },
 });
 
