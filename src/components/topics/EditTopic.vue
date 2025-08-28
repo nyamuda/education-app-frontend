@@ -175,7 +175,7 @@ const getTopicById = async (id: number) => {
     formData.value.subjectId = topic.subjectId;
 
     // Load curriculums (and related exam boards, levels, subjects)
-    // so the dropdowns show the right options instead of staying blank.
+    // so the dropdowns auto-select and show the right options instead of staying blank.
     curriculumSelectRef.value.getAllCurriculums(formData.value.levelId);
   } catch {
     toast.add({

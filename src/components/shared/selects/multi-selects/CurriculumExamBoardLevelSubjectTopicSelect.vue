@@ -281,7 +281,7 @@ const formData: Ref<{
 
 const rules = computed(() => {
   // If data is still loading or validation is not required, return empty rules
-  if (isGettingCurriculums.value || isGettingSubjects || !props.isRequired) {
+  if (isGettingCurriculums.value || isGettingSubjects.value || !props.isRequired) {
     return {
       curriculumId: {},
       examBoardId: {},
