@@ -19,12 +19,12 @@
           :label="isSavingQuestion ? 'Saving...' : 'Save draft'"
           severity="contrast"
           :loading="isSavingQuestion"
-          :disabled="isSavingQuestion || v$.$errors.length > 0 || hasInvalidSubForms"
+          :disabled="isSavingQuestion || v$.$errors.length > 0"
         />
       </div>
       <!-- Form error message -->
       <Message
-        v-if="hasInvalidSubForms || v$.$error"
+        v-if="v$.$error"
         icon="pi pi-times-circle"
         severity="error"
         variant="simple"
@@ -91,33 +91,29 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch, type Ref } from "vue";
-import { useQuestionStore } from "@/stores/question";
+import { onMounted, ref, watch, type Ref } from "vue";
+//import { useQuestionStore } from "@/stores/question";
 import { useVuelidate } from "@vuelidate/core";
-import { required, helpers, url } from "@vuelidate/validators";
+import { required, helpers } from "@vuelidate/validators";
 import { Message } from "primevue";
 import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
 import Button from "primevue/button";
-import IconField from "primevue/iconfield";
-import InputIcon from "primevue/inputicon";
+//import IconField from "primevue/iconfield";
+//import InputIcon from "primevue/inputicon";
 import TitleSection from "../shared/TitleSection.vue";
-import { useToast } from "primevue/usetoast";
-import { useRouter } from "vue-router";
-import Panel from "primevue/panel";
+// import { useToast } from "primevue/usetoast";
+// import { useRouter } from "vue-router";
 import Textarea from "primevue/textarea";
-import AutoComplete from "primevue/autocomplete";
+//import AutoComplete from "primevue/autocomplete";
 import { Question } from "@/models/question";
-import ParagraphList from "../paragraphs/ParagraphListEditor.vue";
 import { QuestionStatus } from "@/enums/questions/questionStatus";
-import { ParagraphType } from "@/enums/paragraphType";
-import { CrudContext } from "@/enums/crudContext";
-import { QuestionHelper } from "@/helpers/questionHelper";
+import type { QuestionFormData } from "@/interfaces/questions/questionFormData";
 
 // Access the store
-const questionStore = useQuestionStore();
-const toast = useToast();
-const router = useRouter();
+// const questionStore = useQuestionStore();
+// const toast = useToast();
+// const router = useRouter();
 
 onMounted(() => {
   v$.value.$touch();
@@ -136,24 +132,22 @@ const localStorageKey = "newQuestion";
 const invalidFormMessage = ref(
   "Some fields are missing or invalid. Please fix them to save or publish your question.",
 );
-// Track whether any content paragraph form is invalid
-const hasInvalidContentForms: Ref<boolean> = ref(false);
-
-// Check whether any of the question’s sub-sections (e.g. background, challenges,
-// achievements, or feedback) contain invalid forms. Returns true if at least one
-// sub-form is invalid
-const hasInvalidSubForms = computed(() => hasInvalidContentForms.value);
-// Check the validity of the entire form
-const isEntireFormInvalid = async (): Promise<boolean> => {
-  // Validate the main form fields
-  const areMainFieldsValid = await v$.value.$validate();
-  // Return true if any section (main or sub-forms) is invalid
-  return !areMainFieldsValid || hasInvalidSubForms.value;
-};
 
 const isSavingQuestion = ref(false);
 
 //form validation start
+const formData: Ref<QuestionFormData> = ref({
+  title: null,
+  question: null,
+  answer: null,
+  curriculumId: null,
+  examBoardId: null,
+  levelId: null,
+  subjectId: null,
+  topicId: null,
+  subtopicId: null,
+  tags: [],
+});
 const rules = {
   title: { required },
   question: { required },
@@ -168,7 +162,7 @@ const rules = {
     required: helpers.withMessage("You need to include at least one tag", required),
   },
 };
-const v$ = useVuelidate(rules, question);
+const v$ = useVuelidate(rules, formData);
 //form validation end
 
 //Change the question status to Draft if user has clicked the "Save" button
@@ -182,44 +176,8 @@ const saveQuestionAsDraft = async () => {
 
 const submitQuestion = async () => {
   // Validate the entire form (main fields + paragraph + challenge + achievement + feedback sections)
-  const isInvalid = await isEntireFormInvalid();
-
-  // Only proceed if form is valid
-  if (!isInvalid) {
-    //sanitize the question to be submitted
-    const sanitizedQuestion = QuestionHelper.prepareQuestionForSubmission(question.value);
-    //save the question
-    questionStore
-      .addNewQuestion(sanitizedQuestion)
-      .then(({ id }) => {
-        // Show success toast notification
-        toast.add({
-          severity: "success",
-          summary: "Question Saved as Draft",
-          detail: "You can continue editing and publish it when you're ready.",
-          life: 1000,
-        });
-
-        //remove the saved question draft from localStorage (if it exists)
-        //since the user has successfully submitted the question
-        localStorage.removeItem(localStorageKey);
-
-        router.push(`/questions/${id}/edit`);
-      })
-      .catch(() => {
-        // Show error toast notification
-
-        toast.add({
-          severity: "error",
-          summary: "Failed to Save Draft",
-          detail: "We couldn’t save your draft. Make sure you're connected and try again.",
-          life: 10000,
-        });
-      })
-      .finally(() => {
-        isSavingQuestion.value = false;
-      });
-  }
+  const isValid = await v$.value.$validate();
+  if (!isValid) return;
 };
 
 /**

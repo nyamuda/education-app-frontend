@@ -40,6 +40,10 @@ import SubtopicList from "@/components/subtopics/SubtopicList.vue";
 import AddSubtopic from "@/components/subtopics/AddSubtopic.vue";
 import SubtopicDetails from "@/components/subtopics/SubtopicDetails.vue";
 import EditSubtopic from "@/components/subtopics/EditSubtopic.vue";
+import QuestionList from "@/components/questions/QuestionList.vue";
+import AddQuestion from "@/components/questions/AddQuestion.vue";
+import EditQuestion from "@/components/questions/EditQuestion.vue";
+import QuestionDetails from "@/components/questions/QuestionDetails.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -325,7 +329,51 @@ const router = createRouter({
     {
       path: "/questions",
       component: QuestionView,
-      children: [],
+
+      children: [
+        {
+          path: "",
+          component: QuestionList,
+        },
+        {
+          path: "add",
+          component: AddQuestion,
+          // This is a protected route: only authenticated users can access it
+          beforeEnter: async (to) => {
+            const authStore = useAuthStore();
+
+            // If the user is not logged in
+            if (!authStore.isAuthenticated) {
+              //store the attempted URL
+              authStore.attemptedUrl = to.fullPath;
+              // Redirect to login page
+              return { name: "Login" };
+            }
+            return true;
+          },
+        },
+        {
+          path: ":id/details",
+          component: QuestionDetails,
+        },
+        {
+          path: ":id/edit",
+          component: EditQuestion,
+          // This is a protected route: only authenticated users can access it
+          beforeEnter: async (to) => {
+            const authStore = useAuthStore();
+
+            // If the user is not logged in
+            if (!authStore.isAuthenticated) {
+              //store the attempted URL
+              authStore.attemptedUrl = to.fullPath;
+              // Redirect to login page
+              return { name: "Login" };
+            }
+            return true;
+          },
+        },
+      ],
     },
     //flag routes
     {

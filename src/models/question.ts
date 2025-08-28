@@ -30,7 +30,7 @@ export class Question {
     public userId: number | null = null,
     public user: User | null = null,
 
-    public questionStatus: QuestionStatus = QuestionStatus.Draft,
+    public status: QuestionStatus = QuestionStatus.Draft,
 
     public tags: Tag[] = [],
     public upvotes: Upvote[] = [],
