@@ -139,13 +139,46 @@
         </div>
       </Message>
     </div>
+    <!-- Subtopic select -->
+    <div class="mb-3" v-if="showTopic">
+      <Select
+        editable
+        id="subtopicSelectInput"
+        :placeholder="
+          isGettingCurriculums || isGettingSubjects ? 'Loading subtopics...' : 'Subtopic'
+        "
+        checkmark
+        :options="selectedTopic?.subtopics"
+        option-label="name"
+        option-value="id"
+        v-model="v$.subtopicId.$model"
+        :invalid="v$.subtopicId.$error && !isGettingSubjects"
+        class="w-100"
+        :loading="isGettingCurriculums || isGettingSubjects"
+        :disabled="isGettingCurriculums || isGettingSubjects"
+        @change="onSubtopicSelect"
+        :size="size"
+        :show-clear="showClear"
+      />
+      <!-- Validation errors -->
+      <Message
+        size="small"
+        severity="error"
+        v-if="v$.subtopicId.$error && !isGettingSubjects"
+        variant="simple"
+      >
+        <div v-for="error of v$.subtopicId.$errors" :key="error.$uid">
+          <div>{{ error.$message }}</div>
+        </div>
+      </Message>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 /**
  * Multi-step select component:
- *  Curriculum → Exam Board → Educational Level → Subject → Topic
+ *  Curriculum → Exam Board → Educational Level → Subject → Topic  → Subtopic
  *
  * Each select filters the next one.
  *   Example:
@@ -186,6 +219,7 @@ import { useSubjectStore } from "@/stores/subject";
 import type { SubjectQueryParams } from "@/interfaces/subjects/subjectQueryParams";
 import { SubjectSortOption } from "@/enums/subjects/subjectSortOption";
 import { CrudContext } from "@/enums/crudContext";
+import type { Topic } from "@/models/topic";
 
 const props = defineProps({
   // whether the component is being used for updating or creating a new entity
@@ -210,12 +244,22 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+
+  // Flags to control whether each field (Curriculum, Exam Board, Level, Subject) is required
+  isCurriculumRequired: { type: Boolean, default: true },
+  isExamBoardRequired: { type: Boolean, default: true },
+  isLevelRequired: { type: Boolean, default: true },
+  isSubjectRequired: { type: Boolean, default: true },
+  isTopicRequired: { type: Boolean, default: true },
+  isSubtopicRequired: { type: Boolean, default: true },
+
   // Default pre-selected IDs (useful when editing forms)
   defaultCurriculumId: { type: Number, default: null },
   defaultExamBoardId: { type: Number, default: null },
   defaultLevelId: { type: Number, default: null },
   defaultSubjectId: { type: Number, default: null },
   defaultTopicId: { type: Number, default: null },
+  defaultSubtopicId: { type: Number, default: null },
 
   // Props to control which select inputs should be visible
   showCurriculum: {
@@ -267,6 +311,7 @@ const selectedCurriculum: Ref<Curriculum | null> = ref(null);
 const selectedExamBoard: Ref<ExamBoard | null> = ref(null);
 const selectedLevel: Ref<Level | null> = ref(null);
 const selectedSubject: Ref<Subject | null> = ref(null);
+const selectedTopic: Ref<Topic | null> = ref(null);
 const curriculumStore = useCurriculumStore();
 const isGettingCurriculums = ref(false);
 const isGettingSubjects = ref(false);
@@ -278,38 +323,54 @@ const formData: Ref<{
   levelId: number | null;
   subjectId: number | null;
   topicId: number | null;
+  subtopicId: number | null;
 }> = ref({
   curriculumId: null,
   examBoardId: null,
   levelId: null,
   subjectId: null,
   topicId: null,
+  subtopicId: null,
 });
 
 const rules = computed(() => {
   // If data is still loading or validation is not required, return empty rules
-  if (isGettingCurriculums.value || isGettingSubjects.value || !props.isRequired) {
+  if (isGettingCurriculums.value || isGettingSubjects.value) {
     return {
       curriculumId: {},
       examBoardId: {},
       levelId: {},
       subjectId: {},
       topicId: {},
+      subtopicId: {},
     };
   }
 
   return {
-    curriculumId: props.showCurriculum
-      ? { required: helpers.withMessage("Select curriculum", required) }
-      : {},
-    examBoardId: props.showExamBoard
-      ? { required: helpers.withMessage("Select exam board", required) }
-      : {},
-    levelId: props.showLevel ? { required: helpers.withMessage("Select level", required) } : {},
-    subjectId: props.showSubject
-      ? { required: helpers.withMessage("Select subject", required) }
-      : {},
-    topicId: props.showTopic ? { required: helpers.withMessage("Select topic", required) } : {},
+    curriculumId:
+      props.showCurriculum && props.isCurriculumRequired
+        ? { required: helpers.withMessage("Select curriculum", required) }
+        : {},
+    examBoardId:
+      props.showExamBoard && props.isExamBoardRequired
+        ? { required: helpers.withMessage("Select exam board", required) }
+        : {},
+    levelId:
+      props.showLevel && props.isLevelRequired
+        ? { required: helpers.withMessage("Select level", required) }
+        : {},
+    subjectId:
+      props.showSubject && props.isSubjectRequired
+        ? { required: helpers.withMessage("Select subject", required) }
+        : {},
+    topicId:
+      props.showTopic && props.isTopicRequired
+        ? { required: helpers.withMessage("Select topic", required) }
+        : {},
+    subtopicId:
+      props.showTopic && props.isSubtopicRequired
+        ? { required: helpers.withMessage("Select subtopic", required) }
+        : {},
   };
 });
 
@@ -320,7 +381,7 @@ const v$ = useVuelidate(rules, formData);
 const onCurriculumSelect = async (event: SelectChangeEvent) => {
   const curriculum = curriculums.value.find((c) => c.id === event.value) ?? null;
   selectedCurriculum.value = curriculum;
-  resetExamBoardLevelSubjectTopicSelectedValues();
+  resetExamBoardLevelSubjectTopicSubtopic();
   emit("changeCurriculum", curriculum);
 };
 
@@ -328,7 +389,7 @@ const onCurriculumSelect = async (event: SelectChangeEvent) => {
 const onExamBoardSelect = async (event: SelectChangeEvent) => {
   const examBoard = selectedCurriculum.value?.examBoards.find((e) => e.id === event.value) ?? null;
   selectedExamBoard.value = examBoard;
-  resetLevelSubjectTopicSelectedValues();
+  resetLevelSubjectTopicSubtopic();
   // emit selected exam board
   emit("changeExamBoard", examBoard);
 };
@@ -336,7 +397,7 @@ const onExamBoardSelect = async (event: SelectChangeEvent) => {
 const onLevelSelect = async (event: SelectChangeEvent) => {
   const level = selectedExamBoard.value?.levels?.find((l) => l.id === event.value) ?? null;
   selectedLevel.value = level;
-  resetSubjectTopicSelectedValues();
+  resetSubjectTopicSubtopic();
   emit("changeLevel", level);
 
   if (!level) return;
@@ -347,13 +408,22 @@ const onLevelSelect = async (event: SelectChangeEvent) => {
 const onSubjectSelect = async (event: SelectChangeEvent) => {
   const subject = selectedLevel.value?.subjects?.find((s) => s.id === event.value) ?? null;
   selectedSubject.value = subject;
-  resetTopicSelectedValues();
+  resetTopicSubtopic();
   emit("changeSubject", subject);
 };
-// When a topic is selected
+// When a topic is selected, reset subtopic
 const onTopicSelect = async (event: SelectChangeEvent) => {
   const topic = selectedSubject.value?.topics?.find((t) => t.id === event.value) ?? null;
+  selectedTopic.value = topic;
+  resetSubtopic();
   emit("changeTopic", topic);
+};
+
+// When a subtopic is selected
+const onSubtopicSelect = async (event: SelectChangeEvent) => {
+  const subtopic = selectedTopic.value?.subtopics.find((st) => st.id === event.value) ?? null;
+  resetSubtopic();
+  emit("changeTopic", subtopic);
 };
 
 //Resets all selections
@@ -362,42 +432,56 @@ const resetAllSelectedValues = () => {
   selectedExamBoard.value = null;
   selectedLevel.value = null;
   selectedSubject.value = null;
+  selectedTopic.value = null;
   formData.value.curriculumId = null;
   formData.value.examBoardId = null;
   formData.value.levelId = null;
   formData.value.subjectId = null;
   formData.value.topicId = null;
+  formData.value.subtopicId = null;
 };
 
-//Resets exam board, level, subject, and topic => when a curriculum is changed
-const resetExamBoardLevelSubjectTopicSelectedValues = () => {
+//Resets exam board, level, subject, topic, and subtopic => when a curriculum is changed
+const resetExamBoardLevelSubjectTopicSubtopic = () => {
   selectedExamBoard.value = null;
   selectedLevel.value = null;
   selectedSubject.value = null;
+  selectedTopic.value = null;
   formData.value.examBoardId = null;
   formData.value.levelId = null;
   formData.value.subjectId = null;
   formData.value.topicId = null;
+  formData.value.subtopicId = null;
 };
 
-//Resets level, subject, and topic => when an exam board is changed
-const resetLevelSubjectTopicSelectedValues = () => {
+//Resets level, subject, topic, and subtopic => when an exam board is changed
+const resetLevelSubjectTopicSubtopic = () => {
   selectedLevel.value = null;
   selectedSubject.value = null;
+  selectedTopic.value = null;
   formData.value.levelId = null;
   formData.value.subjectId = null;
   formData.value.topicId = null;
+  formData.value.subtopicId = null;
 };
-//Resets subject and topic => when a level is changed
-const resetSubjectTopicSelectedValues = () => {
+//Resets subject, topic, and subtopic => when a level is changed
+const resetSubjectTopicSubtopic = () => {
   selectedSubject.value = null;
+  selectedTopic.value = null;
   formData.value.subjectId = null;
   formData.value.topicId = null;
+  formData.value.subtopicId = null;
 };
 
-//Resets topic => when a subject is changed
-const resetTopicSelectedValues = () => {
+//Resets topic and subtopic => when a subject is changed
+const resetTopicSubtopic = () => {
+  selectedTopic.value = null;
   formData.value.topicId = null;
+  formData.value.subtopicId = null;
+};
+//Resets subtopic => when a topic is changed
+const resetSubtopic = () => {
+  formData.value.subtopicId = null;
 };
 
 /**
