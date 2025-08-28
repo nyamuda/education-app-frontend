@@ -34,124 +34,58 @@
     </div>
     <!-- Save button end-->
     <form class="">
-      <!-- Question main details start -->
-      <Panel class="mb-3" toggleable>
-        <template #header>
-          <div class="d-flex justify-content-start align-items-center gap-1 fw-bold text-secondary">
-            <i class="pi pi-tags mt-1" style="font-size: 1.2rem"></i>
-            <span class="fs-4">About This Post</span>
+      <!-- Title input -->
+      <div class="form-group mb-3">
+        <FloatLabel variant="on">
+          <InputText fluid id="title" v-model="v$.title.$model" :invalid="v$.title.$error" />
+          <label for="title">Title</label>
+        </FloatLabel>
+        <Message size="small" severity="error" v-if="v$.title.$error" variant="simple">
+          <div v-for="error of v$.title.$errors" :key="error.$uid">
+            <div>{{ error.$message }}</div>
           </div>
-        </template>
-        <!-- Title input -->
-        <div class="form-group mb-3">
-          <FloatLabel variant="on">
-            <InputText fluid id="title" v-model="v$.title.$model" :invalid="v$.title.$error" />
-            <label for="title">Title</label>
-          </FloatLabel>
-          <Message size="small" severity="error" v-if="v$.title.$error" variant="simple">
-            <div v-for="error of v$.title.$errors" :key="error.$uid">
-              <div>{{ error.$message }}</div>
-            </div>
-          </Message>
-        </div>
-        <!-- Topic input -->
-        <div class="form-group mb-3">
-          <FloatLabel variant="on">
-            <InputText fluid id="topic" v-model="v$.topic.$model" :invalid="v$.topic.$error" />
-            <label for="topic">Topic</label>
-          </FloatLabel>
-          <Message size="small" severity="error" v-if="v$.topic.$error" variant="simple">
-            <div v-for="error of v$.topic.$errors" :key="error.$uid">
-              <div>{{ error.$message }}</div>
-            </div>
-          </Message>
-        </div>
+        </Message>
+      </div>
 
-        <!-- Summary input -->
-        <div class="form-group mb-3">
-          <FloatLabel variant="on">
-            <Textarea
-              id="summary"
-              v-model="v$.summary.$model"
-              :invalid="v$.summary.$error"
-              rows="4"
-              class="w-100"
-              style="resize: none"
-            />
-            <label for="summary">Summary</label>
-          </FloatLabel>
-          <Message size="summary" severity="error" v-if="v$.summary.$error" variant="simple">
-            <div v-for="error of v$.summary.$errors" :key="error.$uid">
-              <div>{{ error.$message }}</div>
-            </div>
-          </Message>
-        </div>
-
-        <!-- Image URL -->
-        <div class="form-group mb-3">
-          <FloatLabel variant="on">
-            <IconField>
-              <InputIcon class="pi pi-image" />
-              <InputText
-                fluid
-                id="imageUrl"
-                v-model="v$.imageUrl.$model"
-                :invalid="v$.imageUrl.$error"
-                type="url"
-              />
-            </IconField>
-            <label for="imageUrl">Image URL</label>
-          </FloatLabel>
-          <Message size="small" severity="error" v-if="v$.imageUrl.$error" variant="simple">
-            <div v-for="error of v$.imageUrl.$errors" :key="error.$uid">
-              <div>{{ error.$message }}</div>
-            </div>
-          </Message>
-        </div>
-
-        <!-- Tags input -->
-        <div>
-          <FloatLabel variant="on">
-            <AutoComplete
-              v-model="v$.tags.$model"
-              :invalid="v$.tags.$error"
-              inputId="addQuestionTags"
-              multiple
-              fluid
-              :typeahead="false"
-            />
-            <label for="addQuestionTags">Tags</label>
-          </FloatLabel>
-          <Message size="small" severity="error" v-if="v$.tags.$error" variant="simple">
-            <div v-for="error of v$.tags.$errors" :key="error.$uid">
-              <div>{{ error.$message }}</div>
-            </div>
-          </Message>
-        </div>
-      </Panel>
-      <!-- Question main details end -->
-      <!-- Question content paragraphs start  -->
-      <Panel id="add-question-paragraphs" class="mb-3" toggleable :collapsed="false">
-        <template #header>
-          <div class="d-flex justify-content-start align-items-center gap-1 fw-bold text-secondary">
-            <i class="pi pi-file-edit mt-1" style="font-size: 1.2rem"></i>
-            <span class="fs-4">Question Content</span>
+      <!-- Question input -->
+      <div class="form-group mb-3">
+        <FloatLabel variant="on">
+          <Textarea
+            id="question"
+            v-model="v$.question.$model"
+            :invalid="v$.question.$error"
+            rows="4"
+            class="w-100"
+            style="resize: none"
+          />
+          <label for="question">Question</label>
+        </FloatLabel>
+        <Message size="question" severity="error" v-if="v$.question.$error" variant="simple">
+          <div v-for="error of v$.question.$errors" :key="error.$uid">
+            <div>{{ error.$message }}</div>
           </div>
-        </template>
-        <p class="mb-3">
-          Write the detailed content of your question here. Use multiple paragraphs to explain
-          concepts, tell your story, and provide meaningful value to your readers.
-        </p>
+        </Message>
+      </div>
 
-        <ParagraphList
-          :paragraphType="ParagraphType.QuestionSection"
-          @paragraphs="(paragraphs) => (question.content = paragraphs)"
-          @has-invalid-paragraphs="(isInvalid) => (hasInvalidContentForms = isInvalid)"
-          :crudContext="CrudContext.Create"
-          :fallback-container-id="'add-question-paragraphs'"
-        />
-      </Panel>
-      <!-- Question content paragraphs end  -->
+      <!-- Answer input -->
+      <div class="form-group mb-3">
+        <FloatLabel variant="on">
+          <Textarea
+            id="answer"
+            v-model="v$.answer.$model"
+            :invalid="v$.answer.$error"
+            rows="4"
+            class="w-100"
+            style="resize: none"
+          />
+          <label for="answer">Answer</label>
+        </FloatLabel>
+        <Message size="answer" severity="error" v-if="v$.answer.$error" variant="simple">
+          <div v-for="error of v$.answer.$errors" :key="error.$uid">
+            <div>{{ error.$message }}</div>
+          </div>
+        </Message>
+      </div>
     </form>
   </div>
 </template>
