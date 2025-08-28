@@ -37,14 +37,24 @@
       <!-- Title input -->
       <div class="form-group mb-3">
         <FloatLabel variant="on">
-          <InputText fluid id="title" v-model="v$.title.$model" :invalid="v$.title.$error" />
-          <label for="title">Title</label>
+          <InputText
+            maxlength="150"
+            fluid
+            id="title"
+            v-model="v$.title.$model"
+            :invalid="v$.title.$error"
+          />
+          <label for="title">Question title</label>
         </FloatLabel>
         <Message size="small" severity="error" v-if="v$.title.$error" variant="simple">
           <div v-for="error of v$.title.$errors" :key="error.$uid">
             <div>{{ error.$message }}</div>
           </div>
         </Message>
+        <Message v-else size="small" severity="secondary" variant="simple"
+          >Think of the title as a headline: short and to the point (e.g., 'Newton’s 2nd Law,'
+          'Ionic vs Covalent Bonds').</Message
+        >
       </div>
 
       <!-- Question input -->
@@ -86,6 +96,26 @@
           </div>
         </Message>
       </div>
+
+      <!-- Tags input -->
+      <div>
+        <FloatLabel variant="on">
+          <AutoComplete
+            v-model="v$.tags.$model"
+            :invalid="v$.tags.$error"
+            inputId="addBlogTags"
+            multiple
+            fluid
+            :typeahead="false"
+          />
+          <label for="addBlogTags">Tags</label>
+        </FloatLabel>
+        <Message size="small" severity="error" v-if="v$.tags.$error" variant="simple">
+          <div v-for="error of v$.tags.$errors" :key="error.$uid">
+            <div>{{ error.$message }}</div>
+          </div>
+        </Message>
+      </div>
     </form>
   </div>
 </template>
@@ -105,7 +135,7 @@ import TitleSection from "../shared/TitleSection.vue";
 // import { useToast } from "primevue/usetoast";
 // import { useRouter } from "vue-router";
 import Textarea from "primevue/textarea";
-//import AutoComplete from "primevue/autocomplete";
+import AutoComplete from "primevue/autocomplete";
 import { Question } from "@/models/question";
 import { QuestionStatus } from "@/enums/questions/questionStatus";
 import type { QuestionFormData } from "@/interfaces/questions/questionFormData";
@@ -149,7 +179,12 @@ const formData: Ref<QuestionFormData> = ref({
   tags: [],
 });
 const rules = {
-  title: { required },
+  title: {
+    required: helpers.withMessage(
+      "Enter a short, clear title (e.g., Difference between acids and bases).",
+      required,
+    ),
+  },
   question: { required },
   answer: {},
   curriculumId: { required },
@@ -159,7 +194,10 @@ const rules = {
   topicId: {},
   subtopicId: {},
   tags: {
-    required: helpers.withMessage("You need to include at least one tag", required),
+    required: helpers.withMessage(
+      "Include at least one tag so others can easily find your question.",
+      required,
+    ),
   },
 };
 const v$ = useVuelidate(rules, formData);
