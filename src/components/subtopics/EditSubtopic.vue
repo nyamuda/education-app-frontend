@@ -35,7 +35,8 @@
           @change-subject="(val: Subject) => (formData.subjectId = val.id)"
           @change-topic="(val: Topic) => (formData.topicId = val.id)"
           :is-required="true"
-          @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
+          @is-loading-curriculums="(val: boolean) => (isLoadingCurriculumsOrSubjects = val)"
+          @is-loading-subjects="(val: boolean) => (isLoadingCurriculumsOrSubjects = val)"
           :crud-context="CrudContext.Update"
           ref="curriculumExamBoardLevelSubjectTopicSelectRef"
         />
@@ -47,17 +48,20 @@
         :label="
           isUpdatingSubtopic
             ? 'Saving changes...'
-            : isGettingSubtopic
+            : isGettingSubtopic || isLoadingCurriculumsOrSubjects
               ? 'Retrieving subtopic information…'
               : 'Update subtopic'
         "
         :loading="isUpdatingSubtopic"
         :disabled="
-          v$.$errors.length > 0 || isUpdatingSubtopic || isLoadingCurriculums || isGettingSubtopic
+          v$.$errors.length > 0 ||
+          isUpdatingSubtopic ||
+          isLoadingCurriculumsOrSubjects ||
+          isGettingSubtopic
         "
         size="small"
         severity="primary"
-        :variant="isGettingSubtopic ? 'outlined' : ''"
+        :variant="isGettingSubtopic || isLoadingCurriculumsOrSubjects ? 'outlined' : ''"
       />
     </form>
   </div>
@@ -107,8 +111,8 @@ const router = useRouter();
 const isUpdatingSubtopic = ref(false);
 const isGettingSubtopic = ref(false);
 const subtopicId: Ref<number | null> = ref(null);
-//check if the curriculums for the select input are being loaded
-const isLoadingCurriculums = ref(false);
+//check if the curriculums or subjects for the select inputs are being loaded
+const isLoadingCurriculumsOrSubjects = ref(false);
 const curriculumExamBoardLevelSubjectTopicSelectRef = ref();
 //form validation start
 const formData: Ref<SubtopicFormData> = ref({
@@ -178,9 +182,8 @@ const getSubtopicById = async (id: number) => {
     formData.value.subjectId = subtopic.topic?.subjectId ?? null;
     formData.value.topicId = subtopic.topicId;
 
-    // fetch curriculums for the curriculum select input and
-    // its dependant select inputs (e.g exam board and level)
-    // this makes sure the correct options show up in the select inputs instead of staying empty.
+    // Load curriculums (and related exam boards, levels, subjects, topics)
+    // so the dropdowns show the right options instead of staying blank.
     curriculumExamBoardLevelSubjectTopicSelectRef.value.getAllCurriculums(formData.value.levelId);
   } catch {
     toast.add({

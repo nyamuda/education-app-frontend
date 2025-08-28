@@ -110,32 +110,33 @@
     <div class="mb-3" v-if="showTopic">
       <Select
         id="topicSelectInput"
-        :placeholder="isGettingCurriculums ? 'Loading topics...' : 'Topic'"
+        :placeholder="isGettingCurriculums || isGettingSubjects ? 'Loading topics...' : 'Topic'"
         checkmark
         :options="selectedSubject?.topics"
         option-label="name"
         option-value="id"
         v-model="v$.topicId.$model"
-        :invalid="v$.topicId.$error"
+        :invalid="v$.topicId.$error && !isGettingSubjects"
         class="w-100"
-        :loading="isGettingCurriculums"
-        :disabled="isGettingCurriculums"
+        :loading="isGettingCurriculums || isGettingSubjects"
+        :disabled="isGettingCurriculums || isGettingSubjects"
         @change="onTopicSelect"
         :size="size"
         :show-clear="showClear"
       />
       <!-- Validation errors -->
-      <Message size="small" severity="error" v-if="v$.topicId.$error" variant="simple">
+      <Message
+        size="small"
+        severity="error"
+        v-if="v$.topicId.$error && !isGettingSubjects"
+        variant="simple"
+      >
         <div v-for="error of v$.topicId.$errors" :key="error.$uid">
           <div>{{ error.$message }}</div>
         </div>
       </Message>
     </div>
   </div>
-
-  <p>subject id: {{ defaultSubjectId }}</p>
-  <p>selected subject: {{ selectedSubject }}</p>
-  <p>selected level: {{ selectedLevel }}</p>
 </template>
 
 <script setup lang="ts">
@@ -238,8 +239,9 @@ const props = defineProps({
 
 // Events emitted to parent
 const emit = defineEmits([
-  "isLoading", // tells parent when loading state changes
+  "isLoadingCurriculums",
   "isLoadingSubjects",
+  "isLoadingData", //curriculums or subjects loading
   "changeCurriculum",
   "changeExamBoard",
   "changeLevel",
@@ -278,14 +280,29 @@ const formData: Ref<{
 });
 
 const rules = computed(() => {
-  if (isGettingCurriculums.value || !props.isRequired)
-    return { curriculumId: {}, examBoardId: {}, levelId: {}, subjectId: {}, topicId: {} };
+  // If data is still loading or validation is not required, return empty rules
+  if (isGettingCurriculums.value || isGettingSubjects || !props.isRequired) {
+    return {
+      curriculumId: {},
+      examBoardId: {},
+      levelId: {},
+      subjectId: {},
+      topicId: {},
+    };
+  }
+
   return {
-    curriculumId: { required: helpers.withMessage("Select curriculum", required) },
-    examBoardId: { required: helpers.withMessage("Select exam board", required) },
-    levelId: { required: helpers.withMessage("Select level", required) },
-    subjectId: { required: helpers.withMessage("Select subject", required) },
-    topicId: { required: helpers.withMessage("Select topic", required) },
+    curriculumId: props.showCurriculum
+      ? { required: helpers.withMessage("Select curriculum", required) }
+      : {},
+    examBoardId: props.showExamBoard
+      ? { required: helpers.withMessage("Select exam board", required) }
+      : {},
+    levelId: props.showLevel ? { required: helpers.withMessage("Select level", required) } : {},
+    subjectId: props.showSubject
+      ? { required: helpers.withMessage("Select subject", required) }
+      : {},
+    topicId: props.showTopic ? { required: helpers.withMessage("Select topic", required) } : {},
   };
 });
 
@@ -394,7 +411,8 @@ const getAllCurriculums = (levelId: number | null = null) => {
   isGettingCurriculums.value = true;
 
   //tell the parent component that the curriculums are being loaded
-  emit("isLoading", true);
+  emit("isLoadingCurriculums", true);
+  emit("isLoadingData", true);
 
   const page = 1;
   const pageSize = 100;
@@ -422,7 +440,8 @@ const getAllCurriculums = (levelId: number | null = null) => {
     })
     .finally(() => {
       isGettingCurriculums.value = false;
-      emit("isLoading", false);
+      emit("isLoadingCurriculums", false);
+      emit("isLoadingData", false);
     });
 };
 
@@ -489,6 +508,7 @@ const getSubjectsForLevel = async (levelId: number) => {
 
   // Notify parent component that subjects are loading (used for showing loaders/spinners)
   emit("isLoadingSubjects", true);
+  emit("isLoadingData", true);
 
   const page = 1;
   const pageSize = 100;
@@ -527,6 +547,7 @@ const getSubjectsForLevel = async (levelId: number) => {
   } finally {
     isGettingSubjects.value = false;
     emit("isLoadingSubjects", false);
+    emit("isLoadingData", false);
   }
 };
 

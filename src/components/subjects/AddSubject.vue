@@ -22,7 +22,7 @@
       </div>
       <!-- Curriculum, exam board and level inputs -->
       <div class="form-group mb-3">
-        <CurriculumExamBoardLevelSelect
+        <CurriculumExamBoardLevelSubjectTopicSelect
           :default-curriculum-id="formData.curriculumId ?? undefined"
           :default-exam-board-id="formData.examBoardId ?? undefined"
           :default-level-id="formData.levelId ?? undefined"
@@ -30,8 +30,10 @@
           @change-exam-board="(val: ExamBoard) => (formData.examBoardId = val.id)"
           @change-level="(val: Level) => (formData.levelId = val.id)"
           :is-required="true"
-          @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
-          ref="curriculumExamBoardLevelSelectRef"
+          :show-subject="false"
+          :show-topic="false"
+          @is-loading-data="(val: boolean) => (isLoadingSelectionData = val)"
+          ref="curriculumSelectRef"
         />
       </div>
       <!-- Submit button -->
@@ -40,7 +42,7 @@
         type="submit"
         :label="isAddingSubject ? 'Adding...' : 'Add subject'"
         :loading="isAddingSubject"
-        :disabled="v$.$errors.length > 0 || isAddingSubject || isLoadingCurriculums"
+        :disabled="v$.$errors.length > 0 || isAddingSubject || isLoadingSelectionData"
         size="small"
         severity="primary"
       />
@@ -64,13 +66,15 @@ import { useSubjectStore } from "@/stores/subject";
 import type { Curriculum } from "@/models/curriculum";
 import type { ExamBoard } from "@/models/examBoard";
 import type { SubjectFormData } from "@/interfaces/subjects/subjectFormData";
-import CurriculumExamBoardLevelSelect from "../shared/selects/multi-selects/CurriculumExamBoardLevelSelect.vue";
+
 import type { Level } from "@/models/level";
+import CurriculumExamBoardLevelSubjectTopicSelect from "../shared/selects/multi-selects/CurriculumExamBoardLevelSubjectTopicSelect.vue";
 
 onMounted(() => {
   v$.value.$touch();
-  //fetch curriculums for the curriculum and exam board select inputs
-  curriculumExamBoardLevelSelectRef.value.getAllCurriculums();
+  // Load curriculums (with exam boards, and levels)
+  // so the user can select from the dropdown.
+  curriculumSelectRef.value.getAllCurriculums();
 });
 
 // Access the store
@@ -78,9 +82,9 @@ const subjectStore = useSubjectStore();
 const toast = useToast();
 const router = useRouter();
 const isAddingSubject = ref(false);
-//check if the curriculums for the select input are being loaded
-const isLoadingCurriculums = ref(false);
-const curriculumExamBoardLevelSelectRef = ref();
+//check if the curriculums for the dropdowns are being loaded
+const isLoadingSelectionData = ref(false);
+const curriculumSelectRef = ref();
 //form validation start
 const formData: Ref<SubjectFormData> = ref({
   name: "",

@@ -23,7 +23,7 @@
       </div>
       <!-- Curriculum, exam board, level and subject inputs -->
       <div class="form-group mb-3">
-        <CurriculumExamBoardLevelSubjectSelect
+        <CurriculumExamBoardLevelSubjectTopicSelect
           :default-curriculum-id="formData.curriculumId ?? undefined"
           :default-exam-board-id="formData.examBoardId ?? undefined"
           :default-level-id="formData.levelId ?? undefined"
@@ -33,8 +33,10 @@
           @change-level="(val: Level) => (formData.levelId = val.id)"
           @change-subject="(val: Subject) => (formData.subjectId = val.id)"
           :is-required="true"
-          @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
-          ref="curriculumExamBoardLevelSubjectSelectRef"
+          :show-topic="false"
+          @is-loading-data="(val: boolean) => (isLoadingSelectionData = val)"
+          :crud-context="CrudContext.Update"
+          ref="curriculumSelectRef"
         />
       </div>
       <!-- Submit button -->
@@ -50,7 +52,7 @@
         "
         :loading="isUpdatingTopic"
         :disabled="
-          v$.$errors.length > 0 || isUpdatingTopic || isLoadingCurriculums || isGettingTopic
+          v$.$errors.length > 0 || isUpdatingTopic || isLoadingSelectionData || isGettingTopic
         "
         size="small"
         severity="primary"
@@ -78,8 +80,10 @@ import type { ExamBoard } from "@/models/examBoard";
 import type { TopicFormData } from "@/interfaces/topics/topicFormData";
 import type { Level } from "@/models/level";
 import type { Subject } from "@/models/subject";
-import CurriculumExamBoardLevelSubjectSelect from "../shared/selects/multi-selects/CurriculumExamBoardLevelSubjectSelect.vue";
+
 import type { Topic } from "@/models/topic";
+import CurriculumExamBoardLevelSubjectTopicSelect from "../shared/selects/multi-selects/CurriculumExamBoardLevelSubjectTopicSelect.vue";
+import { CrudContext } from "@/enums/crudContext";
 
 onMounted(async () => {
   v$.value.$touch();
@@ -102,9 +106,9 @@ const router = useRouter();
 const isUpdatingTopic = ref(false);
 const isGettingTopic = ref(false);
 const topicId: Ref<number | null> = ref(null);
-//check if the curriculums for the select input are being loaded
-const isLoadingCurriculums = ref(false);
-const curriculumExamBoardLevelSubjectSelectRef = ref();
+//check if the curriculums or subjects for the dropdowns are being loaded
+const isLoadingSelectionData = ref(false);
+const curriculumSelectRef = ref();
 //form validation start
 const formData: Ref<TopicFormData> = ref({
   name: "",
@@ -170,9 +174,9 @@ const getTopicById = async (id: number) => {
     formData.value.levelId = topic.subject?.levelId ?? null;
     formData.value.subjectId = topic.subjectId;
 
-    // fetch curriculums for the curriculum select input and its dependant select inputs (e.g exam board, level)
-    // this makes sure the correct options show up in the select inputs instead of staying empty.
-    curriculumExamBoardLevelSubjectSelectRef.value.getAllCurriculums();
+    // Load curriculums (and related exam boards, levels, subjects)
+    // so the dropdowns show the right options instead of staying blank.
+    curriculumSelectRef.value.getAllCurriculums(formData.value.levelId);
   } catch {
     toast.add({
       severity: "error",
