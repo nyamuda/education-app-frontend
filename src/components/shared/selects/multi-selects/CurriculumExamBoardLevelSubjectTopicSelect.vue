@@ -1,5 +1,5 @@
 <template>
-  <div class="">
+  <div :class="containerClasses">
     <!-- Curriculum select -->
     <div class="mb-3" v-if="showCurriculum">
       <Select
@@ -222,6 +222,10 @@ import { CrudContext } from "@/enums/crudContext";
 import type { Topic } from "@/models/topic";
 
 const props = defineProps({
+  containerClasses: {
+    type: String,
+    required: false,
+  },
   // whether the component is being used for updating or creating a new entity
   crudContext: {
     type: String as PropType<CrudContext>,
@@ -238,14 +242,8 @@ const props = defineProps({
     default: true,
   },
 
-  //whether the input values are required or not
-  //controls whether to show error messages or not
-  isRequired: {
-    type: Boolean,
-    default: false,
-  },
-
-  // Flags to control whether each field (Curriculum, Exam Board, Level, Subject) is required
+  // Flags to control whether each field
+  // (Curriculum, Exam Board, Level, Subject, Topic, Subtopic) is required
   isCurriculumRequired: { type: Boolean, default: true },
   isExamBoardRequired: { type: Boolean, default: true },
   isLevelRequired: { type: Boolean, default: true },
@@ -301,7 +299,7 @@ const emit = defineEmits([
 ]);
 
 onMounted(() => {
-  v$.value.$touch();
+  //  v$.value.$touch();
 });
 
 const toast = useToast();

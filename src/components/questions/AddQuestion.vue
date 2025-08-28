@@ -96,6 +96,29 @@
           </div>
         </Message>
       </div>
+      <!-- Curriculum, exam board, level and subject inputs -->
+      <div class="form-group">
+        <CurriculumExamBoardLevelSubjectTopicSelect
+          @change-curriculum="(val: Curriculum) => (formData.curriculumId = val.id)"
+          @change-exam-board="(val: ExamBoard) => (formData.examBoardId = val.id)"
+          @change-level="(val: Level) => (formData.levelId = val.id)"
+          @change-subject="(val: Subject) => (formData.subjectId = val.id)"
+          @change-topic="(val: Topic) => (formData.topicId = val.id)"
+          @change-subtopic="(val: Subtopic) => (formData.subtopicId = val.id)"
+          :is-required="true"
+          :show-curriculum="true"
+          :show-exam-board="true"
+          :show-level="true"
+          :show-subject="true"
+          :show-topic="true"
+          :show-subtopic="true"
+          :is-topic-required="false"
+          :is-subtopic-required="false"
+          @is-loading="(val: boolean) => (isLoadingSelectionData = val)"
+          ref="curriculumSelectRef"
+          :container-classes="'row row-cols-md-3'"
+        />
+      </div>
 
       <!-- Tags input -->
       <div>
@@ -138,7 +161,14 @@ import Textarea from "primevue/textarea";
 import AutoComplete from "primevue/autocomplete";
 import { Question } from "@/models/question";
 import { QuestionStatus } from "@/enums/questions/questionStatus";
+import CurriculumExamBoardLevelSubjectTopicSelect from "../shared/selects/multi-selects/CurriculumExamBoardLevelSubjectTopicSelect.vue";
+import type { Curriculum } from "@/models/curriculum";
+import type { ExamBoard } from "@/models/examBoard";
+import type { Level } from "@/models/level";
+import type { Subject } from "@/models/subject";
+import type { Topic } from "@/models/topic";
 import type { QuestionFormData } from "@/interfaces/questions/questionFormData";
+import type { Subtopic } from "@/models/subtopic";
 
 // Access the store
 // const questionStore = useQuestionStore();
@@ -153,6 +183,9 @@ onMounted(() => {
   const savedQuestion = localStorage.getItem(localStorageKey);
   question.value = savedQuestion ? (JSON.parse(savedQuestion) as Question) : new Question();
 });
+
+//check if the curriculums or subjects for the dropdowns are being loaded
+const isLoadingSelectionData = ref(false);
 
 // The new question being created
 const question: Ref<Question> = ref(new Question());

@@ -23,10 +23,6 @@
       <!-- Curriculum, exam board, level and subject inputs -->
       <div class="form-group mb-3">
         <CurriculumExamBoardLevelSubjectTopicSelect
-          :default-curriculum-id="formData.curriculumId ?? undefined"
-          :default-exam-board-id="formData.examBoardId ?? undefined"
-          :default-level-id="formData.levelId ?? undefined"
-          :default-subject-id="formData.subjectId ?? undefined"
           @change-curriculum="(val: Curriculum) => (formData.curriculumId = val.id)"
           @change-exam-board="(val: ExamBoard) => (formData.examBoardId = val.id)"
           @change-level="(val: Level) => (formData.levelId = val.id)"
