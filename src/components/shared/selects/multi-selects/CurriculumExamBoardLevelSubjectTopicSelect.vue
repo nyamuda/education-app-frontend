@@ -1,7 +1,7 @@
 <template>
   <div class="">
     <!-- Curriculum select -->
-    <div class="mb-3">
+    <div class="mb-3" v-if="showCurriculum">
       <Select
         id="curriculumSelectInput"
         :placeholder="isGettingCurriculums ? 'Loading curriculums...' : 'Curriculum'"
@@ -26,7 +26,7 @@
       </Message>
     </div>
     <!-- Exam board select -->
-    <div class="mb-3">
+    <div class="mb-3" v-if="showExamBoard">
       <Select
         id="examBoardSelectInput"
         :placeholder="isGettingCurriculums ? 'Loading exam boards...' : 'Exam board'"
@@ -51,7 +51,7 @@
       </Message>
     </div>
     <!-- Level select -->
-    <div class="mb-3">
+    <div class="mb-3" v-if="showLevel">
       <Select
         id="levelSelectInput"
         :placeholder="isGettingCurriculums ? 'Loading levels...' : 'Level'"
@@ -76,25 +76,30 @@
       </Message>
     </div>
     <!-- Subject select -->
-    <div class="mb-3">
+    <div class="mb-3" v-if="showSubject">
       <Select
         id="subjectSelectInput"
-        :placeholder="isGettingCurriculums ? 'Loading subjects...' : 'Subject'"
+        :placeholder="isGettingCurriculums || isGettingSubjects ? 'Loading subjects...' : 'Subject'"
         checkmark
         :options="selectedLevel?.subjects"
         option-label="name"
         option-value="id"
         v-model="v$.subjectId.$model"
-        :invalid="v$.subjectId.$error"
+        :invalid="v$.subjectId.$error && !isGettingSubjects"
         class="w-100"
-        :loading="isGettingCurriculums"
-        :disabled="isGettingCurriculums"
+        :loading="isGettingCurriculums || isGettingSubjects"
+        :disabled="isGettingCurriculums || isGettingSubjects"
         @change="onSubjectSelect"
         :size="size"
         :show-clear="showClear"
       />
       <!-- Validation errors -->
-      <Message size="small" severity="error" v-if="v$.subjectId.$error" variant="simple">
+      <Message
+        size="small"
+        severity="error"
+        v-if="v$.subjectId.$error && !isGettingSubjects"
+        variant="simple"
+      >
         <div v-for="error of v$.subjectId.$errors" :key="error.$uid">
           <div>{{ error.$message }}</div>
         </div>
@@ -102,7 +107,7 @@
     </div>
 
     <!-- Topic select -->
-    <div class="mb-3">
+    <div class="mb-3" v-if="showTopic">
       <Select
         id="topicSelectInput"
         :placeholder="isGettingCurriculums ? 'Loading topics...' : 'Topic'"
@@ -127,6 +132,7 @@
       </Message>
     </div>
   </div>
+  --- {{ selectedSubject }}
 </template>
 
 <script setup lang="ts">
@@ -156,6 +162,9 @@ import { Message } from "primevue";
 import type { ExamBoard } from "@/models/examBoard";
 import type { Level } from "@/models/level";
 import type { Subject } from "@/models/subject";
+import { useSubjectStore } from "@/stores/subject";
+import type { SubjectQueryParams } from "@/interfaces/subjects/subjectQueryParams";
+import { SubjectSortOption } from "@/enums/subjects/subjectSortOption";
 
 const props = defineProps({
   //size of the input
@@ -181,11 +190,34 @@ const props = defineProps({
   defaultLevelId: { type: Number, default: null },
   defaultSubjectId: { type: Number, default: null },
   defaultTopicId: { type: Number, default: null },
+
+  // Props to control which select inputs should be visible
+  showCurriculum: {
+    type: Boolean,
+    default: true,
+  },
+  showExamBoard: {
+    type: Boolean,
+    default: true,
+  },
+  showLevel: {
+    type: Boolean,
+    default: true,
+  },
+  showSubject: {
+    type: Boolean,
+    default: true,
+  },
+  showTopic: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 // Events emitted to parent
 const emit = defineEmits([
   "isLoading", // tells parent when loading state changes
+  "isLoadingSubjects",
   "changeCurriculum",
   "changeExamBoard",
   "changeLevel",
@@ -198,6 +230,7 @@ onMounted(() => {
 });
 
 const toast = useToast();
+const subjectStore = useSubjectStore();
 const curriculums: Ref<Curriculum[]> = ref([]);
 const selectedCurriculum: Ref<Curriculum | null> = ref(null);
 const selectedExamBoard: Ref<ExamBoard | null> = ref(null);
@@ -205,6 +238,7 @@ const selectedLevel: Ref<Level | null> = ref(null);
 const selectedSubject: Ref<Subject | null> = ref(null);
 const curriculumStore = useCurriculumStore();
 const isGettingCurriculums = ref(false);
+const isGettingSubjects = ref(false);
 
 //select inputs validation start
 const formData: Ref<{
@@ -252,12 +286,15 @@ const onExamBoardSelect = async (event: SelectChangeEvent) => {
   // emit selected exam board
   emit("changeExamBoard", examBoard);
 };
-// When a level is selected, reset dependent values
+// When a level is selected, reset dependent values and fetch subjects for that level
 const onLevelSelect = async (event: SelectChangeEvent) => {
   const level = selectedExamBoard.value?.levels?.find((l) => l.id === event.value) ?? null;
   selectedLevel.value = level;
   resetSubjectTopicSelectedValues();
   emit("changeLevel", level);
+
+  if (!level) return;
+  getSubjectsForLevel(level.id);
 };
 
 // When a subject is selected, reset topic
@@ -340,8 +377,6 @@ const getAllCurriculums = () => {
     .getCurriculums(page, pageSize)
     .then((data) => {
       curriculums.value = data.items;
-
-      applyDefaultValues();
     })
     .catch((message) => {
       toast.add({
@@ -356,7 +391,6 @@ const getAllCurriculums = () => {
       emit("isLoading", false);
     });
 };
-defineExpose({ getAllCurriculums, resetAllSelectedValues });
 
 /**
  * Applies the default values passed via props for the select inputs (if provided).
@@ -393,4 +427,58 @@ const applyDefaultValues = () => {
     formData.value.topicId = props.defaultTopicId;
   }
 };
+
+/**
+ * Fetches all subjects from the backend for a given educational level. These subjects are used
+ * to select the subject for things like topics, subtopics,questions in forms
+ * and dropdowns and where a user needs to choose which subject they are working with.
+ *
+ * Retrieves the first 100 subjects (page size = 100), which is currently
+ * more than enough since the total number of subjects per educational level in the system is small.
+ *
+ * Using 100 ensures all available subjects are fetched in one request.
+ * If the dataset grows significantly in the future, the page size can be
+ * reduced or proper pagination logic can be implemented.
+ */
+const getSubjectsForLevel = (levelId: number) => {
+  
+  if (!levelId || !props.showSubject) return;
+  isGettingSubjects.value = true;
+
+  //tell the parent component that the subjects are being loaded
+  emit("isLoadingSubjects", true);
+
+  const page = 1;
+  const pageSize = 100;
+
+  const queryParams: SubjectQueryParams = {
+    page,
+    pageSize,
+    levelId,
+    sortBy: SubjectSortOption.Name,
+    curriculumId: null,
+    examBoardId: null,
+  };
+
+  subjectStore
+    .getSubjectsForLevel(queryParams)
+    .then((data) => {
+      if (!selectedLevel.value) return;
+      selectedLevel.value.subjects = data.items;
+    })
+    .catch((message) => {
+      toast.add({
+        severity: "error",
+        summary: "Error",
+        detail: message,
+        life: 5000,
+      });
+    })
+    .finally(() => {
+      isGettingSubjects.value = false;
+      emit("isLoadingSubjects", false);
+    });
+};
+
+defineExpose({ getAllCurriculums, getSubjectsForLevel, resetAllSelectedValues });
 </script>

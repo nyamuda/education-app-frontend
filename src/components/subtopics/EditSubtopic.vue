@@ -176,9 +176,15 @@ const getSubtopicById = async (id: number) => {
     formData.value.subjectId = subtopic.topic?.subjectId ?? null;
     formData.value.topicId = subtopic.topicId;
 
-    // fetch curriculums for the curriculum select input and its dependant select inputs (e.g exam board, level)
+    // fetch curriculums for the curriculum select input and
+    // its dependant select inputs (e.g exam board and level)
     // this makes sure the correct options show up in the select inputs instead of staying empty.
     curriculumExamBoardLevelSubjectTopicSelectRef.value.getAllCurriculums();
+
+    // fetch subjects for the level that was selected
+    // this also will include topics and subtopic
+    if (!formData.value.levelId) return;
+    curriculumExamBoardLevelSubjectTopicSelectRef.value.getSubjectsForLevel(formData.value.levelId);
   } catch {
     toast.add({
       severity: "error",
