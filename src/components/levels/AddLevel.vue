@@ -23,14 +23,14 @@
       <!-- Curriculum input -->
       <!-- Curriculum and exam board inputs -->
       <div class="form-group mb-3">
-        <CurriculumExamBoardSelect
+        <CurriculumExamBoardLevelSubjectTopicSelect
           :default-curriculum-id="formData.curriculumId ?? undefined"
           :default-exam-board-id="formData.examBoardId ?? undefined"
           @change-curriculum="(val: Curriculum) => (formData.curriculumId = val.id)"
           @change-exam-board="(val: ExamBoard) => (formData.examBoardId = val.id)"
           :is-required="true"
-          @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
-          ref="curriculumExamBoardSelectRef"
+          @is-loading-data="(val: boolean) => (isLoadingSelectionData = val)"
+          ref="curriculumSelectRef"
         />
       </div>
       <!-- Submit button -->
@@ -39,7 +39,7 @@
         type="submit"
         :label="isAddingLevel ? 'Adding...' : 'Add level'"
         :loading="isAddingLevel"
-        :disabled="v$.$errors.length > 0 || isAddingLevel || isLoadingCurriculums"
+        :disabled="v$.$errors.length > 0 || isAddingLevel || isLoadingSelectionData"
         size="small"
         severity="primary"
       />
@@ -62,13 +62,14 @@ import TitleSection from "../shared/TitleSection.vue";
 import { useLevelStore } from "@/stores/level";
 import type { Curriculum } from "@/models/curriculum";
 import type { ExamBoard } from "@/models/examBoard";
-import CurriculumExamBoardSelect from "../shared/selects/multi-selects/CurriculumExamBoardSelect.vue";
 import type { LevelFormData } from "@/interfaces/levels/levelFormData";
+import CurriculumExamBoardLevelSubjectTopicSelect from "../shared/selects/multi-selects/CurriculumExamBoardLevelSubjectTopicSelect.vue";
 
 onMounted(() => {
   v$.value.$touch();
-  //fetch curriculums for the curriculum and exam board select inputs
-  curriculumExamBoardSelectRef.value.getAllCurriculums();
+  // Load curriculums (with exam boards)
+  // so the user can select from the dropdown.
+  curriculumSelectRef.value.getAllCurriculums();
 });
 
 // Access the store
@@ -76,9 +77,9 @@ const levelStore = useLevelStore();
 const toast = useToast();
 const router = useRouter();
 const isAddingLevel = ref(false);
-//check if the curriculums for the select input are being loaded
-const isLoadingCurriculums = ref(false);
-const curriculumExamBoardSelectRef = ref();
+//check if the curriculums for the dropdowns are being loaded
+const isLoadingSelectionData = ref(false);
+const curriculumSelectRef = ref();
 //form validation start
 const formData: Ref<LevelFormData> = ref({
   name: "",
