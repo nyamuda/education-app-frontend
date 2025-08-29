@@ -105,16 +105,16 @@
         <FloatLabel variant="on">
           <Textarea
             id="question"
-            v-model="v$.content.$model"
-            :invalid="v$.content.$error"
+            v-model="v$.question.$model"
+            :invalid="v$.question.$error"
             rows="4"
             class="w-100"
             style="resize: none"
           />
-          <label for="content">Question</label>
+          <label for="question">Question</label>
         </FloatLabel>
-        <Message size="small" severity="error" v-if="v$.content.$error" variant="simple">
-          <div v-for="error of v$.content.$errors" :key="error.$uid">
+        <Message size="small" severity="error" v-if="v$.question.$error" variant="simple">
+          <div v-for="error of v$.question.$errors" :key="error.$uid">
             <div>{{ error.$message }}</div>
           </div>
         </Message>
@@ -127,7 +127,11 @@
 
       <!-- Answer input -->
       <div class="form-group mb-4">
-
+        <ContentEditor
+          :placeholder="answerHelperMessage"
+          @content-html="(val: string) => (formData.answerHtml = val)"
+          @content-text="(val: string) => (formData.answerText = val)"
+        />
       </div>
 
       <div class="row g-3">
@@ -208,6 +212,7 @@ import type { QuestionFormData } from "@/interfaces/questions/questionFormData";
 import type { Subtopic } from "@/models/subtopic";
 
 import { CrudContext } from "@/enums/crudContext";
+import ContentEditor from "../shared/selects/ContentEditor.vue";
 
 // Access the store
 // const questionStore = useQuestionStore();
@@ -239,14 +244,15 @@ const invalidFormMessage = ref(
 );
 const answerHelperMessage =
   "Answer (Optional): You can add an answer if you know it. This helps you quickly revise both the question and its solution later and also lets others see different ways of answering the same question.";
+
 const isSavingQuestion = ref(false);
 
 //form validation start
 const formData: Ref<QuestionFormData> = ref({
   title: null,
-  content: null,
-  answerHtml: undefined,
-  answerText: undefined,
+  question: null,
+  answerHtml: null,
+  answerText: null,
   curriculumId: null,
   examBoardId: null,
   levelId: null,
@@ -265,7 +271,7 @@ const rules = {
   },
   answerHtml: {},
   answerText: {},
-  content: {
+  question: {
     required: helpers.withMessage("Please enter a question (e.g., Define a vector).", required),
   },
   curriculumId: { required },
@@ -284,8 +290,6 @@ const rules = {
 };
 const v$ = useVuelidate(rules, formData);
 //form validation end
-
-
 
 //Change the question status to Draft if user has clicked the "Save" button
 const saveQuestionAsDraft = async () => {

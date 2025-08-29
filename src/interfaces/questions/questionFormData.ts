@@ -2,9 +2,9 @@ import type { Tag } from "@/models/Tag";
 
 export interface QuestionFormData {
   title: string | null;
-  content: string | null;
-  answerHtml: string | undefined;
-  answerText: string | undefined;
+  question: string | null;
+  answerHtml: string | null | undefined;
+  answerText: string | null | undefined;
   curriculumId: number | null;
   examBoardId: number | null;
   levelId: number | null;
