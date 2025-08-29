@@ -63,7 +63,7 @@
           :is-subtopic-required="false"
           @is-loading="(val: boolean) => (isLoadingSelectionData = val)"
           ref="curriculumSelectRef"
-          :container-classes="'row row-cols-md-3'"
+          :container-classes="'row row-cols-md-3 gy-1'"
         />
       </div>
 
@@ -337,7 +337,6 @@ watch(
   (newFormData) => {
     //first, remove the existing item
     localStorage.removeItem(localStorageKey);
-    console.log(newFormData);
     // //then add a new one
     const serialized = JSON.stringify(newFormData);
     localStorage.setItem(localStorageKey, serialized);

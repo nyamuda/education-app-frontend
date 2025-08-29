@@ -199,6 +199,7 @@
       </Message>
     </div>
   </div>
+  {{ formData }}
 </template>
 
 <script setup lang="ts">
@@ -447,7 +448,6 @@ const onTopicSelect = async (event: SelectChangeEvent) => {
 // When a subtopic is selected
 const onSubtopicSelect = async (event: SelectChangeEvent) => {
   const subtopic = selectedTopic.value?.subtopics.find((st) => st.id === event.value) ?? null;
-  resetSubtopic();
   emit("changeSubtopic", subtopic);
 };
 
