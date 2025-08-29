@@ -538,7 +538,7 @@ const getAllCurriculums = (levelId: number | null = null) => {
     .then(async (data) => {
       curriculums.value = data.items;
       // Apply default selections (if any were passed as props)
-      applyDefaultValues();
+      applyDefaultsOnCurriculumLoad();
 
       // If a level was already selected and we are in "Update" mode,
       // fetch subjects for that level (this will also bring in topics & subtopics)
@@ -662,13 +662,10 @@ const getSubjectsForLevel = async (levelId: number) => {
     }
 
     // When editing an existing record (Update mode),
-    // auto-select the default subject so dependent fields
-    // (topic and subtopic) are pre-filled instead of empty
+    // auto-select the default subject and its dependent fields
+    // (topic and subtopic) so that the input fields are pre-filled instead of staying empty
     if (props.crudContext == CrudContext.Update) {
-      selectedSubject.value = data.items.find((s) => s.id == props.defaultSubjectId) ?? null;
-
-      selectedTopic.value =
-        selectedSubject.value?.topics?.find((t) => t.id == props.defaultTopicId) ?? null;
+      applyDefaultsOnSubjectLoad();
     }
   } catch (message) {
     toast.add({
