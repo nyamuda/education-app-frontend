@@ -85,4 +85,11 @@ const onEditorTextChange = (event: EditorTextChangeEvent) => {
   emit("contentHtml", event.htmlValue);
   emit("contentText", event.textValue);
 };
+
+const loadDefaultContent = (defaultContent: string | null | undefined) => {
+  if (defaultContent) {
+    formData.value.contentHtml = defaultContent;
+  }
+};
+defineExpose({ loadDefaultContent });
 </script>

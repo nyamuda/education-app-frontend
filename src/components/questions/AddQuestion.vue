@@ -131,6 +131,7 @@
           :placeholder="answerHelperMessage"
           @content-html="(val: string) => (formData.answerHtml = val)"
           @content-text="(val: string) => (formData.answerText = val)"
+          ref="contentEditorRef"
         />
       </div>
 
@@ -226,6 +227,9 @@ onMounted(() => {
   const savedFormData = localStorage.getItem(localStorageKey);
   if (savedFormData) {
     formData.value = JSON.parse(savedFormData);
+
+    //load the saved answer content editor text
+    contentEditorRef.value?.loadDefaultContent(formData.value.answerHtml);
   }
 
   // Load curriculums (with exam boards, levels, subjects, topics and subtopics)
@@ -235,7 +239,6 @@ onMounted(() => {
 
 //check if the curriculums or subjects for the dropdowns are being loaded
 const isLoadingSelectionData = ref(false);
-
 // Key used to store and retrieve the in-progress question draft from localStorage
 const localStorageKey = "newQuestion";
 const curriculumSelectRef = ref();
@@ -244,8 +247,9 @@ const invalidFormMessage = ref(
 );
 const answerHelperMessage =
   "Answer (Optional): You can add an answer if you know it. This helps you quickly revise both the question and its solution later and also lets others see different ways of answering the same question.";
-
 const isSavingQuestion = ref(false);
+//ref for the rich text editor
+const contentEditorRef = ref();
 
 //form validation start
 const formData: Ref<QuestionFormData> = ref({
