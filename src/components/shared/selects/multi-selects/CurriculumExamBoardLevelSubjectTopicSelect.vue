@@ -458,12 +458,20 @@ const resetAllSelectedValues = () => {
   selectedLevel.value = null;
   selectedSubject.value = null;
   selectedTopic.value = null;
+  //reset form data
   formData.value.curriculumId = null;
   formData.value.examBoardId = null;
   formData.value.levelId = null;
   formData.value.subjectId = null;
   formData.value.topicId = null;
   formData.value.subtopicId = null;
+  // Emit events
+  emit("changeCurriculum", null);
+  emit("changeExamBoard", null);
+  emit("changeLevel", null);
+  emit("changeSubject", null);
+  emit("changeTopic", null);
+  emit("changeSubtopic", null);
 };
 
 //Resets exam board, level, subject, topic, and subtopic => when a curriculum is changed
@@ -472,11 +480,18 @@ const resetExamBoardLevelSubjectTopicSubtopic = () => {
   selectedLevel.value = null;
   selectedSubject.value = null;
   selectedTopic.value = null;
+  //reset form data
   formData.value.examBoardId = null;
   formData.value.levelId = null;
   formData.value.subjectId = null;
   formData.value.topicId = null;
   formData.value.subtopicId = null;
+  // Emit events
+  emit("changeExamBoard", null);
+  emit("changeLevel", null);
+  emit("changeSubject", null);
+  emit("changeTopic", null);
+  emit("changeSubtopic", null);
 };
 
 //Resets level, subject, topic, and subtopic => when an exam board is changed
@@ -484,29 +499,48 @@ const resetLevelSubjectTopicSubtopic = () => {
   selectedLevel.value = null;
   selectedSubject.value = null;
   selectedTopic.value = null;
+  //reset form data
   formData.value.levelId = null;
   formData.value.subjectId = null;
   formData.value.topicId = null;
   formData.value.subtopicId = null;
+  // Emit events
+  emit("changeLevel", null);
+  emit("changeSubject", null);
+  emit("changeTopic", null);
+  emit("changeSubtopic", null);
 };
+
 //Resets subject, topic, and subtopic => when a level is changed
 const resetSubjectTopicSubtopic = () => {
   selectedSubject.value = null;
   selectedTopic.value = null;
+  //reset form data
   formData.value.subjectId = null;
   formData.value.topicId = null;
   formData.value.subtopicId = null;
+  // Emit events
+  emit("changeSubject", null);
+  emit("changeTopic", null);
+  emit("changeSubtopic", null);
 };
 
 //Resets topic and subtopic => when a subject is changed
 const resetTopicSubtopic = () => {
   selectedTopic.value = null;
+  //reset form data
   formData.value.topicId = null;
   formData.value.subtopicId = null;
+  // Emit events
+  emit("changeTopic", null);
+  emit("changeSubtopic", null);
 };
 //Resets subtopic => when a topic is changed
 const resetSubtopic = () => {
   formData.value.subtopicId = null;
+
+  // Emit events
+  emit("changeSubtopic", null);
 };
 
 /**
@@ -663,7 +697,7 @@ const getSubjectsForLevel = async (levelId: number) => {
 
     // When editing an existing record (Update mode),
     // auto-select the default subject and its dependent fields
-    // (topic and subtopic) so that the input fields are pre-filled instead of staying empty
+    // (topic and subtopic) so that their input fields are pre-filled instead of staying empty
     if (props.crudContext == CrudContext.Update) {
       applyDefaultsOnSubjectLoad();
     }
