@@ -2,23 +2,26 @@
   <div :class="containerClasses">
     <!-- Curriculum select -->
     <div class="mb-3" v-if="showCurriculum">
-      <Select
-        editable
-        id="curriculumSelectInput"
-        :placeholder="isGettingCurriculums ? 'Loading curriculums...' : 'Curriculum'"
-        checkmark
-        :options="curriculums"
-        option-label="name"
-        option-value="id"
-        v-model="v$.curriculumId.$model"
-        :invalid="v$.curriculumId.$error"
-        class="w-100"
-        :loading="isGettingCurriculums"
-        :disabled="isGettingCurriculums"
-        @change="onCurriculumSelect"
-        :size="size"
-        :show-clear="showClear"
-      />
+      <FloatLabel variant="on">
+        <Select
+          editable
+          id="curriculumSelectInput"
+          :placeholder="isGettingCurriculums ? 'Loading curriculums...' : 'Curriculum'"
+          checkmark
+          :options="curriculums"
+          option-label="name"
+          option-value="id"
+          v-model="v$.curriculumId.$model"
+          :invalid="v$.curriculumId.$error"
+          class="w-100"
+          :loading="isGettingCurriculums"
+          :disabled="isGettingCurriculums"
+          @change="onCurriculumSelect"
+          :size="size"
+          :show-clear="showClear"
+        />
+        <label for="curriculumSelectInput">Curriculum</label>
+      </FloatLabel>
       <!-- Validation errors -->
       <Message size="small" severity="error" v-if="v$.curriculumId.$error" variant="simple">
         <div v-for="error of v$.curriculumId.$errors" :key="error.$uid">
@@ -28,22 +31,25 @@
     </div>
     <!-- Exam board select -->
     <div class="mb-3" v-if="showExamBoard">
-      <Select
-        id="examBoardSelectInput"
-        :placeholder="isGettingCurriculums ? 'Loading exam boards...' : 'Exam board'"
-        checkmark
-        :options="selectedCurriculum?.examBoards"
-        option-label="name"
-        option-value="id"
-        v-model="v$.examBoardId.$model"
-        :invalid="v$.examBoardId.$error"
-        class="w-100"
-        :loading="isGettingCurriculums"
-        :disabled="isGettingCurriculums"
-        @change="onExamBoardSelect"
-        :size="size"
-        :show-clear="showClear"
-      />
+      <FloatLabel variant="on">
+        <Select
+          id="examBoardSelectInput"
+          :placeholder="isGettingCurriculums ? 'Loading exam boards...' : 'Exam board'"
+          checkmark
+          :options="selectedCurriculum?.examBoards"
+          option-label="name"
+          option-value="id"
+          v-model="v$.examBoardId.$model"
+          :invalid="v$.examBoardId.$error"
+          class="w-100"
+          :loading="isGettingCurriculums"
+          :disabled="isGettingCurriculums"
+          @change="onExamBoardSelect"
+          :size="size"
+          :show-clear="showClear"
+        />
+        <label for="examBoardSelectInput">Exam board</label>
+      </FloatLabel>
       <!-- Validation errors -->
       <Message size="small" severity="error" v-if="v$.examBoardId.$error" variant="simple">
         <div v-for="error of v$.examBoardId.$errors" :key="error.$uid">
@@ -53,22 +59,25 @@
     </div>
     <!-- Level select -->
     <div class="mb-3" v-if="showLevel">
-      <Select
-        id="levelSelectInput"
-        :placeholder="isGettingCurriculums ? 'Loading levels...' : 'Level'"
-        checkmark
-        :options="selectedExamBoard?.levels"
-        option-label="name"
-        option-value="id"
-        v-model="v$.levelId.$model"
-        :invalid="v$.levelId.$error"
-        class="w-100"
-        :loading="isGettingCurriculums"
-        :disabled="isGettingCurriculums"
-        @change="onLevelSelect"
-        :size="size"
-        :show-clear="showClear"
-      />
+      <FloatLabel variant="on">
+        <Select
+          id="levelSelectInput"
+          :placeholder="isGettingCurriculums ? 'Loading levels...' : 'Level'"
+          checkmark
+          :options="selectedExamBoard?.levels"
+          option-label="name"
+          option-value="id"
+          v-model="v$.levelId.$model"
+          :invalid="v$.levelId.$error"
+          class="w-100"
+          :loading="isGettingCurriculums"
+          :disabled="isGettingCurriculums"
+          @change="onLevelSelect"
+          :size="size"
+          :show-clear="showClear"
+        />
+        <label for="levelSelectInput">Educational level</label>
+      </FloatLabel>
       <!-- Validation errors -->
       <Message size="small" severity="error" v-if="v$.levelId.$error" variant="simple">
         <div v-for="error of v$.levelId.$errors" :key="error.$uid">
@@ -78,23 +87,28 @@
     </div>
     <!-- Subject select -->
     <div class="mb-3" v-if="showSubject">
-      <Select
-        editable
-        id="subjectSelectInput"
-        :placeholder="isGettingCurriculums || isGettingSubjects ? 'Loading subjects...' : 'Subject'"
-        checkmark
-        :options="selectedLevel?.subjects"
-        option-label="name"
-        option-value="id"
-        v-model="v$.subjectId.$model"
-        :invalid="v$.subjectId.$error && !isGettingSubjects"
-        class="w-100"
-        :loading="isGettingCurriculums || isGettingSubjects"
-        :disabled="isGettingCurriculums || isGettingSubjects"
-        @change="onSubjectSelect"
-        :size="size"
-        :show-clear="showClear"
-      />
+      <FloatLabel variant="on">
+        <Select
+          editable
+          id="subjectSelectInput"
+          :placeholder="
+            isGettingCurriculums || isGettingSubjects ? 'Loading subjects...' : 'Subject'
+          "
+          checkmark
+          :options="selectedLevel?.subjects"
+          option-label="name"
+          option-value="id"
+          v-model="v$.subjectId.$model"
+          :invalid="v$.subjectId.$error && !isGettingSubjects"
+          class="w-100"
+          :loading="isGettingCurriculums || isGettingSubjects"
+          :disabled="isGettingCurriculums || isGettingSubjects"
+          @change="onSubjectSelect"
+          :size="size"
+          :show-clear="showClear"
+        />
+        <label for="subjectSelectInput">Subject</label>
+      </FloatLabel>
       <!-- Validation errors -->
       <Message
         size="small"
@@ -110,23 +124,26 @@
 
     <!-- Topic select -->
     <div class="mb-3" v-if="showTopic">
-      <Select
-        editable
-        id="topicSelectInput"
-        :placeholder="isGettingCurriculums || isGettingSubjects ? 'Loading topics...' : 'Topic'"
-        checkmark
-        :options="selectedSubject?.topics"
-        option-label="name"
-        option-value="id"
-        v-model="v$.topicId.$model"
-        :invalid="v$.topicId.$error && !isGettingSubjects"
-        class="w-100"
-        :loading="isGettingCurriculums || isGettingSubjects"
-        :disabled="isGettingCurriculums || isGettingSubjects"
-        @change="onTopicSelect"
-        :size="size"
-        :show-clear="showClear"
-      />
+      <FloatLabel variant="on">
+        <Select
+          editable
+          id="topicSelectInput"
+          :placeholder="isGettingCurriculums || isGettingSubjects ? 'Loading topics...' : 'Topic'"
+          checkmark
+          :options="selectedSubject?.topics"
+          option-label="name"
+          option-value="id"
+          v-model="v$.topicId.$model"
+          :invalid="v$.topicId.$error && !isGettingSubjects"
+          class="w-100"
+          :loading="isGettingCurriculums || isGettingSubjects"
+          :disabled="isGettingCurriculums || isGettingSubjects"
+          @change="onTopicSelect"
+          :size="size"
+          :show-clear="showClear"
+        />
+        <label for="topicSelectInput">{{ isTopicRequired ? "Topic" : "Topic (Optional)" }}</label>
+      </FloatLabel>
       <!-- Validation errors -->
       <Message
         size="small"
@@ -141,25 +158,30 @@
     </div>
     <!-- Subtopic select -->
     <div class="mb-3" v-if="showTopic">
-      <Select
-        editable
-        id="subtopicSelectInput"
-        :placeholder="
-          isGettingCurriculums || isGettingSubjects ? 'Loading subtopics...' : 'Subtopic'
-        "
-        checkmark
-        :options="selectedTopic?.subtopics"
-        option-label="name"
-        option-value="id"
-        v-model="v$.subtopicId.$model"
-        :invalid="v$.subtopicId.$error && !isGettingSubjects"
-        class="w-100"
-        :loading="isGettingCurriculums || isGettingSubjects"
-        :disabled="isGettingCurriculums || isGettingSubjects"
-        @change="onSubtopicSelect"
-        :size="size"
-        :show-clear="showClear"
-      />
+      <FloatLabel variant="on">
+        <Select
+          editable
+          id="subtopicSelectInput"
+          :placeholder="
+            isGettingCurriculums || isGettingSubjects ? 'Loading subtopics...' : 'Subtopic'
+          "
+          checkmark
+          :options="selectedTopic?.subtopics"
+          option-label="name"
+          option-value="id"
+          v-model="v$.subtopicId.$model"
+          :invalid="v$.subtopicId.$error && !isGettingSubjects"
+          class="w-100"
+          :loading="isGettingCurriculums || isGettingSubjects"
+          :disabled="isGettingCurriculums || isGettingSubjects"
+          @change="onSubtopicSelect"
+          :size="size"
+          :show-clear="showClear"
+        />
+        <label for="topicSelectInput">{{
+          isSubtopicRequired ? "Subtopic" : "Subtopic (Optional)"
+        }}</label>
+      </FloatLabel>
       <!-- Validation errors -->
       <Message
         size="small"
@@ -206,7 +228,7 @@
 import Select, { type SelectChangeEvent } from "primevue/select";
 import { Curriculum } from "@/models/curriculum";
 import { useCurriculumStore } from "@/stores/curriculum";
-//import FloatLabel from "primevue/floatlabel";
+import FloatLabel from "primevue/floatlabel";
 import { computed, onMounted, ref, type PropType, type Ref } from "vue";
 import { useToast } from "primevue";
 import { helpers, required } from "@vuelidate/validators";
@@ -299,7 +321,7 @@ const emit = defineEmits([
 ]);
 
 onMounted(() => {
-  //  v$.value.$touch();
+  v$.value.$touch();
 });
 
 const toast = useToast();

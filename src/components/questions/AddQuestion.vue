@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container">
     <TitleSection title="Tell the story behind your question" subtitle="New Question" />
 
     <div class="row mb-2">
@@ -34,69 +34,7 @@
     </div>
     <!-- Save button end-->
     <form class="">
-      <!-- Title input -->
-      <div class="form-group mb-3">
-        <FloatLabel variant="on">
-          <InputText
-            maxlength="150"
-            fluid
-            id="title"
-            v-model="v$.title.$model"
-            :invalid="v$.title.$error"
-          />
-          <label for="title">Question title</label>
-        </FloatLabel>
-        <Message size="small" severity="error" v-if="v$.title.$error" variant="simple">
-          <div v-for="error of v$.title.$errors" :key="error.$uid">
-            <div>{{ error.$message }}</div>
-          </div>
-        </Message>
-        <Message v-else size="small" severity="secondary" variant="simple"
-          >Think of the title as a headline: short and to the point (e.g., 'Newton’s 2nd Law,'
-          'Ionic vs Covalent Bonds').</Message
-        >
-      </div>
-
-      <!-- Question input -->
-      <div class="form-group mb-3">
-        <FloatLabel variant="on">
-          <Textarea
-            id="question"
-            v-model="v$.question.$model"
-            :invalid="v$.question.$error"
-            rows="4"
-            class="w-100"
-            style="resize: none"
-          />
-          <label for="question">Question</label>
-        </FloatLabel>
-        <Message size="question" severity="error" v-if="v$.question.$error" variant="simple">
-          <div v-for="error of v$.question.$errors" :key="error.$uid">
-            <div>{{ error.$message }}</div>
-          </div>
-        </Message>
-      </div>
-
-      <!-- Answer input -->
-      <div class="form-group mb-3">
-        <FloatLabel variant="on">
-          <Textarea
-            id="answer"
-            v-model="v$.answer.$model"
-            :invalid="v$.answer.$error"
-            rows="4"
-            class="w-100"
-            style="resize: none"
-          />
-          <label for="answer">Answer</label>
-        </FloatLabel>
-        <Message size="answer" severity="error" v-if="v$.answer.$error" variant="simple">
-          <div v-for="error of v$.answer.$errors" :key="error.$uid">
-            <div>{{ error.$message }}</div>
-          </div>
-        </Message>
-      </div>
-      <!-- Curriculum, exam board, level and subject inputs -->
+      <!-- Curriculum, exam board, level, subject, topic and subtopic inputs -->
       <div class="form-group">
         <CurriculumExamBoardLevelSubjectTopicSelect
           @change-curriculum="(val: Curriculum) => (formData.curriculumId = val.id)"
@@ -120,24 +58,131 @@
         />
       </div>
 
-      <!-- Tags input -->
-      <div>
+      <!-- Title input -->
+      <div class="form-group mb-3">
         <FloatLabel variant="on">
-          <AutoComplete
-            v-model="v$.tags.$model"
-            :invalid="v$.tags.$error"
-            inputId="addBlogTags"
-            multiple
+          <InputText
+            maxlength="150"
             fluid
-            :typeahead="false"
+            id="title"
+            v-model="v$.title.$model"
+            :invalid="v$.title.$error"
           />
-          <label for="addBlogTags">Tags</label>
+          <label for="title">Question title</label>
         </FloatLabel>
-        <Message size="small" severity="error" v-if="v$.tags.$error" variant="simple">
-          <div v-for="error of v$.tags.$errors" :key="error.$uid">
+        <Message size="small" severity="error" v-if="v$.title.$error" variant="simple">
+          <div v-for="error of v$.title.$errors" :key="error.$uid">
             <div>{{ error.$message }}</div>
           </div>
         </Message>
+        <Message v-else size="small" severity="secondary" variant="simple" :life="60000"
+          >Think of the title as a headline: short and to the point (e.g., 'Newton’s 2nd Law,'
+          'Ionic vs Covalent Bonds').</Message
+        >
+      </div>
+
+      <!-- Question input -->
+      <div class="form-group mb-3">
+        <FloatLabel variant="on">
+          <Textarea
+            id="question"
+            v-model="v$.content.$model"
+            :invalid="v$.content.$error"
+            rows="4"
+            class="w-100"
+            style="resize: none"
+          />
+          <label for="content">Question</label>
+        </FloatLabel>
+        <Message size="content" severity="error" v-if="v$.content.$error" variant="simple">
+          <div v-for="error of v$.content.$errors" :key="error.$uid">
+            <div>{{ error.$message }}</div>
+          </div>
+        </Message>
+        <Message v-else size="small" severity="secondary" variant="simple" :life="30000"
+          >Write your question in your own words. Avoid copying exam questions word-for-word (unless
+          it’s a short factual/definition-type question). If it’s based on a past paper, make sure
+          to paraphrase or reword it instead of copying exactly.</Message
+        >
+      </div>
+
+      <!-- Answer input -->
+      <div class="form-group mb-4">
+        <!-- <FloatLabel variant="on">
+          <Textarea
+            id="answer"
+            v-model="v$.answer.$model"
+            :invalid="v$.answer.$error"
+            rows="4"
+            class="w-100"
+            style="resize: none"
+          />
+          <label for="answer">Answer</label>
+        </FloatLabel>
+        <Message size="answer" severity="error" v-if="v$.answer.$error" variant="simple">
+          <div v-for="error of v$.answer.$errors" :key="error.$uid">
+            <div>{{ error.$message }}</div>
+          </div>
+        </Message> -->
+        <Editor
+          v-model="v$.answer.$model"
+          :invalid="v$.answer.$error"
+          placeholder="Question"
+          editorStyle="height: 200px"
+        />
+        <Message size="answer" severity="error" v-if="v$.answer.$error" variant="simple">
+          <div v-for="error of v$.answer.$errors" :key="error.$uid">
+            <div>{{ error.$message }}</div>
+          </div>
+        </Message>
+      </div>
+
+      <div class="row g-3">
+        <!-- Tags input -->
+        <div class="col-md-8">
+          <FloatLabel variant="on">
+            <AutoComplete
+              v-model="v$.tags.$model"
+              :invalid="v$.tags.$error"
+              inputId="addBlogTags"
+              option-value="name"
+              multiple
+              fluid
+              :typeahead="false"
+            />
+            <label for="addBlogTags">Tags</label>
+          </FloatLabel>
+          <Message size="small" severity="error" v-if="v$.tags.$error" variant="simple">
+            <div v-for="error of v$.tags.$errors" :key="error.$uid">
+              <div>{{ error.$message }}</div>
+            </div>
+          </Message>
+        </div>
+        <!-- Marks input -->
+        <div class="form-group col-md-4">
+          <FloatLabel variant="on">
+            <InputNumber
+              v-model="v$.marks.$model"
+              inputId="marks"
+              showButtons
+              :min="1"
+              :invalid="v$.marks.$error"
+              :suffix="formData.marks == 1 ? ' mark' : ' marks'"
+              fluid
+            >
+            </InputNumber>
+            <label for="marks">Marks (Optional)</label>
+          </FloatLabel>
+          <Message size="small" severity="error" v-if="v$.marks.$error" variant="simple">
+            <div v-for="error of v$.marks.$errors" :key="error.$uid">
+              <div>{{ error.$message }}</div>
+            </div>
+          </Message>
+          <Message v-else size="small" severity="secondary" variant="simple"
+            >Controls the position of this project in your portfolio. Lower numbers appear
+            first.</Message
+          >
+        </div>
       </div>
     </form>
   </div>
@@ -159,6 +204,7 @@ import TitleSection from "../shared/TitleSection.vue";
 // import { useRouter } from "vue-router";
 import Textarea from "primevue/textarea";
 import AutoComplete from "primevue/autocomplete";
+import InputNumber from "primevue/inputnumber";
 import { Question } from "@/models/question";
 import { QuestionStatus } from "@/enums/questions/questionStatus";
 import CurriculumExamBoardLevelSubjectTopicSelect from "../shared/selects/multi-selects/CurriculumExamBoardLevelSubjectTopicSelect.vue";
@@ -169,6 +215,7 @@ import type { Subject } from "@/models/subject";
 import type { Topic } from "@/models/topic";
 import type { QuestionFormData } from "@/interfaces/questions/questionFormData";
 import type { Subtopic } from "@/models/subtopic";
+import Editor from "primevue/editor";
 
 // Access the store
 // const questionStore = useQuestionStore();
@@ -182,27 +229,29 @@ onMounted(() => {
   // or start with a new question instance
   const savedQuestion = localStorage.getItem(localStorageKey);
   question.value = savedQuestion ? (JSON.parse(savedQuestion) as Question) : new Question();
+
+  // Load curriculums (with exam boards, levels, subjects, topics and subtopics)
+  // so the user can select from the dropdown.
+  curriculumSelectRef.value.getAllCurriculums();
 });
 
 //check if the curriculums or subjects for the dropdowns are being loaded
 const isLoadingSelectionData = ref(false);
-
 // The new question being created
 const question: Ref<Question> = ref(new Question());
 // Key used to store and retrieve the in-progress question draft from localStorage
 const localStorageKey = "newQuestion";
-
+const curriculumSelectRef = ref();
 const invalidFormMessage = ref(
   "Some fields are missing or invalid. Please fix them to save or publish your question.",
 );
-
 const isSavingQuestion = ref(false);
 
 //form validation start
 const formData: Ref<QuestionFormData> = ref({
   title: null,
-  question: null,
-  answer: null,
+  content: null,
+  answer: undefined,
   curriculumId: null,
   examBoardId: null,
   levelId: null,
@@ -210,6 +259,7 @@ const formData: Ref<QuestionFormData> = ref({
   topicId: null,
   subtopicId: null,
   tags: [],
+  marks: null,
 });
 const rules = {
   title: {
@@ -218,14 +268,15 @@ const rules = {
       required,
     ),
   },
-  question: { required },
-  answer: {},
+  answer: { required },
+  content: { required },
   curriculumId: { required },
   examBoardId: { required },
   levelId: { required },
   subjectId: { required },
   topicId: {},
   subtopicId: {},
+  marks: {},
   tags: {
     required: helpers.withMessage(
       "Include at least one tag so others can easily find your question.",
