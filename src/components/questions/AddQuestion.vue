@@ -9,15 +9,24 @@
         ready.
       </p>
     </div>
-    <!-- Save button start-->
+    <!-- Buttons start-->
     <div class="d-flex flex-column gap-2 align-items-end mb-5">
-      <!-- Save button -->
       <div class="d-flex justify-content-end gap-3 align-items-center">
+        <!-- Save button -->
         <Button
           size="small"
           @click="saveQuestionAsDraft"
           :label="isSavingQuestion ? 'Saving...' : 'Save draft'"
           severity="contrast"
+          :loading="isSavingQuestion"
+          :disabled="isSavingQuestion || v$.$errors.length > 0"
+        />
+        <!-- Publish button -->
+        <Button
+          size="small"
+          @click="saveQuestionAsDraft"
+          :label="isSavingQuestion ? 'Saving...' : 'Publish'"
+          severity="primary"
           :loading="isSavingQuestion"
           :disabled="isSavingQuestion || v$.$errors.length > 0"
         />
@@ -32,9 +41,10 @@
         >{{ invalidFormMessage }}</Message
       >
     </div>
-    {{ formData }}
-    <!-- Save button end-->
-    <form class="">
+    <!--Buttons end-->
+    <p>plain: {{ formData.answerText }}</p>
+    <p>html: {{ formData.answerHtml }}</p>
+    <form>
       <!-- Curriculum, exam board, level, subject, topic and subtopic inputs -->
       <!-- `CrudContext` is set to `Update`because a user can edit the draft from localStorage -->
       <div class="form-group">
@@ -117,45 +127,7 @@
 
       <!-- Answer input -->
       <div class="form-group mb-4">
-        <Editor
-          v-model="v$.answer.$model"
-          :invalid="v$.answer.$error"
-          :placeholder="answerHelperMessage"
-          editorStyle="height: 200px"
-        >
-          <template v-slot:toolbar>
-            <span class="ql-formats">
-              <select class="ql-header">
-                <option selected></option>
-                <option value="1"></option>
-                <option value="2"></option>
-                <option value="3"></option>
-              </select>
-            </span>
 
-            <span class="ql-formats">
-              <button v-tooltip.bottom="'Bold'" class="ql-bold"></button>
-              <button v-tooltip.bottom="'Italic'" class="ql-italic"></button>
-              <button v-tooltip.bottom="'Underline'" class="ql-underline"></button>
-            </span>
-
-            <span class="ql-formats">
-              <select class="ql-color"></select>
-              <select class="ql-background"></select>
-            </span>
-
-            <span class="ql-formats">
-              <button class="ql-list" value="ordered" v-tooltip.bottom="'Numbered List'"></button>
-              <button class="ql-list" value="bullet" v-tooltip.bottom="'Bulleted List'"></button>
-            </span>
-          </template>
-        </Editor>
-
-        <Message size="small" severity="error" v-if="v$.answer.$error" variant="simple">
-          <div v-for="error of v$.answer.$errors" :key="error.$uid">
-            <div>{{ error.$message }}</div>
-          </div>
-        </Message>
       </div>
 
       <div class="row g-3">
@@ -234,7 +206,7 @@ import type { Subject } from "@/models/subject";
 import type { Topic } from "@/models/topic";
 import type { QuestionFormData } from "@/interfaces/questions/questionFormData";
 import type { Subtopic } from "@/models/subtopic";
-import Editor from "primevue/editor";
+
 import { CrudContext } from "@/enums/crudContext";
 
 // Access the store
@@ -273,7 +245,8 @@ const isSavingQuestion = ref(false);
 const formData: Ref<QuestionFormData> = ref({
   title: null,
   content: null,
-  answer: undefined,
+  answerHtml: undefined,
+  answerText: undefined,
   curriculumId: null,
   examBoardId: null,
   levelId: null,
@@ -290,7 +263,8 @@ const rules = {
       required,
     ),
   },
-  answer: {},
+  answerHtml: {},
+  answerText: {},
   content: {
     required: helpers.withMessage("Please enter a question (e.g., Define a vector).", required),
   },
@@ -310,6 +284,8 @@ const rules = {
 };
 const v$ = useVuelidate(rules, formData);
 //form validation end
+
+
 
 //Change the question status to Draft if user has clicked the "Save" button
 const saveQuestionAsDraft = async () => {

@@ -199,7 +199,6 @@
       </Message>
     </div>
   </div>
-  {{ formData }}
 </template>
 
 <script setup lang="ts">
