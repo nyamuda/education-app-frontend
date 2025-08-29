@@ -33,6 +33,7 @@
     <div class="mb-3" v-if="showExamBoard">
       <FloatLabel variant="on">
         <Select
+          editable
           id="examBoardSelectInput"
           :placeholder="isGettingCurriculums ? 'Loading exam boards...' : 'Exam board'"
           checkmark
@@ -61,6 +62,7 @@
     <div class="mb-3" v-if="showLevel">
       <FloatLabel variant="on">
         <Select
+          editable
           id="levelSelectInput"
           :placeholder="isGettingCurriculums ? 'Loading levels...' : 'Level'"
           checkmark

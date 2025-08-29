@@ -94,7 +94,7 @@
           />
           <label for="content">Question</label>
         </FloatLabel>
-        <Message size="content" severity="error" v-if="v$.content.$error" variant="simple">
+        <Message size="small" severity="error" v-if="v$.content.$error" variant="simple">
           <div v-for="error of v$.content.$errors" :key="error.$uid">
             <div>{{ error.$message }}</div>
           </div>
@@ -108,29 +108,41 @@
 
       <!-- Answer input -->
       <div class="form-group mb-4">
-        <!-- <FloatLabel variant="on">
-          <Textarea
-            id="answer"
-            v-model="v$.answer.$model"
-            :invalid="v$.answer.$error"
-            rows="4"
-            class="w-100"
-            style="resize: none"
-          />
-          <label for="answer">Answer</label>
-        </FloatLabel>
-        <Message size="answer" severity="error" v-if="v$.answer.$error" variant="simple">
-          <div v-for="error of v$.answer.$errors" :key="error.$uid">
-            <div>{{ error.$message }}</div>
-          </div>
-        </Message> -->
         <Editor
           v-model="v$.answer.$model"
           :invalid="v$.answer.$error"
-          placeholder="Question"
+          :placeholder="answerHelperMessage"
           editorStyle="height: 200px"
-        />
-        <Message size="answer" severity="error" v-if="v$.answer.$error" variant="simple">
+        >
+          <template v-slot:toolbar>
+            <span class="ql-formats">
+              <select class="ql-header">
+                <option selected></option>
+                <option value="1"></option>
+                <option value="2"></option>
+                <option value="3"></option>
+              </select>
+            </span>
+
+            <span class="ql-formats">
+              <button v-tooltip.bottom="'Bold'" class="ql-bold"></button>
+              <button v-tooltip.bottom="'Italic'" class="ql-italic"></button>
+              <button v-tooltip.bottom="'Underline'" class="ql-underline"></button>
+            </span>
+
+            <span class="ql-formats">
+              <select class="ql-color"></select>
+              <select class="ql-background"></select>
+            </span>
+
+            <span class="ql-formats">
+              <button class="ql-list" value="ordered" v-tooltip.bottom="'Numbered List'"></button>
+              <button class="ql-list" value="bullet" v-tooltip.bottom="'Bulleted List'"></button>
+            </span>
+          </template>
+        </Editor>
+
+        <Message size="small" severity="error" v-if="v$.answer.$error" variant="simple">
           <div v-for="error of v$.answer.$errors" :key="error.$uid">
             <div>{{ error.$message }}</div>
           </div>
@@ -245,6 +257,8 @@ const curriculumSelectRef = ref();
 const invalidFormMessage = ref(
   "Some fields are missing or invalid. Please fix them to save or publish your question.",
 );
+const answerHelperMessage =
+  "Answer (Optional): You can add an answer if you know it. This helps you quickly revise both the question and its solution later and also lets others see different ways of answering the same question.";
 const isSavingQuestion = ref(false);
 
 //form validation start
@@ -268,8 +282,10 @@ const rules = {
       required,
     ),
   },
-  answer: { required },
-  content: { required },
+  answer: {},
+  content: {
+    required: helpers.withMessage("Please enter a question (e.g., Define a vector).", required),
+  },
   curriculumId: { required },
   examBoardId: { required },
   levelId: { required },
