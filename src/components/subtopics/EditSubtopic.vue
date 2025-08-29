@@ -28,7 +28,7 @@
           :default-exam-board-id="formData.examBoardId ?? undefined"
           :default-level-id="formData.levelId ?? undefined"
           :default-subject-id="formData.subjectId ?? undefined"
-          v-bind:default-topic-id="formData.topicId ?? undefined"
+          :default-topic-id="formData.topicId ?? undefined"
           @change-curriculum="(val: Curriculum) => (formData.curriculumId = val.id)"
           @change-exam-board="(val: ExamBoard) => (formData.examBoardId = val.id)"
           @change-level="(val: Level) => (formData.levelId = val.id)"

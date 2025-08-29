@@ -4,9 +4,7 @@
     <div class="mb-3" v-if="showCurriculum">
       <FloatLabel variant="on">
         <Select
-          editable
           id="curriculumSelectInput"
-          :placeholder="isGettingCurriculums ? 'Loading curriculums...' : 'Curriculum'"
           checkmark
           :options="curriculums"
           option-label="name"
@@ -20,7 +18,9 @@
           :size="size"
           :show-clear="showClear"
         />
-        <label for="curriculumSelectInput">Curriculum</label>
+        <label for="curriculumSelectInput">{{
+          isGettingCurriculums ? "Loading curriculums..." : "Curriculum"
+        }}</label>
       </FloatLabel>
       <!-- Validation errors -->
       <Message size="small" severity="error" v-if="v$.curriculumId.$error" variant="simple">
@@ -35,7 +35,6 @@
         <Select
           editable
           id="examBoardSelectInput"
-          :placeholder="isGettingCurriculums ? 'Loading exam boards...' : 'Exam board'"
           checkmark
           :options="selectedCurriculum?.examBoards"
           option-label="name"
@@ -49,7 +48,9 @@
           :size="size"
           :show-clear="showClear"
         />
-        <label for="examBoardSelectInput">Exam board</label>
+        <label for="examBoardSelectInput">{{
+          isGettingCurriculums ? "Loading exam boards..." : "Exam board"
+        }}</label>
       </FloatLabel>
       <!-- Validation errors -->
       <Message size="small" severity="error" v-if="v$.examBoardId.$error" variant="simple">
@@ -64,7 +65,6 @@
         <Select
           editable
           id="levelSelectInput"
-          :placeholder="isGettingCurriculums ? 'Loading levels...' : 'Level'"
           checkmark
           :options="selectedExamBoard?.levels"
           option-label="name"
@@ -78,7 +78,9 @@
           :size="size"
           :show-clear="showClear"
         />
-        <label for="levelSelectInput">Educational level</label>
+        <label for="levelSelectInput">{{
+          isGettingCurriculums ? "Loading levels..." : "Educational level"
+        }}</label>
       </FloatLabel>
       <!-- Validation errors -->
       <Message size="small" severity="error" v-if="v$.levelId.$error" variant="simple">
@@ -180,7 +182,7 @@
           :size="size"
           :show-clear="showClear"
         />
-        <label for="topicSelectInput">{{
+        <label for="subtopicSelectInput">{{
           isSubtopicRequired ? "Subtopic" : "Subtopic (Optional)"
         }}</label>
       </FloatLabel>
@@ -320,6 +322,7 @@ const emit = defineEmits([
   "changeLevel",
   "changeSubject",
   "changeTopic",
+  "changeSubtopic",
 ]);
 
 onMounted(() => {
@@ -390,7 +393,7 @@ const rules = computed(() => {
         ? { required: helpers.withMessage("Select topic", required) }
         : {},
     subtopicId:
-      props.showTopic && props.isSubtopicRequired
+      props.showSubtopic && props.isSubtopicRequired
         ? { required: helpers.withMessage("Select subtopic", required) }
         : {},
   };
@@ -409,7 +412,7 @@ const onCurriculumSelect = async (event: SelectChangeEvent) => {
 
 // When an exam board is selected, reset dependent values
 const onExamBoardSelect = async (event: SelectChangeEvent) => {
-  const examBoard = selectedCurriculum.value?.examBoards.find((e) => e.id === event.value) ?? null;
+  const examBoard = selectedCurriculum.value?.examBoards?.find((e) => e.id === event.value) ?? null;
   selectedExamBoard.value = examBoard;
   resetLevelSubjectTopicSubtopic();
   // emit selected exam board
@@ -445,7 +448,7 @@ const onTopicSelect = async (event: SelectChangeEvent) => {
 const onSubtopicSelect = async (event: SelectChangeEvent) => {
   const subtopic = selectedTopic.value?.subtopics.find((st) => st.id === event.value) ?? null;
   resetSubtopic();
-  emit("changeTopic", subtopic);
+  emit("changeSubtopic", subtopic);
 };
 
 //Resets all selections
@@ -559,14 +562,14 @@ const getAllCurriculums = (levelId: number | null = null) => {
 };
 
 /**
- * Applies the default values passed via props for the select inputs (if provided).
+ * Applies the default values (for curriculum, exam board, and level)
+ * passed via props for the select inputs (if provided).
  * This method is called once the list of curriculums is loaded.
  * This makes sure the correct option shows up in the select input instead of staying empty.
  */
-const applyDefaultValues = () => {
+const applyDefaultsOnCurriculumLoad = () => {
   if (props.defaultCurriculumId) {
     formData.value.curriculumId = props.defaultCurriculumId;
-
     //set the default curriculum
     selectedCurriculum.value =
       curriculums.value.find((c) => c.id == props.defaultCurriculumId) ?? null;
@@ -583,6 +586,14 @@ const applyDefaultValues = () => {
     selectedLevel.value =
       selectedExamBoard.value?.levels.find((l) => l.id === props.defaultLevelId) ?? null;
   }
+};
+/**
+ * Applies the default values (for subject, topic, and subtopic)
+ * passed via props for the select inputs (if provided).
+ * This method is called once the list of subjects is loaded.
+ * This makes sure the correct option shows up in the select input instead of staying empty.
+ */
+const applyDefaultsOnSubjectLoad = () => {
   if (props.defaultSubjectId) {
     //set the default subject
     formData.value.subjectId = props.defaultSubjectId;
@@ -592,6 +603,12 @@ const applyDefaultValues = () => {
   if (props.defaultTopicId) {
     //set the default topic
     formData.value.topicId = props.defaultTopicId;
+    selectedTopic.value =
+      selectedSubject.value?.topics?.find((t) => t.id == props.defaultTopicId) ?? null;
+  }
+  if (props.defaultSubtopicId) {
+    //set the default subtopic
+    formData.value.subtopicId = props.defaultSubtopicId;
   }
 };
 
@@ -649,6 +666,9 @@ const getSubjectsForLevel = async (levelId: number) => {
     // (topic and subtopic) are pre-filled instead of empty
     if (props.crudContext == CrudContext.Update) {
       selectedSubject.value = data.items.find((s) => s.id == props.defaultSubjectId) ?? null;
+
+      selectedTopic.value =
+        selectedSubject.value?.topics?.find((t) => t.id == props.defaultTopicId) ?? null;
     }
   } catch (message) {
     toast.add({

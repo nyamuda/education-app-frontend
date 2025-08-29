@@ -32,17 +32,26 @@
         >{{ invalidFormMessage }}</Message
       >
     </div>
+    {{ formData }}
     <!-- Save button end-->
     <form class="">
       <!-- Curriculum, exam board, level, subject, topic and subtopic inputs -->
+      <!-- `CrudContext` is set to `Update`because a user can edit the draft from localStorage -->
       <div class="form-group">
         <CurriculumExamBoardLevelSubjectTopicSelect
-          @change-curriculum="(val: Curriculum) => (formData.curriculumId = val.id)"
-          @change-exam-board="(val: ExamBoard) => (formData.examBoardId = val.id)"
-          @change-level="(val: Level) => (formData.levelId = val.id)"
-          @change-subject="(val: Subject) => (formData.subjectId = val.id)"
-          @change-topic="(val: Topic) => (formData.topicId = val.id)"
-          @change-subtopic="(val: Subtopic) => (formData.subtopicId = val.id)"
+          :crud-context="CrudContext.Update"
+          :default-curriculum-id="formData.curriculumId ?? undefined"
+          :default-exam-board-id="formData.examBoardId ?? undefined"
+          :default-level-id="formData.levelId ?? undefined"
+          :default-subject-id="formData.subjectId ?? undefined"
+          :default-topic-id="formData.topicId ?? undefined"
+          :default-subtopic-id="formData.subtopicId ?? undefined"
+          @change-curriculum="(val: Curriculum) => (formData.curriculumId = val?.id ?? null)"
+          @change-exam-board="(val: ExamBoard) => (formData.examBoardId = val?.id ?? null)"
+          @change-level="(val: Level) => (formData.levelId = val?.id ?? null)"
+          @change-subject="(val: Subject) => (formData.subjectId = val?.id ?? null)"
+          @change-topic="(val: Topic) => (formData.topicId = val?.id ?? null)"
+          @change-subtopic="(val: Subtopic) => (formData.subtopicId = val?.id ?? null)"
           :is-required="true"
           :show-curriculum="true"
           :show-exam-board="true"
@@ -191,8 +200,8 @@
             </div>
           </Message>
           <Message v-else size="small" severity="secondary" variant="simple"
-            >Controls the position of this project in your portfolio. Lower numbers appear
-            first.</Message
+            >Fill in the marks if you know them. This is useful for revision and exam
+            preparation.</Message
           >
         </div>
       </div>
@@ -217,8 +226,6 @@ import TitleSection from "../shared/TitleSection.vue";
 import Textarea from "primevue/textarea";
 import AutoComplete from "primevue/autocomplete";
 import InputNumber from "primevue/inputnumber";
-import { Question } from "@/models/question";
-import { QuestionStatus } from "@/enums/questions/questionStatus";
 import CurriculumExamBoardLevelSubjectTopicSelect from "../shared/selects/multi-selects/CurriculumExamBoardLevelSubjectTopicSelect.vue";
 import type { Curriculum } from "@/models/curriculum";
 import type { ExamBoard } from "@/models/examBoard";
@@ -228,6 +235,7 @@ import type { Topic } from "@/models/topic";
 import type { QuestionFormData } from "@/interfaces/questions/questionFormData";
 import type { Subtopic } from "@/models/subtopic";
 import Editor from "primevue/editor";
+import { CrudContext } from "@/enums/crudContext";
 
 // Access the store
 // const questionStore = useQuestionStore();
@@ -237,20 +245,20 @@ import Editor from "primevue/editor";
 onMounted(() => {
   v$.value.$touch();
 
-  // Load the saved question draft from localStorage (if it exists),
-  // or start with a new question instance
-  const savedQuestion = localStorage.getItem(localStorageKey);
-  question.value = savedQuestion ? (JSON.parse(savedQuestion) as Question) : new Question();
+  // Load the saved question form data draft from localStorage (if it exists),
+  const savedFormData = localStorage.getItem(localStorageKey);
+  if (savedFormData) {
+    formData.value = JSON.parse(savedFormData);
+  }
 
   // Load curriculums (with exam boards, levels, subjects, topics and subtopics)
   // so the user can select from the dropdown.
-  curriculumSelectRef.value.getAllCurriculums();
+  curriculumSelectRef.value.getAllCurriculums(formData.value.levelId);
 });
 
 //check if the curriculums or subjects for the dropdowns are being loaded
 const isLoadingSelectionData = ref(false);
-// The new question being created
-const question: Ref<Question> = ref(new Question());
+
 // Key used to store and retrieve the in-progress question draft from localStorage
 const localStorageKey = "newQuestion";
 const curriculumSelectRef = ref();
@@ -307,7 +315,7 @@ const v$ = useVuelidate(rules, formData);
 const saveQuestionAsDraft = async () => {
   isSavingQuestion.value = true;
   //change the status to Draft
-  question.value.status = QuestionStatus.Draft;
+  //question.value.status = QuestionStatus.Draft;
   //then submit the question
   await submitQuestion();
 };
@@ -319,15 +327,19 @@ const submitQuestion = async () => {
 };
 
 /**
- * Watches the question object and saves it to localStorage whenever it changes.
+ * Watches the question form data and saves it to localStorage whenever it changes.
  *
  * This helps prevent accidental data loss if the user navigates away or reloads the page
  * before submitting the question.
  */
 watch(
-  question,
-  (updatedQuestion) => {
-    const serialized = JSON.stringify(updatedQuestion);
+  formData,
+  (newFormData) => {
+    //first, remove the existing item
+    localStorage.removeItem(localStorageKey);
+    console.log(newFormData);
+    // //then add a new one
+    const serialized = JSON.stringify(newFormData);
     localStorage.setItem(localStorageKey, serialized);
   },
   { deep: true },
