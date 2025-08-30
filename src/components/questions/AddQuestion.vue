@@ -42,8 +42,7 @@
       >
     </div>
     <!--Buttons end-->
-    <p>plain: {{ formData.answerText }}</p>
-    <p>html: {{ formData.answerHtml }}</p>
+
     <form>
       <!-- Curriculum, exam board, level, subject, topic and subtopic inputs -->
       <!-- `CrudContext` is set to `Update`because a user can edit the draft from localStorage -->
@@ -105,16 +104,16 @@
         <FloatLabel variant="on">
           <Textarea
             id="question"
-            v-model="v$.question.$model"
-            :invalid="v$.question.$error"
+            v-model="v$.questionText.$model"
+            :invalid="v$.questionText.$error"
             rows="4"
             class="w-100"
             style="resize: none"
           />
           <label for="question">Question</label>
         </FloatLabel>
-        <Message size="small" severity="error" v-if="v$.question.$error" variant="simple">
-          <div v-for="error of v$.question.$errors" :key="error.$uid">
+        <Message size="small" severity="error" v-if="v$.questionText.$error" variant="simple">
+          <div v-for="error of v$.questionText.$errors" :key="error.$uid">
             <div>{{ error.$message }}</div>
           </div>
         </Message>
@@ -125,17 +124,8 @@
         >
       </div>
 
-      <!-- Answer input -->
-      <div class="form-group mb-4">
-        <ContentEditor
-          :placeholder="answerHelperMessage"
-          @content-html="(val: string) => (formData.answerHtml = val)"
-          @content-text="(val: string) => (formData.answerText = val)"
-          ref="contentEditorRef"
-        />
-      </div>
-
-      <div class="row g-3">
+      <!-- Tags and marks inputs -->
+      <div class="row g-3 mb-3">
         <!-- Tags input -->
         <div class="col-md-8">
           <FloatLabel variant="on">
@@ -182,6 +172,18 @@
           >
         </div>
       </div>
+
+      <!-- Answer input -->
+      <div class="form-group mb-4">
+        <ContentEditor
+          label="Answer (Optional)"
+          placeholder="Add answer"
+          :helper-message="answerHelperMessage"
+          @content-html="(val: string) => (formData.answerHtml = val)"
+          @content-text="(val: string) => (formData.answerText = val)"
+          ref="contentEditorRef"
+        />
+      </div>
     </form>
   </div>
 </template>
@@ -214,6 +216,9 @@ import type { Subtopic } from "@/models/subtopic";
 
 import { CrudContext } from "@/enums/crudContext";
 import ContentEditor from "../shared/selects/ContentEditor.vue";
+import type { AddQuestionData } from "@/interfaces/questions/addQuestionData";
+import type { QuestionSubmission } from "@/interfaces/questions/questionSubmission";
+import type { QuestionStatus } from "@/enums/questions/questionStatus";
 
 // Access the store
 // const questionStore = useQuestionStore();
@@ -246,7 +251,7 @@ const invalidFormMessage = ref(
   "Some fields are missing or invalid. Please fix them to save or publish your question.",
 );
 const answerHelperMessage =
-  "Answer (Optional): You can add an answer if you know it. This helps you quickly revise both the question and its solution later and also lets others see different ways of answering the same question.";
+  "You can add an answer if you know it. This helps you quickly revise both the question and its solution later and also lets others see different ways of answering the same question.";
 const isSavingQuestion = ref(false);
 //ref for the rich text editor
 const contentEditorRef = ref();
@@ -254,7 +259,7 @@ const contentEditorRef = ref();
 //form validation start
 const formData: Ref<QuestionFormData> = ref({
   title: null,
-  question: null,
+  questionText: null,
   answerHtml: null,
   answerText: null,
   curriculumId: null,
@@ -275,7 +280,7 @@ const rules = {
   },
   answerHtml: {},
   answerText: {},
-  question: {
+  questionText: {
     required: helpers.withMessage("Please enter a question (e.g., Define a vector).", required),
   },
   curriculumId: { required },
@@ -295,7 +300,7 @@ const rules = {
 const v$ = useVuelidate(rules, formData);
 //form validation end
 
-//Change the question status to Draft if user has clicked the "Save" button
+//Change the question status to `Draft` if user has clicked the "Save" button
 const saveQuestionAsDraft = async () => {
   isSavingQuestion.value = true;
   //change the status to Draft
@@ -304,10 +309,60 @@ const saveQuestionAsDraft = async () => {
   await submitQuestion();
 };
 
-const submitQuestion = async () => {
-  // Validate the entire form (main fields + paragraph + challenge + achievement + feedback sections)
+//Change the question status to `Published` if user has clicked the "Publish" button
+const publishQuestion = async () => {
+  isSavingQuestion.value = true;
+  //change the status to Published
+  //question.value.status = QuestionStatus.Draft;
+  //then submit the question
+  await submitQuestion();
+};
+
+//Submit question
+const submit = async () => {
+
+
+};
+
+/**
+ * Prepares and returns the question submission data after validating the form.
+ *
+ * @returns The prepared question data, or null if validation fails.
+ */
+const prepareQuestionSubmission = async (
+  status: QuestionStatus,
+): Promise<QuestionSubmission | null> => {
+  // Validate the entire form
   const isValid = await v$.value.$validate();
-  if (!isValid) return;
+  if (!isValid) return null;
+
+  const {
+    title,
+    questionText,
+    answerText,
+    answerHtml,
+    marks,
+    subjectId,
+    topicId,
+    subtopicId,
+    tags,
+  } = formData.value;
+
+  // Build the QuestionSubmission object
+  const submissionData: QuestionSubmission = {
+    title,
+    questionText,
+    answerHtml,
+    answerText,
+    marks,
+    subjectId,
+    topicId,
+    subtopicId,
+    tags: tags.map((tag) => tag.name),
+    status,
+  };
+
+  return submissionData;
 };
 
 /**

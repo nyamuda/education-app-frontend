@@ -1,4 +1,14 @@
 <template>
+  <!-- Label & helper message -->
+  <div class="mb-2">
+    <label v-if="label" class="editor-label">
+      {{ label }}
+    </label>
+    <Message v-if="helperMessage" size="small" severity="secondary" variant="simple">{{
+      helperMessage
+    }}</Message>
+  </div>
+  <!-- Editor -->
   <Editor
     @text-change="(event: EditorTextChangeEvent) => onEditorTextChange(event)"
     v-model="v$.contentHtml.$model"
@@ -45,6 +55,7 @@
 import useVuelidate from "@vuelidate/core";
 import { helpers, required } from "@vuelidate/validators";
 import Editor, { type EditorTextChangeEvent } from "primevue/editor";
+import { Message } from "primevue";
 import { ref, type Ref } from "vue";
 
 const props = defineProps({
@@ -55,6 +66,14 @@ const props = defineProps({
   placeholder: {
     type: String,
     default: "Enter content",
+  },
+  label: {
+    type: String,
+    default: "Editor",
+  },
+  helperMessage: {
+    type: String,
+    required: false,
   },
 });
 
@@ -93,3 +112,9 @@ const loadDefaultContent = (defaultContent: string | null | undefined) => {
 };
 defineExpose({ loadDefaultContent });
 </script>
+
+<style scoped lang="scss">
+.editor-label {
+  font-weight: 500;
+}
+</style>

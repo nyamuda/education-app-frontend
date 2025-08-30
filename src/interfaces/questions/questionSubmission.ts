@@ -1,16 +1,14 @@
-import type { Tag } from "@/models/Tag";
+import type { QuestionStatus } from "@/enums/questions/questionStatus";
 
-export interface QuestionFormData {
+export interface QuestionSubmission {
   title: string | null;
-  questionText: string | null;
+  questionText: string | null | undefined;
   answerHtml: string | null | undefined;
   answerText: string | null | undefined;
-  curriculumId: number | null;
-  examBoardId: number | null;
-  levelId: number | null;
   subjectId: number | null;
   topicId: number | null;
   subtopicId: number | null;
-  tags: Tag[];
+  tags: string[];
   marks: number | null;
+  status: QuestionStatus;
 }
