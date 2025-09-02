@@ -13,8 +13,11 @@ export class Question {
   public constructor(
     public id: number = 0,
     public title: string = "",
-    public content: string = "",
+    public contentText: string = "",
+    public contentHtml: string = "",
     public marks: number | null = 0,
+
+    public authorAnswer: Answer | null = null,
 
     public examBoardId: number | null = null,
     public examBoard: ExamBoard | null = null,

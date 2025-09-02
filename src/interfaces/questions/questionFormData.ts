@@ -1,5 +1,3 @@
-import type { Tag } from "@/models/Tag";
-
 export interface QuestionFormData {
   title: string | null;
   questionText: string | null;
@@ -11,6 +9,6 @@ export interface QuestionFormData {
   subjectId: number | null;
   topicId: number | null;
   subtopicId: number | null;
-  tags: Tag[];
+  tags: string[];
   marks: number | null;
 }

@@ -16,19 +16,30 @@
         <Button
           size="small"
           @click="saveQuestionAsDraft"
-          :label="isSavingQuestion ? 'Saving...' : 'Save draft'"
+          :label="saveStatus == 'savingDraft' ? 'Saving question...' : 'Save draft'"
           severity="contrast"
-          :loading="isSavingQuestion"
-          :disabled="isSavingQuestion || v$.$errors.length > 0"
+          :loading="saveStatus == 'savingDraft'"
+          :disabled="
+            saveStatus == 'savingDraft' ||
+            saveStatus == 'publishing' ||
+            isLoadingSelectionData ||
+            v$.$errors.length > 0
+          "
         />
+
         <!-- Publish button -->
         <Button
           size="small"
-          @click="saveQuestionAsDraft"
-          :label="isSavingQuestion ? 'Saving...' : 'Publish'"
+          @click="publishQuestion"
+          :label="saveStatus == 'publishing' ? 'Publishing question...' : 'Publish'"
           severity="primary"
-          :loading="isSavingQuestion"
-          :disabled="isSavingQuestion || v$.$errors.length > 0"
+          :loading="saveStatus == 'publishing'"
+          :disabled="
+            saveStatus == 'savingDraft' ||
+            saveStatus == 'publishing' ||
+            isLoadingSelectionData ||
+            v$.$errors.length > 0
+          "
         />
       </div>
       <!-- Form error message -->
@@ -70,7 +81,7 @@
           :show-subtopic="true"
           :is-topic-required="false"
           :is-subtopic-required="false"
-          @is-loading="(val: boolean) => (isLoadingSelectionData = val)"
+          @is-loading-data="(val: boolean) => (isLoadingSelectionData = val)"
           ref="curriculumSelectRef"
           :container-classes="'row row-cols-md-3 gy-1'"
         />
@@ -190,18 +201,16 @@
 
 <script setup lang="ts">
 import { onMounted, ref, watch, type Ref } from "vue";
-//import { useQuestionStore } from "@/stores/question";
+import { useQuestionStore } from "@/stores/question";
 import { useVuelidate } from "@vuelidate/core";
 import { required, helpers } from "@vuelidate/validators";
 import { Message } from "primevue";
 import InputText from "primevue/inputtext";
 import FloatLabel from "primevue/floatlabel";
 import Button from "primevue/button";
-//import IconField from "primevue/iconfield";
-//import InputIcon from "primevue/inputicon";
 import TitleSection from "../shared/TitleSection.vue";
-// import { useToast } from "primevue/usetoast";
-// import { useRouter } from "vue-router";
+import { useToast } from "primevue/usetoast";
+import { useRouter } from "vue-router";
 import Textarea from "primevue/textarea";
 import AutoComplete from "primevue/autocomplete";
 import InputNumber from "primevue/inputnumber";
@@ -216,14 +225,14 @@ import type { Subtopic } from "@/models/subtopic";
 
 import { CrudContext } from "@/enums/crudContext";
 import ContentEditor from "../shared/selects/ContentEditor.vue";
-import type { AddQuestionData } from "@/interfaces/questions/addQuestionData";
 import type { QuestionSubmission } from "@/interfaces/questions/questionSubmission";
-import type { QuestionStatus } from "@/enums/questions/questionStatus";
+import { QuestionStatus } from "@/enums/questions/questionStatus";
 
 // Access the store
-// const questionStore = useQuestionStore();
-// const toast = useToast();
-// const router = useRouter();
+const questionStore = useQuestionStore();
+const toast = useToast();
+const router = useRouter();
+type QuestionSaveStatus = "idle" | "savingDraft" | "publishing";
 
 onMounted(() => {
   v$.value.$touch();
@@ -233,7 +242,7 @@ onMounted(() => {
   if (savedFormData) {
     formData.value = JSON.parse(savedFormData);
 
-    //load the saved answer content editor text
+    //load the saved answer in content editor
     contentEditorRef.value?.loadDefaultContent(formData.value.answerHtml);
   }
 
@@ -244,6 +253,8 @@ onMounted(() => {
 
 //check if the curriculums or subjects for the dropdowns are being loaded
 const isLoadingSelectionData = ref(false);
+//whether the question is being published or saved as a draft
+const saveStatus: Ref<QuestionSaveStatus> = ref("idle");
 // Key used to store and retrieve the in-progress question draft from localStorage
 const localStorageKey = "newQuestion";
 const curriculumSelectRef = ref();
@@ -252,7 +263,7 @@ const invalidFormMessage = ref(
 );
 const answerHelperMessage =
   "You can add an answer if you know it. This helps you quickly revise both the question and its solution later and also lets others see different ways of answering the same question.";
-const isSavingQuestion = ref(false);
+
 //ref for the rich text editor
 const contentEditorRef = ref();
 
@@ -300,28 +311,51 @@ const rules = {
 const v$ = useVuelidate(rules, formData);
 //form validation end
 
-//Change the question status to `Draft` if user has clicked the "Save" button
-const saveQuestionAsDraft = async () => {
-  isSavingQuestion.value = true;
-  //change the status to Draft
-  //question.value.status = QuestionStatus.Draft;
-  //then submit the question
-  await submitQuestion();
+const saveQuestionAsDraft = () => {
+  saveStatus.value = "savingDraft";
+  submit(QuestionStatus.Draft);
 };
-
-//Change the question status to `Published` if user has clicked the "Publish" button
-const publishQuestion = async () => {
-  isSavingQuestion.value = true;
-  //change the status to Published
-  //question.value.status = QuestionStatus.Draft;
-  //then submit the question
-  await submitQuestion();
+const publishQuestion = () => {
+  saveStatus.value = "publishing";
+  submit(QuestionStatus.Published);
 };
 
 //Submit question
-const submit = async () => {
+const submit = async (status: QuestionStatus) => {
+  const submissionData = await prepareQuestionSubmission(status);
+  if (!submissionData) return;
 
+  questionStore
+    .addQuestion(submissionData)
+    .then(() => {
+      const message =
+        saveStatus.value == "publishing"
+          ? "Your question has been published successfully."
+          : "Your question has been saved as a draft.";
+      const summary = saveStatus.value == "publishing" ? "Question Published" : "Draft Saved";
 
+      toast.add({
+        severity: "success",
+        summary: summary,
+        detail: message,
+        life: 5000,
+      });
+      // remove any question form data saved in local storage
+      // since the question has been successfully saved to the database
+      localStorage.removeItem(localStorageKey);
+      router.push("/");
+    })
+    .catch((message) => {
+      toast.add({
+        severity: "error",
+        summary: "Question Submission Failed",
+        detail: message,
+        life: 10000,
+      });
+    })
+    .finally(() => {
+      saveStatus.value = "idle";
+    });
 };
 
 /**
@@ -358,7 +392,7 @@ const prepareQuestionSubmission = async (
     subjectId,
     topicId,
     subtopicId,
-    tags: tags.map((tag) => tag.name),
+    tags,
     status,
   };
 
@@ -384,10 +418,4 @@ watch(
 );
 </script>
 
-<style scoped lang="scss">
-@media (min-width: 768px) {
-  .register-form {
-    max-width: 30rem;
-  }
-}
-</style>
+<style scoped lang="scss"></style>

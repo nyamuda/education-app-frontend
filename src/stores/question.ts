@@ -6,6 +6,7 @@ import { UrlHelper } from "@/helpers/urlHelper";
 import { ErrorResponse } from "@/models/errorResponse";
 import type { PageInfo } from "@/models/pageInfo";
 import { QuestionSortOption } from "@/enums/questions/questionSortOption";
+import type { QuestionSubmission } from "@/interfaces/questions/questionSubmission";
 
 export const useQuestionStore = defineStore("question", () => {
   const apiUrl = ref(`${UrlHelper.apiUrl}/questions`);
@@ -56,15 +57,16 @@ export const useQuestionStore = defineStore("question", () => {
   };
 
   //Creates a new question
-  const addQuestion = (details: { name: string }) => {
+  const addQuestion = (submissionData: QuestionSubmission) => {
     return new Promise((resolve, reject) => {
       //add access token to the request
       //to access the protected route
       setAuthToken();
       axios
-        .post(`${apiUrl.value}`, details)
+        .post(`${apiUrl.value}`, submissionData)
         .then(() => resolve("Question added successfully."))
         .catch((err) => {
+          console.log(err);
           const message = err.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
