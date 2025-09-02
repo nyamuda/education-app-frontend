@@ -6,6 +6,7 @@ import { UrlHelper } from "@/helpers/urlHelper";
 import { ErrorResponse } from "@/models/errorResponse";
 import type { PageInfo } from "@/models/pageInfo";
 import type { AnswerQueryParams } from "@/interfaces/answers/answerQueryParams";
+import type { AnswerSubmission } from "@/interfaces/answers/answerSubmission";
 
 export const useAnswerStore = defineStore("answer", () => {
   const apiUrl = ref(`${UrlHelper.apiUrl}/answers`);
@@ -75,14 +76,14 @@ export const useAnswerStore = defineStore("answer", () => {
   };
 
   //Creates a new answer
-  const addAnswer = (details: { contentText: string; contextHtml: string; questionId: number }) => {
+  const addAnswer = (payload: AnswerSubmission) => {
     return new Promise((resolve, reject) => {
       //add access token to the request
       //to access the protected route
       setAuthToken();
-const {}
+      const { contentHtml, contentText, questionId } = payload;
       axios
-        .post(`${apiUrl.value}`, details)
+        .post(`${UrlHelper.apiUrl}/questions/${questionId}`, { contentHtml, contentText })
         .then(() => resolve("Answer added successfully."))
         .catch((err) => {
           const message = err.response?.data?.message || ErrorResponse.Unexpected();
