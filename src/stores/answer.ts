@@ -93,13 +93,14 @@ export const useAnswerStore = defineStore("answer", () => {
   };
 
   //Updates a answer with a given ID
-  const updateAnswer = (id: number, details: { name: string; questionId: number }) => {
+  const updateAnswer = (answerId: number, payload: AnswerSubmission) => {
     return new Promise((resolve, reject) => {
       //add access token to the request
       //to access the protected route
       setAuthToken();
+      const { contentHtml, contentText } = payload;
       axios
-        .put(`${apiUrl.value}/${id}`, details)
+        .put(`${apiUrl.value}/${answerId}`, { contentHtml, contentText })
         .then(() => resolve({}))
         .catch((err) => {
           const message = err.response.data?.message || ErrorResponse.Unexpected();

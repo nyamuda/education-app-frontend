@@ -284,10 +284,12 @@ import { CrudContext } from "@/enums/crudContext";
 import ContentEditor from "../shared/selects/ContentEditor.vue";
 import type { QuestionSubmission } from "@/interfaces/questions/questionSubmission";
 import { QuestionStatus } from "@/enums/questions/questionStatus";
+import { useAnswerStore } from "@/stores/answer";
+import type { AnswerSubmission } from "@/interfaces/answers/answerSubmission";
 type QuestionSaveStatus = "idle" | "saving" | "publishing" | "autoSaving";
 
 const questionStore = useQuestionStore();
-const answerStore =useAnswer
+const answerStore = useAnswerStore();
 const toast = useToast();
 const router = useRouter();
 const question: Ref<Question | null> = ref();
@@ -474,10 +476,42 @@ const submitQuestion = async (status: QuestionStatus | null = null) => {
     });
 };
 
+//Update an answer if it exists
 const submitAnswer = () => {
-  if (!question.value || !question.value?.authorAnswer) return;
+  if (
+    question.value &&
+    !question.value?.authorAnswer &&
+    formData.value.answerHtml &&
+    formData.value.answerText
+  ) {
+    const payload: AnswerSubmission = {
+      questionId: question.value.id,
+      contentHtml: formData.value.answerHtml,
+      contentText: formData.value.answerText,
+    };
 
+    answerStore
+      .addAnswer(payload)
+      .then()
+      .catch((message) => {
+        toast.add({
+          severity: "error",
+          summary: "Answer Submission Failed",
+          detail: message,
+          life: 10000,
+        });
+      });
 
+    return;
+  }
+  if (
+    question.value &&
+    question.value?.authorAnswer &&
+    formData.value.answerHtml &&
+    formData.value.answerText
+  ) {
+
+  }
 };
 
 /**
