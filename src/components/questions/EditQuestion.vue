@@ -5,8 +5,8 @@
     <div class="row mb-2">
       <div class="col-md-6">
         <p>
-          Feel free to continue working on your question post. Changes will be saved automatically as
-          you go. If the post is already published, any updates you make will be visible on your
+          Feel free to continue working on your question post. Changes will be saved automatically
+          as you go. If the post is already published, any updates you make will be visible on your
           public question right away. You can also choose to save manually whenever needed.
         </p>
       </div>
@@ -287,6 +287,7 @@ import { QuestionStatus } from "@/enums/questions/questionStatus";
 type QuestionSaveStatus = "idle" | "saving" | "publishing" | "autoSaving";
 
 const questionStore = useQuestionStore();
+const answerStore =useAnswer
 const toast = useToast();
 const router = useRouter();
 const question: Ref<Question | null> = ref();
@@ -429,7 +430,6 @@ const getQuestionById = (id: number) => {
     .finally(() => (isLoadingQuestion.value = false));
 };
 
-
 const publishQuestion = () => {
   saveStatus.value = "publishing";
 
@@ -475,8 +475,10 @@ const submitQuestion = async (status: QuestionStatus | null = null) => {
 };
 
 const submitAnswer = () => {
-if(!question.value || question.value?.a)
-}
+  if (!question.value || !question.value?.authorAnswer) return;
+
+
+};
 
 /**
  * Prepares and returns the question submission data after validating the form.
