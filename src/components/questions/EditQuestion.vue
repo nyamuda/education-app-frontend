@@ -286,13 +286,14 @@ import type { QuestionSubmission } from "@/interfaces/questions/questionSubmissi
 import { QuestionStatus } from "@/enums/questions/questionStatus";
 import { useAnswerStore } from "@/stores/answer";
 import type { AnswerSubmission } from "@/interfaces/answers/answerSubmission";
+import type { Question } from "@/models/question";
 type QuestionSaveStatus = "idle" | "saving" | "publishing" | "autoSaving";
 
 const questionStore = useQuestionStore();
 const answerStore = useAnswerStore();
 const toast = useToast();
 const router = useRouter();
-const question: Ref<Question | null> = ref();
+const question: Ref<Question | null> = ref(null);
 
 onMounted(() => {
   v$.value.$touch();
@@ -309,10 +310,21 @@ onMounted(() => {
   // Load curriculums (with exam boards, levels, subjects, topics and subtopics)
   // so the user can select from the dropdown.
   curriculumSelectRef.value.getAllCurriculums(formData.value.levelId);
+
+  //get the question ID from the url
+  try {
+    const id = router.currentRoute.value.params["id"];
+    if (!id) return;
+    questionId.value = Number(id);
+
+    getQuestionById(questionId.value);
+  } catch {}
 });
 
 //check if the curriculums or subjects for the dropdowns are being loaded
 const isLoadingSelectionData = ref(false);
+const questionId: Ref<number | null> = ref(null);
+const isLoadingQuestion = ref(false);
 //whether the question is being published or saved as a draft
 const saveStatus: Ref<QuestionSaveStatus> = ref("idle");
 // Key used to store and retrieve the in-progress question draft from localStorage
@@ -332,10 +344,6 @@ const contentEditorRef = ref();
 // This is used to enable or disable the "Save Changes" button and prevent unnecessary saves.
 const hasUnsavedChanges = ref(false);
 
-// Tracks whether the question was saved automatically (via auto-save) or manually by the user.
-// This is used to decide whether a toast notification should be shown.
-// If the question was saved automatically, no toast is displayed.
-const isAutoSaved = ref(true);
 // Controls whether autosave is enabled
 const isAutoSaveEnabled = ref(true);
 
@@ -417,8 +425,6 @@ const getQuestionById = (id: number) => {
     .then((data) => {
       isInitialLoad.value = true;
       question.value = data;
-      //initialize the content paragraphs
-      paragraphListEditorRef.value?.initializeParagraphs(data.content);
     })
     .catch((message) => {
       // Show error toast if the question fetching fails
@@ -440,7 +446,11 @@ const publishQuestion = () => {
 
 //Submit question
 const submitQuestion = async (status: QuestionStatus | null = null) => {
-  const submissionData = await prepareQuestionSubmission(status);
+  // Validate the entire form
+  const isValid = await v$.value.$validate();
+  if (!isValid) return null;
+
+  const submissionData = prepareQuestionSubmission(status);
   if (!submissionData) return;
 
   questionStore
@@ -476,8 +486,10 @@ const submitQuestion = async (status: QuestionStatus | null = null) => {
     });
 };
 
-//Update an answer if it exists
+//Create or update an answer
 const submitAnswer = () => {
+  //if the author of the question hasn't provided an answer yet
+  //create a new answer if they added one when editing the question
   if (
     question.value &&
     !question.value?.authorAnswer &&
@@ -504,56 +516,36 @@ const submitAnswer = () => {
 
     return;
   }
+
+  //if the user has already created an answer
+  //update the answer
   if (
     question.value &&
     question.value?.authorAnswer &&
     formData.value.answerHtml &&
     formData.value.answerText
   ) {
-
+    const answerId = question.value.authorAnswer.id;
+    const payload: AnswerSubmission = {
+      questionId: question.value.id,
+      contentHtml: formData.value.answerHtml,
+      contentText: formData.value.answerText,
+    };
+    answerStore
+      .updateAnswer(answerId, payload)
+      .then()
+      .catch((message) => {
+        toast.add({
+          severity: "error",
+          summary: "Answer Submission Failed",
+          detail: message,
+          life: 10000,
+        });
+      });
   }
 };
 
-/**
- * Prepares and returns the question submission data after validating the form.
- *
- * @returns The prepared question data, or null if validation fails.
- */
-const prepareQuestionSubmission = async (
-  status: QuestionStatus | null,
-): Promise<QuestionSubmission | null> => {
-  // Validate the entire form
-  const isValid = await v$.value.$validate();
-  if (!isValid) return null;
 
-  const {
-    title,
-    questionText,
-    answerText,
-    answerHtml,
-    marks,
-    subjectId,
-    topicId,
-    subtopicId,
-    tags,
-  } = formData.value;
-
-  // Build the QuestionSubmission object
-  const submissionData: QuestionSubmission = {
-    title,
-    questionText,
-    answerHtml,
-    answerText,
-    marks,
-    subjectId,
-    topicId,
-    subtopicId,
-    tags,
-    status: status ? status : question.value.status,
-  };
-
-  return submissionData;
-};
 
 /**
  * Watches the question form data and saves it to localStorage whenever it changes.

@@ -10,5 +10,4 @@ export interface QuestionSubmission {
   subtopicId: number | null;
   tags: string[];
   marks: number | null;
-  status: QuestionStatus;
 }
