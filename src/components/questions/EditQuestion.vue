@@ -444,7 +444,7 @@ const getQuestionById = (id: number) => {
 /**
  * Publishes the question by first saving any unsaved changes
  * and then updating its status to "Published".
- * This ensures the latest version of the question is made public.
+ * This makes sure the latest version of the question is made public.
  */
 const publishQuestion = async () => {
   try {
@@ -454,7 +454,7 @@ const publishQuestion = async () => {
 
     saveStatus.value = "publishing";
 
-    //first, save any changes that were made
+    //save any changes that were made
     await saveChanges();
     //then publish the question
     await questionStore.updateQuestionStatus(questionId.value, QuestionStatus.Published);
@@ -472,16 +472,42 @@ const publishQuestion = async () => {
       detail: "We couldn’t publish your question. Please try again.",
       life: 8000,
     });
+  } finally {
+    saveStatus.value = "idle";
   }
 };
+
+/**
+ * Saves the current updates to an existing question when the user manually clicks
+ * the "Save Changes" button.
+ */
 const submitQuestion = async () => {
   try {
-    const message =
-      saveStatus.value == "publishing"
-        ? "Your question has been published successfully."
-        : "Your question has been saved as a draft.";
-    const summary = saveStatus.value == "publishing" ? "Question Published" : "Draft Saved";
-  } catch {}
+    // Validate the entire form
+    const isValid = await v$.value.$validate();
+    if (!isValid || !questionId.value) return null;
+
+    saveStatus.value = "saving";
+
+    //save changes
+    await saveChanges();
+
+    toast.add({
+      severity: "success",
+      summary: "Changes Saved",
+      detail: "Your question has been updated successfully.",
+      life: 5000,
+    });
+  } catch {
+    toast.add({
+      severity: "error",
+      summary: "Save Failed",
+      detail: "We couldn’t save your changes. Please try again.",
+      life: 8000,
+    });
+  } finally {
+    saveStatus.value = "idle";
+  }
 };
 
 //Save any changes made
