@@ -38,4 +38,39 @@ export class QuestionHelper {
 
     return submissionData;
   };
+
+  /**
+   * Converts a `Question` object (from the backend) into `QuestionFormData`.
+   * This is used to populate the form when editing an existing question.
+   *
+   * @param question The backend-provided `Question` object.
+   * @returns A `QuestionFormData` object for use in the form.
+   */
+  public static prepareQuestionForm = (question: Question): QuestionFormData => {
+    const {
+      title,
+      questionText,
+      answerHtml,
+      answerText,
+      marks,
+      subjectId,
+      topicId,
+      subtopicId,
+      tags,
+    } = question;
+
+    const formData: QuestionFormData = {
+      title,
+      questionText,
+      answerHtml,
+      answerText,
+      marks,
+      subjectId,
+      topicId,
+      subtopicId,
+      tags,
+    };
+
+    return formData;
+  };
 }

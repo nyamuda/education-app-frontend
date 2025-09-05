@@ -225,7 +225,6 @@ import type { Subtopic } from "@/models/subtopic";
 
 import { CrudContext } from "@/enums/crudContext";
 import ContentEditor from "../shared/selects/ContentEditor.vue";
-import type { QuestionSubmission } from "@/interfaces/questions/questionSubmission";
 import { QuestionStatus } from "@/enums/questions/questionStatus";
 import { QuestionHelper } from "@/helpers/questionHelper";
 
@@ -265,7 +264,7 @@ const invalidFormMessage = ref(
 const answerHelperMessage =
   "You can add an answer if you know it. This helps you quickly revise both the question and its solution later and also lets others see different ways of answering the same question.";
 
-//ref for the rich text editor
+//ref for the rich text editor for the answer field
 const contentEditorRef = ref();
 
 //form validation start
@@ -312,11 +311,6 @@ const rules = {
 const v$ = useVuelidate(rules, formData);
 //form validation end
 
-const saveQuestionAsDraft = () => {
-  saveStatus.value = "savingDraft";
-  submit(QuestionStatus.Draft);
-};
-
 /**
  * Publishes a question by first creating it
  * and then updating its status to "Published".
@@ -334,6 +328,11 @@ const publishQuestion = async () => {
     const newlyCreatedQuestion = await questionStore.addQuestion(submissionData);
     //then change its status to published
     await questionStore.updateQuestionStatus(newlyCreatedQuestion.id, QuestionStatus.Published);
+
+    // remove any question form data saved in local storage
+    // since the question has been successfully saved to the database
+    localStorage.removeItem(localStorageKey);
+    router.push(`/questions/${newlyCreatedQuestion.id}/edit`);
 
     toast.add({
       severity: "success",
@@ -353,46 +352,40 @@ const publishQuestion = async () => {
   }
 };
 
-//Creates a new question
-const submitQuestion = async (): Promise => {
-  // Validate the entire form
-  const isValid = await v$.value.$validate();
-  if (!isValid) return;
+/**
+ * Creates a new question as a draft (the default status)
+ */
+const saveQuestionAsDraft = async () => {
+  try {
+    // Validate the entire form
+    const isValid = await v$.value.$validate();
+    if (!isValid) return;
+    //Prepare question data for submission to the the backend
+    const submissionData = QuestionHelper.prepareQuestionSubmission(formData.value);
+    saveStatus.value = "savingDraft";
+    //submit the new question to the backend
+    const newlyCreatedQuestion = await questionStore.addQuestion(submissionData);
+    // remove any question form data saved in local storage
+    // since the question has been successfully saved to the database
+    localStorage.removeItem(localStorageKey);
+    router.push(`/questions/${newlyCreatedQuestion.id}/edit`);
 
-  //Prepare question data for submission to the the backend
-  const submissionData = QuestionHelper.prepareQuestionSubmission(formData.value);
-
-  questionStore
-    .addQuestion(submissionData)
-    .then(() => {
-      const message =
-        saveStatus.value == "publishing"
-          ? "Your question has been published successfully."
-          : "Your question has been saved as a draft.";
-      const summary = saveStatus.value == "publishing" ? "Question Published" : "Draft Saved";
-
-      toast.add({
-        severity: "success",
-        summary: summary,
-        detail: message,
-        life: 5000,
-      });
-      // remove any question form data saved in local storage
-      // since the question has been successfully saved to the database
-      localStorage.removeItem(localStorageKey);
-      router.push("/");
-    })
-    .catch((message) => {
-      toast.add({
-        severity: "error",
-        summary: "Question Submission Failed",
-        detail: message,
-        life: 10000,
-      });
-    })
-    .finally(() => {
-      saveStatus.value = "idle";
+    toast.add({
+      severity: "success",
+      summary: "Draft Saved",
+      detail: "Your question has been saved as a draft.",
+      life: 5000,
     });
+  } catch {
+    toast.add({
+      severity: "error",
+      summary: "Question Submission Failed",
+      detail: "We couldn’t submit your question. Please try again.",
+      life: 8000,
+    });
+  } finally {
+    saveStatus.value = "idle";
+  }
 };
 
 /**

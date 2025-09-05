@@ -320,6 +320,7 @@ onMounted(() => {
   //get the question ID from the url
   try {
     const id = router.currentRoute.value.params["id"];
+
     if (!id) return;
     questionId.value = Number(id);
     //fetch the question with the provided ID from the backend
@@ -344,7 +345,7 @@ const invalidFormMessage = ref(
 const answerHelperMessage =
   "You can add an answer if you know it. This helps you quickly revise both the question and its solution later and also lets others see different ways of answering the same question.";
 
-//ref for the rich text editor
+//ref for the rich text editor for the answer field
 const contentEditorRef = ref();
 
 // Tracks whether the user has made any changes to the question since the last save.
@@ -610,17 +611,10 @@ const toggleAutoSave = () => {
   if (!isAutoSaveEnabled.value) debouncedSaveQuestionChanges.cancel();
 };
 
-/**
- * Watches the question form data and saves it to localStorage whenever it changes.
- *
- * This helps prevent accidental data loss if the user navigates away or reloads the page
- * before submitting the question.
- */
-
 // Watcher that observes any deep changes to the question formData object.
 // Purpose:
-// - To automatically save changes the user makes while editing a blog.
-// - After any change is detected, the debounced submitBlog function is triggered.
+// - To automatically save changes the user makes while editing a question.
+// - After any change is detected, the debounced saveQuestionChanges function is triggered.
 // - This avoids excessive saves and only calls the save function after 10 seconds of inactivity.
 watch(
   formData,
