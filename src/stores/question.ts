@@ -7,6 +7,7 @@ import { ErrorResponse } from "@/models/errorResponse";
 import type { PageInfo } from "@/models/pageInfo";
 import { QuestionSortOption } from "@/enums/questions/questionSortOption";
 import type { QuestionSubmission } from "@/interfaces/questions/questionSubmission";
+import type { QuestionStatus } from "@/enums/questions/questionStatus";
 
 export const useQuestionStore = defineStore("question", () => {
   const apiUrl = ref(`${UrlHelper.apiUrl}/questions`);
@@ -66,7 +67,22 @@ export const useQuestionStore = defineStore("question", () => {
         .post(`${apiUrl.value}`, submissionData)
         .then(() => resolve("Question added successfully."))
         .catch((err) => {
-          console.log(err);
+          const message = err.response?.data?.message || ErrorResponse.Unexpected();
+          reject(message);
+        });
+    });
+  };
+
+  // Updates the status of an existing question.
+  const changeQuestionStatus = (questionId: number, status: QuestionStatus) => {
+    return new Promise((resolve, reject) => {
+      //add access token to the request
+      //to access the protected route
+      setAuthToken();
+      axios
+        .patch(`${apiUrl.value}/${questionId}/status`, { status })
+        .then(() => resolve({}))
+        .catch((err) => {
           const message = err.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
