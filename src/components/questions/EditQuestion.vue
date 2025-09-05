@@ -19,7 +19,7 @@
     </div>
     <!-- Buttons start-->
     <div v-else>
-      <div v-if="!isPlaceholderQuestion" class="d-flex flex-column align-items-end mb-5 gap-3">
+      <div v-if="question != null" class="d-flex flex-column align-items-end mb-5 gap-3">
         <div class="d-flex justify-content-end gap-3 align-items-center flex-wrap">
           <!-- Form error message -->
           <Message
@@ -34,7 +34,7 @@
           <Button
             v-else
             :icon="
-              isPublishingQuestion || isSavingQuestion
+              saveStatus == 'publishing' || saveStatus == 'saving' || saveStatus == 'autoSaving'
                 ? 'pi pi-spin pi-spinner-dotted'
                 : !hasUnsavedChanges && !isInitialLoad
                   ? 'pi pi pi-check-circle'
@@ -43,9 +43,9 @@
                     : 'pi pi-pencil'
             "
             :label="
-              isSavingQuestion
+              saveStatus == 'saving' || saveStatus == 'autoSaving'
                 ? 'Saving changes...'
-                : isPublishingQuestion
+                : saveStatus == 'publishing'
                   ? 'Publishing question...'
                   : !hasUnsavedChanges && !isInitialLoad
                     ? 'Last saved ' + dayjs.utc(question.updatedAt).local().fromNow()
@@ -54,14 +54,14 @@
                       : 'No changes yet'
             "
             severity="contrast"
-            @click="saveQuestion"
+            @click="() => saveQuestionChanges"
             size="small"
             :disabled="
-              isPublishingQuestion ||
-              isDeletingQuestion ||
-              isSavingQuestion ||
+              saveStatus == 'publishing' ||
+              deletingQuestion.inProgress ||
+              saveStatus == 'saving' ||
+              saveStatus == 'autoSaving' ||
               v$.$errors.length > 0 ||
-              hasInvalidSubForms ||
               !hasUnsavedChanges
             "
             :variant="!hasUnsavedChanges && !isInitialLoad ? 'text' : ''"
@@ -74,9 +74,14 @@
           >
             AutoSave
             <ToggleSwitch
-              @value-change="onChangeAutoSave"
+              @value-change="toggleAutoSave"
               :modelValue="isAutoSaveEnabled"
-              :disabled="isPublishingQuestion || isSavingQuestion || isDeletingQuestion"
+              :disabled="
+                saveStatus == 'publishing' ||
+                saveStatus == 'autoSaving' ||
+                saveStatus == 'saving' ||
+                deletingQuestion.inProgress
+              "
             >
             </ToggleSwitch>
           </div>
@@ -89,11 +94,11 @@
             label="Publish question"
             size="small"
             :disabled="
-              isPublishingQuestion ||
-              isSavingQuestion ||
+              saveStatus == 'publishing' ||
+              saveStatus == 'autoSaving' ||
+              saveStatus == 'saving' ||
               v$.$errors.length > 0 ||
-              hasInvalidSubForms ||
-              isDeletingQuestion ||
+              deletingQuestion.inProgress ||
               hasUnsavedChanges
             "
           />
@@ -257,7 +262,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch, type Ref } from "vue";
+import { computed, onMounted, ref, watch, type Ref } from "vue";
 import { useQuestionStore } from "@/stores/question";
 import { useVuelidate } from "@vuelidate/core";
 import { required, helpers } from "@vuelidate/validators";
@@ -282,20 +287,25 @@ import type { Subtopic } from "@/models/subtopic";
 import debounce from "lodash.debounce";
 import { CrudContext } from "@/enums/crudContext";
 import ContentEditor from "../shared/selects/ContentEditor.vue";
-import type { QuestionSubmission } from "@/interfaces/questions/questionSubmission";
 import { QuestionStatus } from "@/enums/questions/questionStatus";
 import { useAnswerStore } from "@/stores/answer";
 import type { AnswerSubmission } from "@/interfaces/answers/answerSubmission";
-import type { Question } from "@/models/question";
+import { Question } from "@/models/question";
 import { QuestionHelper } from "@/helpers/questionHelper";
 import { DeletionState } from "@/models/deletionState";
+import dayjs from "dayjs";
+import ProgressBar from "primevue/progressbar";
+import ToggleSwitch from "primevue/toggleswitch";
 type QuestionSaveStatus = "idle" | "saving" | "publishing" | "autoSaving";
 
 const questionStore = useQuestionStore();
 const answerStore = useAnswerStore();
 const toast = useToast();
 const router = useRouter();
-const question: Ref<Question | null> = ref(null);
+const question: Ref<Question | null> = ref(new Question());
+// Determines if the question available is a placeholder, typically used
+// when no valid question was loaded indicating failed fetch
+const isPlaceholderQuestion = computed(() => question.value?.id === 0);
 
 onMounted(() => {
   v$.value.$touch();
@@ -328,6 +338,8 @@ const isLoadingSelectionData = ref(false);
 const questionId: Ref<number | null> = ref(null);
 const isLoadingQuestion = ref(false);
 const deletingQuestion = ref(new DeletionState());
+// Whether to show the loading spinner (e.g. during autosave or fetch)
+const displayLoadingSpinner = ref(true);
 //whether the question is being published, auto saved etc
 const saveStatus: Ref<QuestionSaveStatus> = ref("idle");
 const localStorageAutoSaveKey = ref("isQuestionAutoSaveEnabled");
@@ -412,6 +424,33 @@ const getQuestionById = (id: number) => {
     .finally(() => (isLoadingQuestion.value = false));
 };
 
+//Deletes a question with a given ID
+const deleteQuestion = (id: number | null) => {
+  if (!id) return;
+  deletingQuestion.value.id = id;
+  deletingQuestion.value.inProgress = true;
+  questionStore
+    .deleteQuestion(id)
+    .then(() => {
+      toast.add({
+        severity: "success",
+        summary: "Done",
+        detail: "The question was successfully deleted.",
+        life: 5000,
+      });
+      router.push("/");
+    })
+    .catch((message) => {
+      toast.add({
+        severity: "error",
+        summary: "Delete Failed",
+        detail: message,
+        life: 10000,
+      });
+    })
+    .finally(() => (deletingQuestion.value = new DeletionState()));
+};
+
 /**
  * Publishes the question by first saving any unsaved changes
  * and then updating its status to "Published".
@@ -480,6 +519,14 @@ const saveQuestionChanges = async (displayToastOnSave: boolean = true) => {
     }
     //changes have be successfully saved
     hasUnsavedChanges.value = false;
+
+    // Silently refetch the updated question immediately after saving to ensure that:
+    // - Newly created content (e.g., an answer) receives its actual database ID
+    // - (instead of temporary string IDs used on the frontend), which is essential for accurate deletion or editing
+    // - Data consistency between frontend and backend is maintained
+    // Note: No loading spinner is shown — this is a background fetch invisible to the user
+    displayLoadingSpinner.value = false;
+    getQuestionById(question.value!.id);
   } catch {
     toast.add({
       severity: "error",
