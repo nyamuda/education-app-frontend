@@ -103,14 +103,19 @@
             "
           />
           <!-- Delete question button -->
-          <ConfirmDeleteButton
+          <DeleteDialog
             title="Delete Question"
             buttonLabel="Delete question"
             message="Are you sure you want to delete this question?"
             :delete-callback="deleteQuestion"
             button-accept-label="Yes, delete it"
-            :is-deleting="isDeletingQuestion"
-            :isDisabled="isPublishingQuestion || isSavingQuestion"
+            :is-deleting="deletingQuestion.inProgress"
+            :isDisabled="
+              saveStatus == 'publishing' ||
+              saveStatus == 'autoSaving' ||
+              saveStatus == 'saving' ||
+              deletingQuestion.inProgress
+            "
           />
         </div>
       </div>
@@ -262,7 +267,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch, type Ref } from "vue";
+import { onMounted, ref, watch, type Ref } from "vue";
 import { useQuestionStore } from "@/stores/question";
 import { useVuelidate } from "@vuelidate/core";
 import { required, helpers } from "@vuelidate/validators";
@@ -296,6 +301,7 @@ import { DeletionState } from "@/models/deletionState";
 import dayjs from "dayjs";
 import ProgressBar from "primevue/progressbar";
 import ToggleSwitch from "primevue/toggleswitch";
+import DeleteDialog from "../shared/DeleteDialog.vue";
 type QuestionSaveStatus = "idle" | "saving" | "publishing" | "autoSaving";
 
 const questionStore = useQuestionStore();
@@ -303,21 +309,9 @@ const answerStore = useAnswerStore();
 const toast = useToast();
 const router = useRouter();
 const question: Ref<Question | null> = ref(new Question());
-// Determines if the question available is a placeholder, typically used
-// when no valid question was loaded indicating failed fetch
-const isPlaceholderQuestion = computed(() => question.value?.id === 0);
 
 onMounted(() => {
   v$.value.$touch();
-
-  // Load the saved question form data draft from localStorage (if it exists),
-  const savedFormData = localStorage.getItem(localStorageKey);
-  if (savedFormData) {
-    formData.value = JSON.parse(savedFormData);
-
-    //load the saved answer in content editor
-    contentEditorRef.value?.loadDefaultContent(formData.value.answerHtml);
-  }
 
   // Load curriculums (with exam boards, levels, subjects, topics and subtopics)
   // so the user can select from the dropdown.
@@ -328,7 +322,7 @@ onMounted(() => {
     const id = router.currentRoute.value.params["id"];
     if (!id) return;
     questionId.value = Number(id);
-
+    //fetch the question with the provided ID from the backend
     getQuestionById(questionId.value);
   } catch {}
 });

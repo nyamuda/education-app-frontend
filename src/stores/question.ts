@@ -58,14 +58,15 @@ export const useQuestionStore = defineStore("question", () => {
   };
 
   //Creates a new question
-  const addQuestion = (submissionData: QuestionSubmission) => {
+  //Returns the newly created question
+  const addQuestion = (submissionData: QuestionSubmission): Promise<Question> => {
     return new Promise((resolve, reject) => {
       //add access token to the request
       //to access the protected route
       setAuthToken();
       axios
         .post(`${apiUrl.value}`, submissionData)
-        .then(() => resolve("Question added successfully."))
+        .then((response) => resolve(response.data))
         .catch((err) => {
           const message = err.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);

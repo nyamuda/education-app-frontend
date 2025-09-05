@@ -227,6 +227,7 @@ import { CrudContext } from "@/enums/crudContext";
 import ContentEditor from "../shared/selects/ContentEditor.vue";
 import type { QuestionSubmission } from "@/interfaces/questions/questionSubmission";
 import { QuestionStatus } from "@/enums/questions/questionStatus";
+import { QuestionHelper } from "@/helpers/questionHelper";
 
 // Access the store
 const questionStore = useQuestionStore();
@@ -315,15 +316,45 @@ const saveQuestionAsDraft = () => {
   saveStatus.value = "savingDraft";
   submit(QuestionStatus.Draft);
 };
-const publishQuestion = () => {
-  saveStatus.value = "publishing";
-  submit(QuestionStatus.Published);
+
+/**
+ * Publishes a question by first creating it
+ * and then updating its status to "Published".
+ */
+const publishQuestion = async () => {
+  try {
+    saveStatus.value = "publishing";
+    //fist, submit the question
+    await submitQuestion();
+    //then change its status to published
+    await questionStore.updateQuestionStatus(questionId.value, QuestionStatus.Published);
+
+    toast.add({
+      severity: "success",
+      summary: "Question Published",
+      detail: "Your question has been published successfully.",
+      life: 5000,
+    });
+  } catch {
+    toast.add({
+      severity: "error",
+      summary: "Publish Failed",
+      detail: "We couldn’t publish your question. Please try again.",
+      life: 8000,
+    });
+  } finally {
+    saveStatus.value = "idle";
+  }
 };
 
-//Submit question
-const submit = async (status: QuestionStatus) => {
-  const submissionData = await prepareQuestionSubmission(status);
-  if (!submissionData) return;
+//Creates a new question
+const submitQuestion = async ():Promise => {
+  // Validate the entire form
+  const isValid = await v$.value.$validate();
+  if (!isValid) return;
+
+  //Prepare question data for submission to the the backend
+  const submissionData = QuestionHelper.prepareQuestionSubmission(formData.value);
 
   questionStore
     .addQuestion(submissionData)
@@ -356,47 +387,6 @@ const submit = async (status: QuestionStatus) => {
     .finally(() => {
       saveStatus.value = "idle";
     });
-};
-
-/**
- * Prepares and returns the question submission data after validating the form.
- *
- * @returns The prepared question data, or null if validation fails.
- */
-const prepareQuestionSubmission = async (
-  status: QuestionStatus,
-): Promise<QuestionSubmission | null> => {
-  // Validate the entire form
-  const isValid = await v$.value.$validate();
-  if (!isValid) return null;
-
-  const {
-    title,
-    questionText,
-    answerText,
-    answerHtml,
-    marks,
-    subjectId,
-    topicId,
-    subtopicId,
-    tags,
-  } = formData.value;
-
-  // Build the QuestionSubmission object
-  const submissionData: QuestionSubmission = {
-    title,
-    questionText,
-    answerHtml,
-    answerText,
-    marks,
-    subjectId,
-    topicId,
-    subtopicId,
-    tags,
-    status,
-  };
-
-  return submissionData;
 };
 
 /**
