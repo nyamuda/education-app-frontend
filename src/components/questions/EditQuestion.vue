@@ -288,6 +288,7 @@ import { useAnswerStore } from "@/stores/answer";
 import type { AnswerSubmission } from "@/interfaces/answers/answerSubmission";
 import type { Question } from "@/models/question";
 import { QuestionHelper } from "@/helpers/questionHelper";
+import { DeletionState } from "@/models/deletionState";
 type QuestionSaveStatus = "idle" | "saving" | "publishing" | "autoSaving";
 
 const questionStore = useQuestionStore();
@@ -326,12 +327,9 @@ onMounted(() => {
 const isLoadingSelectionData = ref(false);
 const questionId: Ref<number | null> = ref(null);
 const isLoadingQuestion = ref(false);
-//whether the question is being published or saved as a draft
+const deletingQuestion = ref(new DeletionState());
+//whether the question is being published, auto saved etc
 const saveStatus: Ref<QuestionSaveStatus> = ref("idle");
-// Controls whether a toast notification is shown after saving changes.
-const displayToastOnSave = ref(true);
-// Key used to store and retrieve the in-progress question draft from localStorage
-const localStorageKey = "newQuestion";
 const localStorageAutoSaveKey = ref("isQuestionAutoSaveEnabled");
 const curriculumSelectRef = ref();
 const invalidFormMessage = ref(
@@ -346,35 +344,8 @@ const contentEditorRef = ref();
 // Tracks whether the user has made any changes to the question since the last save.
 // This is used to enable or disable the "Save Changes" button and prevent unnecessary saves.
 const hasUnsavedChanges = ref(false);
-
 // Controls whether autosave is enabled
 const isAutoSaveEnabled = ref(true);
-
-// Toggle autosave setting and persist it in localStorage
-const onChangeAutoSave = () => {
-  isAutoSaveEnabled.value = !isAutoSaveEnabled.value;
-  //save setting to local storage
-  localStorage.setItem(localStorageAutoSaveKey.value, JSON.stringify(isAutoSaveEnabled.value));
-  //if autosave is disabled, cancel a pending auto-save if there is already one in progress
-  if (!isAutoSaveEnabled.value) {
-    debouncedSubmitQuestion.cancel();
-  }
-};
-
-// Debounced version of the submitQuestion function
-// This ensures that the function will only be called after 10 seconds of inactivity.
-// If the user makes another change before 10 seconds pass, the timer is reset.
-const debouncedSubmitQuestion = debounce(async () => {
-  //Don't auto save if form is invalid
-  if (v$.value.$error) return;
-
-  saveStatus.value = "autoSaving";
-  await submitQuestion();
-}, 10000);
-
-// Flag to determine if the current change to the questionFormData object is the initial load.
-// This is used to prevent triggering auto-save when the question is first loaded from the backend.
-const isInitialLoad = ref(false);
 
 //form validation start
 const formData: Ref<QuestionFormData> = ref({
@@ -420,7 +391,7 @@ const rules = {
 const v$ = useVuelidate(rules, formData);
 //form validation end
 
-//Fetch a question with a given ID
+//Retrieves a question with a given ID
 const getQuestionById = (id: number) => {
   isLoadingQuestion.value = true;
   questionStore
@@ -448,14 +419,15 @@ const getQuestionById = (id: number) => {
  */
 const publishQuestion = async () => {
   try {
-    // Validate the entire form
-    const isValid = await v$.value.$validate();
-    if (!isValid || !questionId.value) return null;
+    if (!questionId.value) throw Error();
+    //cancel a pending auto-save if there is one in progress
+    debouncedSaveQuestionChanges.cancel();
 
+    //change question save status
     saveStatus.value = "publishing";
 
     //save any changes that were made
-    await saveChanges();
+    await saveQuestionChanges(false); //don't display the toast when the save is a success
     //then publish the question
     await questionStore.updateQuestionStatus(questionId.value, QuestionStatus.Published);
 
@@ -478,26 +450,36 @@ const publishQuestion = async () => {
 };
 
 /**
- * Saves the current updates to an existing question when the user manually clicks
- * the "Save Changes" button.
+ * Saves updates to a question and its author answer (if present).
+ * @param displayToastOnSave - Determines if a success toast should be shown. Default is true.
  */
-const submitQuestion = async () => {
+const saveQuestionChanges = async (displayToastOnSave: boolean = true) => {
   try {
     // Validate the entire form
     const isValid = await v$.value.$validate();
-    if (!isValid || !questionId.value) return null;
+    if (!isValid || !questionId.value) throw Error();
+
+    //Prepare question data for submission to the the backend
+    const submissionData = QuestionHelper.prepareQuestionSubmission(formData.value);
 
     saveStatus.value = "saving";
 
     //save changes
-    await saveChanges();
+    await questionStore.updateQuestion(questionId.value, submissionData);
 
-    toast.add({
-      severity: "success",
-      summary: "Changes Saved",
-      detail: "Your question has been updated successfully.",
-      life: 5000,
-    });
+    //save the answer if it exists or was provided
+    await submitAnswer();
+
+    if (displayToastOnSave) {
+      toast.add({
+        severity: "success",
+        summary: "Changes Saved",
+        detail: "Your question has been updated successfully.",
+        life: 5000,
+      });
+    }
+    //changes have be successfully saved
+    hasUnsavedChanges.value = false;
   } catch {
     toast.add({
       severity: "error",
@@ -507,108 +489,84 @@ const submitQuestion = async () => {
     });
   } finally {
     saveStatus.value = "idle";
+    //cancel a pending auto-save if there is one in progress
+    debouncedSaveQuestionChanges.cancel();
   }
 };
 
-//Save any changes made
-const saveChanges = async () => {
-  // Validate the entire form
-  const isValid = await v$.value.$validate();
-  if (!isValid || !questionId.value) return null;
+/**
+ * Submits an answer for the current question.
+ *
+ * This function handles both creating a new answer and updating an existing one.
+ * - If the question does not have an existing authorAnswer, a new answer is created.
+ * - If the question already has an authorAnswer, the existing answer is updated.
+ *
+ * Only submits if both `answerHtml` and `answerText` are provided in `formData`.
+ */
+const submitAnswer = async () => {
+  if (!question.value) return; // No question loaded, nothing to submit
 
-  //Prepare question data for submission to the the backend
-  const submissionData = QuestionHelper.prepareQuestionSubmission(formData.value);
+  const { answerHtml, answerText } = formData.value;
 
-  questionStore
-    .updateQuestion(questionId.value, submissionData)
-    .then(() => {
-      const message =
-        saveStatus.value == "publishing"
-          ? "Your question has been published successfully."
-          : "Your question has been saved as a draft.";
-      const summary = saveStatus.value == "publishing" ? "Question Published" : "Draft Saved";
+  // Only proceed if both answer fields are provided
+  if (!answerHtml || !answerText) return;
 
-      toast.add({
-        severity: "success",
-        summary: summary,
-        detail: message,
-        life: 5000,
-      });
-      // remove any question form data saved in local storage
-      // since the question has been successfully saved to the database
-      localStorage.removeItem(localStorageKey);
-      router.push("/");
-    })
-    .catch((message) => {
-      toast.add({
-        severity: "error",
-        summary: "Question Submission Failed",
-        detail: message,
-        life: 10000,
-      });
-    })
-    .finally(() => {
-      saveStatus.value = "idle";
+  const payload: AnswerSubmission = {
+    questionId: question.value.id,
+    contentHtml: answerHtml,
+    contentText: answerText,
+  };
+
+  try {
+    // If there is no existing answer, create a new one
+    if (!question.value.authorAnswer) {
+      await answerStore.addAnswer(payload);
+    }
+    // If there is an existing answer, update it
+    else {
+      const answerId = question.value.authorAnswer.id;
+      await answerStore.updateAnswer(answerId, payload);
+    }
+  } catch {
+    toast.add({
+      severity: "error",
+      summary: "Answer Submission Failed",
+      detail: "An unexpected error occurred while submitting the answer.",
+      life: 10000,
     });
+  }
 };
 
-//Create or update an answer
-const submitAnswer = () => {
-  //if the author of the question hasn't provided an answer yet
-  //create a new answer if they added one when editing the question
-  if (
-    question.value &&
-    !question.value?.authorAnswer &&
-    formData.value.answerHtml &&
-    formData.value.answerText
-  ) {
-    const payload: AnswerSubmission = {
-      questionId: question.value.id,
-      contentHtml: formData.value.answerHtml,
-      contentText: formData.value.answerText,
-    };
+// ================= Auto-Save Section =================
+// This section handles automatic saving of question edits.
+// Changes are saved after 10 seconds of inactivity to prevent data loss.
+// It uses a debounced function and watches formData for changes.
 
-    answerStore
-      .addAnswer(payload)
-      .then()
-      .catch((message) => {
-        toast.add({
-          severity: "error",
-          summary: "Answer Submission Failed",
-          detail: message,
-          life: 10000,
-        });
-      });
+// Debounced version of the saveQuestionChanges function
+// This ensures that the function will only be called after 10 seconds of inactivity.
+// If the user makes another change before 10 seconds pass, the timer is reset.
+const debouncedSaveQuestionChanges = debounce(async () => {
+  saveStatus.value = "autoSaving";
+  //save any changes that were made
+  await saveQuestionChanges(false); //don't display the toast when the save is a success
+}, 10000);
 
-    return;
-  }
+// Flag to determine if the current change to the questionFormData object is the initial load.
+// This is used to prevent triggering auto-save when the question is first loaded from the backend.
+const isInitialLoad = ref(false);
 
-  //if the user has already created an answer
-  //update the answer
-  if (
-    question.value &&
-    question.value?.authorAnswer &&
-    formData.value.answerHtml &&
-    formData.value.answerText
-  ) {
-    const answerId = question.value.authorAnswer.id;
-    const payload: AnswerSubmission = {
-      questionId: question.value.id,
-      contentHtml: formData.value.answerHtml,
-      contentText: formData.value.answerText,
-    };
-    answerStore
-      .updateAnswer(answerId, payload)
-      .then()
-      .catch((message) => {
-        toast.add({
-          severity: "error",
-          summary: "Answer Submission Failed",
-          detail: message,
-          life: 10000,
-        });
-      });
-  }
+/**
+ * Toggles the auto-save feature on or off.
+ *
+ * - Persists the new setting in `localStorage` so it persists across sessions.
+ * - If auto-save is turned off, cancels any pending debounced auto-save calls to prevent unwanted saves.
+ */
+const toggleAutoSave = () => {
+  isAutoSaveEnabled.value = !isAutoSaveEnabled.value;
+  //save setting to local storage
+  localStorage.setItem(localStorageAutoSaveKey.value, JSON.stringify(isAutoSaveEnabled.value));
+  //if autosave is disabled, cancel a pending auto-save if there is already one in progress
+  if (!isAutoSaveEnabled.value) debouncedSaveQuestionChanges.cancel();
 };
 
 /**
@@ -617,14 +575,33 @@ const submitAnswer = () => {
  * This helps prevent accidental data loss if the user navigates away or reloads the page
  * before submitting the question.
  */
+
+// Watcher that observes any deep changes to the question formData object.
+// Purpose:
+// - To automatically save changes the user makes while editing a blog.
+// - After any change is detected, the debounced submitBlog function is triggered.
+// - This avoids excessive saves and only calls the save function after 10 seconds of inactivity.
 watch(
   formData,
-  (newFormData) => {
-    //first, remove the existing item
-    localStorage.removeItem(localStorageKey);
-    // //then add a new one
-    const serialized = JSON.stringify(newFormData);
-    localStorage.setItem(localStorageKey, serialized);
+  () => {
+    // Skip the first watcher trigger, which happens when the question is initially loaded
+    // from the backend. We only want to auto-save user-initiated edits.
+    if (isInitialLoad.value) {
+      isInitialLoad.value = false;
+      return;
+    }
+
+    //make sure there is no deletion in progress before saving any changes
+    if (deletingQuestion.value.inProgress) return;
+
+    //Don't auto save if form is invalid
+    if (v$.value.$error) return;
+
+    hasUnsavedChanges.value = true;
+
+    // Trigger the debounced save function if the auto save is turned on
+    // This ensures we wait for 10 seconds of no changes before saving
+    if (isAutoSaveEnabled.value) debouncedSaveQuestionChanges();
   },
   { deep: true },
 );
