@@ -28,7 +28,8 @@ export class Question {
     public topicId: number | null = null,
     public topic: Topic | null = null,
 
-    public subtopics: Subtopic[] = [],
+    public subtopicId: number | null = null,
+    public Subtopic: Subtopic | null = null,
 
     public userId: number | null = null,
     public user: User | null = null,

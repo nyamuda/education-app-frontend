@@ -1,5 +1,6 @@
 import type { QuestionFormData } from "@/interfaces/questions/questionFormData";
 import type { QuestionSubmission } from "@/interfaces/questions/questionSubmission";
+import type { Question } from "@/models/question";
 
 export class QuestionHelper {
   /**
@@ -49,9 +50,7 @@ export class QuestionHelper {
   public static prepareQuestionForm = (question: Question): QuestionFormData => {
     const {
       title,
-      questionText,
-      answerHtml,
-      answerText,
+      contentText,
       marks,
       subjectId,
       topicId,
