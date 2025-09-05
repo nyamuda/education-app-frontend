@@ -287,6 +287,7 @@ import { QuestionStatus } from "@/enums/questions/questionStatus";
 import { useAnswerStore } from "@/stores/answer";
 import type { AnswerSubmission } from "@/interfaces/answers/answerSubmission";
 import type { Question } from "@/models/question";
+import { QuestionHelper } from "@/helpers/questionHelper";
 type QuestionSaveStatus = "idle" | "saving" | "publishing" | "autoSaving";
 
 const questionStore = useQuestionStore();
@@ -327,6 +328,8 @@ const questionId: Ref<number | null> = ref(null);
 const isLoadingQuestion = ref(false);
 //whether the question is being published or saved as a draft
 const saveStatus: Ref<QuestionSaveStatus> = ref("idle");
+// Controls whether a toast notification is shown after saving changes.
+const displayToastOnSave = ref(true);
 // Key used to store and retrieve the in-progress question draft from localStorage
 const localStorageKey = "newQuestion";
 const localStorageAutoSaveKey = ref("isQuestionAutoSaveEnabled");
@@ -438,23 +441,60 @@ const getQuestionById = (id: number) => {
     .finally(() => (isLoadingQuestion.value = false));
 };
 
-const publishQuestion = () => {
-  saveStatus.value = "publishing";
+/**
+ * Publishes the question by first saving any unsaved changes
+ * and then updating its status to "Published".
+ * This ensures the latest version of the question is made public.
+ */
+const publishQuestion = async () => {
+  try {
+    // Validate the entire form
+    const isValid = await v$.value.$validate();
+    if (!isValid || !questionId.value) return null;
 
-  submitQuestion(QuestionStatus.Published);
+    saveStatus.value = "publishing";
+
+    //first, save any changes that were made
+    await saveChanges();
+    //then publish the question
+    await questionStore.updateQuestionStatus(questionId.value, QuestionStatus.Published);
+
+    toast.add({
+      severity: "success",
+      summary: "Question Published",
+      detail: "Your question has been published successfully.",
+      life: 5000,
+    });
+  } catch {
+    toast.add({
+      severity: "error",
+      summary: "Publish Failed",
+      detail: "We couldn’t publish your question. Please try again.",
+      life: 8000,
+    });
+  }
+};
+const submitQuestion = async () => {
+  try {
+    const message =
+      saveStatus.value == "publishing"
+        ? "Your question has been published successfully."
+        : "Your question has been saved as a draft.";
+    const summary = saveStatus.value == "publishing" ? "Question Published" : "Draft Saved";
+  } catch {}
 };
 
-//Submit question
-const submitQuestion = async (status: QuestionStatus | null = null) => {
+//Save any changes made
+const saveChanges = async () => {
   // Validate the entire form
   const isValid = await v$.value.$validate();
-  if (!isValid) return null;
+  if (!isValid || !questionId.value) return null;
 
-  const submissionData = prepareQuestionSubmission(status);
-  if (!submissionData) return;
+  //Prepare question data for submission to the the backend
+  const submissionData = QuestionHelper.prepareQuestionSubmission(formData.value);
 
   questionStore
-    .addQuestion(submissionData)
+    .updateQuestion(questionId.value, submissionData)
     .then(() => {
       const message =
         saveStatus.value == "publishing"
@@ -544,8 +584,6 @@ const submitAnswer = () => {
       });
   }
 };
-
-
 
 /**
  * Watches the question form data and saves it to localStorage whenever it changes.

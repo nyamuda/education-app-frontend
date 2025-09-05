@@ -74,7 +74,7 @@ export const useQuestionStore = defineStore("question", () => {
   };
 
   // Updates the status of an existing question.
-  const changeQuestionStatus = (questionId: number, status: QuestionStatus) => {
+  const updateQuestionStatus = (questionId: number, status: QuestionStatus) => {
     return new Promise((resolve, reject) => {
       //add access token to the request
       //to access the protected route
@@ -90,7 +90,7 @@ export const useQuestionStore = defineStore("question", () => {
   };
 
   //Updates a question with a given ID
-  const updateQuestion = (id: number, updateDetails: { name: string }) => {
+  const updateQuestion = (id: number, updateDetails: QuestionSubmission) => {
     return new Promise((resolve, reject) => {
       //add access token to the request
       //to access the protected route
@@ -131,5 +131,12 @@ export const useQuestionStore = defineStore("question", () => {
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   };
 
-  return { getQuestionById, getQuestions, updateQuestion, deleteQuestion, addQuestion };
+  return {
+    getQuestionById,
+    getQuestions,
+    updateQuestion,
+    deleteQuestion,
+    addQuestion,
+    updateQuestionStatus,
+  };
 });
