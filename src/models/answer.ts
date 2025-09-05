@@ -8,7 +8,8 @@ export class Answer {
   public constructor(
     public id: number,
 
-    public content: string,
+    public contentText: string,
+    public contentHtml: string,
 
     public questionId: number,
     public question: Question | null,

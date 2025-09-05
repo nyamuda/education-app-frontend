@@ -48,26 +48,26 @@ export class QuestionHelper {
    * @returns A `QuestionFormData` object for use in the form.
    */
   public static prepareQuestionForm = (question: Question): QuestionFormData => {
-    const {
-      title,
-      contentText,
-      marks,
-      subjectId,
-      topicId,
-      subtopicId,
-      tags,
-    } = question;
+    const { title, contentText, marks, subjectId, topicId, subtopicId, tags } = question;
+
+    //get the selected curriculum, exam board, and level
+    const curriculumId = question.subject?.level?.examBoard?.curriculumId ?? null;
+    const examBoardId = question.subject?.level?.examBoardId ?? null;
+    const levelId = question.subject?.levelId ?? null;
 
     const formData: QuestionFormData = {
       title,
-      questionText,
-      answerHtml,
-      answerText,
+      questionText: contentText,
+      answerHtml: question.authorAnswer?.contentHtml,
+      answerText: question.authorAnswer?.contentText,
       marks,
+      curriculumId,
+      examBoardId,
+      levelId,
       subjectId,
       topicId,
       subtopicId,
-      tags,
+      tags: tags.map((x) => x.name),
     };
 
     return formData;
