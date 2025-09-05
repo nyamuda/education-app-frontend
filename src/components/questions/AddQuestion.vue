@@ -323,11 +323,17 @@ const saveQuestionAsDraft = () => {
  */
 const publishQuestion = async () => {
   try {
+    // Validate the entire form
+    const isValid = await v$.value.$validate();
+    if (!isValid) return;
+
+    //Prepare question data for submission to the the backend
+    const submissionData = QuestionHelper.prepareQuestionSubmission(formData.value);
     saveStatus.value = "publishing";
-    //fist, submit the question
-    await submitQuestion();
+    //submit the new question to the backend
+    const newlyCreatedQuestion = await questionStore.addQuestion(submissionData);
     //then change its status to published
-    await questionStore.updateQuestionStatus(questionId.value, QuestionStatus.Published);
+    await questionStore.updateQuestionStatus(newlyCreatedQuestion.id, QuestionStatus.Published);
 
     toast.add({
       severity: "success",
@@ -348,7 +354,7 @@ const publishQuestion = async () => {
 };
 
 //Creates a new question
-const submitQuestion = async ():Promise => {
+const submitQuestion = async (): Promise => {
   // Validate the entire form
   const isValid = await v$.value.$validate();
   if (!isValid) return;
