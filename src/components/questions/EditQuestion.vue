@@ -409,12 +409,12 @@ const getQuestionById = async (id: number) => {
 
     // Populate the form with data
     populateForm(data);
-  } catch (message) {
+  } catch {
     // Show error toast if the question fetching fails
     toast.add({
       severity: "error",
-      summary: "Failed to Fetch Question Details",
-      detail: message,
+      summary: "Error Loading Question",
+      detail: "We couldn’t retrieve the question details. Please try again.",
       life: 10000,
     });
   } finally {
@@ -447,11 +447,11 @@ const deleteQuestion = (id: number | null) => {
       });
       router.push("/");
     })
-    .catch((message) => {
+    .catch(() => {
       toast.add({
         severity: "error",
-        summary: "Delete Failed",
-        detail: message,
+        summary: "Error Deleting",
+        detail: "An error occurred while trying to delete the question. Please try again.",
         life: 10000,
       });
     })
