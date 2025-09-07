@@ -1,4 +1,4 @@
 export enum QuestionStatus {
-  Draft = "Draft",
-  Published = "Published",
+  Draft = "draft",
+  Published = "published",
 }

@@ -53,7 +53,7 @@
                       ? 'Save changes'
                       : 'No changes yet'
             "
-            severity="contrast"
+            :severity="hasUnsavedChanges ? 'primary' : 'contrast'"
             @click="onSaveButtonClick"
             size="small"
             :disabled="
@@ -88,6 +88,7 @@
         </div>
         <div class="d-flex gap-3">
           <!-- Publish question button -->
+
           <Button
             v-if="question.status != QuestionStatus.Published"
             @click="publishQuestion"
@@ -267,7 +268,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch, type Ref } from "vue";
+import { computed, onMounted, ref, watch, type Ref } from "vue";
 import { useQuestionStore } from "@/stores/question";
 import { useVuelidate } from "@vuelidate/core";
 import { required, helpers } from "@vuelidate/validators";
@@ -335,8 +336,10 @@ const displayLoadingSpinner = ref(true);
 const saveStatus: Ref<QuestionSaveStatus> = ref("idle");
 const localStorageAutoSaveKey = ref("isQuestionAutoSaveEnabled");
 const curriculumSelectRef = ref();
-const invalidFormMessage = ref(
-  "Some fields are missing or invalid. Please fix them to save or publish your question.",
+const invalidFormMessage = computed(() =>
+  question.value?.status == QuestionStatus.Published
+    ? "Some fields are missing or invalid. Please fix them to save your changes."
+    : "Some fields are missing or invalid. Please fix them to save or publish your question.",
 );
 const answerHelperMessage =
   "You can add an answer if you know it. This helps you quickly revise both the question and its solution later and also lets others see different ways of answering the same question.";

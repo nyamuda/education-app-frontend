@@ -74,6 +74,24 @@ export const useQuestionStore = defineStore("question", () => {
     });
   };
 
+  //Updates a question with a given ID
+  const updateQuestion = (id: number, updateDetails: QuestionSubmission) => {
+    return new Promise((resolve, reject) => {
+      //add access token to the request
+      //to access the protected route
+      setAuthToken();
+      axios
+        .put(`${apiUrl.value}/${id}`, updateDetails)
+        .then(() => resolve({}))
+        .catch((err) => {
+          const message =
+            err.response?.data?.message ||
+            "There was a problem updating the question. Please try again.";
+          reject(message);
+        });
+    });
+  };
+
   // Updates the status of an existing question.
   const updateQuestionStatus = (questionId: number, status: QuestionStatus) => {
     return new Promise((resolve, reject) => {
@@ -85,25 +103,6 @@ export const useQuestionStore = defineStore("question", () => {
         .then(() => resolve({}))
         .catch((err) => {
           const message = err.response?.data?.message || ErrorResponse.Unexpected();
-          reject(message);
-        });
-    });
-  };
-
-  //Updates a question with a given ID
-  const updateQuestion = (id: number, updateDetails: QuestionSubmission) => {
-    return new Promise((resolve, reject) => {
-      //add access token to the request
-      //to access the protected route
-      setAuthToken();
-      axios
-        .put(`${apiUrl.value}/${id}`, updateDetails)
-        .then(() => resolve({}))
-        .catch((err) => {
-          console.log(err);
-          const message =
-            err.response?.data?.message ||
-            "There was a problem updating the question. Please try again.";
           reject(message);
         });
     });

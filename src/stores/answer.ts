@@ -83,9 +83,10 @@ export const useAnswerStore = defineStore("answer", () => {
       setAuthToken();
       const { contentHtml, contentText, questionId } = payload;
       axios
-        .post(`${UrlHelper.apiUrl}/questions/${questionId}`, { contentHtml, contentText })
-        .then(() => resolve("Answer added successfully."))
+        .post(`${UrlHelper.apiUrl}/questions/${questionId}/answers`, { contentHtml, contentText })
+        .then(() => resolve("Answer added successfully."))re
         .catch((err) => {
+          console.log(err);
           const message = err.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
