@@ -54,7 +54,7 @@
                       : 'No changes yet'
             "
             severity="contrast"
-            @click="() => saveQuestionChanges"
+            @click="onSaveButtonClick"
             size="small"
             :disabled="
               saveStatus == 'publishing' ||
@@ -310,12 +310,8 @@ const toast = useToast();
 const router = useRouter();
 const question: Ref<Question | null> = ref(new Question());
 
-onMounted(() => {
+onMounted(async () => {
   v$.value.$touch();
-
-  // Load curriculums (with exam boards, levels, subjects, topics and subtopics)
-  // so the user can select from the dropdown.
-  curriculumSelectRef.value.getAllCurriculums(formData.value.levelId);
 
   //get the question ID from the url
   try {
@@ -324,7 +320,7 @@ onMounted(() => {
     if (!id) return;
     questionId.value = Number(id);
     //fetch the question with the provided ID from the backend
-    getQuestionById(questionId.value);
+    await getQuestionById(questionId.value);
   } catch {}
 });
 
@@ -398,25 +394,38 @@ const rules = {
 const v$ = useVuelidate(rules, formData);
 //form validation end
 
-//Retrieves a question with a given ID
-const getQuestionById = (id: number) => {
+// Retrieves a question with a given ID
+const getQuestionById = async (id: number) => {
   isLoadingQuestion.value = true;
-  questionStore
-    .getQuestionById(id)
-    .then((data) => {
-      isInitialLoad.value = true;
-      question.value = data;
-    })
-    .catch((message) => {
-      // Show error toast if the question fetching fails
-      toast.add({
-        severity: "error",
-        summary: "Failed to Fetch Question Details",
-        detail: message,
-        life: 10000,
-      });
-    })
-    .finally(() => (isLoadingQuestion.value = false));
+
+  try {
+    const data = await questionStore.getQuestionById(id);
+
+    isInitialLoad.value = true;
+    question.value = data;
+
+    // Populate the form with data
+    populateForm(data);
+  } catch (message) {
+    // Show error toast if the question fetching fails
+    toast.add({
+      severity: "error",
+      summary: "Failed to Fetch Question Details",
+      detail: message,
+      life: 10000,
+    });
+  } finally {
+    isLoadingQuestion.value = false;
+  }
+};
+// Populates the form with the question details
+const populateForm = (data: Question) => {
+  formData.value = QuestionHelper.prepareQuestionForm(data);
+  // Load curriculums (with exam boards, levels, subjects, topics and subtopics)
+  // so the user can select from the dropdown.
+  curriculumSelectRef.value.getAllCurriculums(formData.value.levelId);
+  //load question's author answer in content editor
+  contentEditorRef.value?.loadDefaultContent(formData.value.answerHtml);
 };
 
 //Deletes a question with a given ID
@@ -482,6 +491,11 @@ const publishQuestion = async () => {
     saveStatus.value = "idle";
   }
 };
+//Manually saves any changes made when the `Save changes` button is clicked
+const onSaveButtonClick = async () => {
+  saveStatus.value = "saving";
+  await saveQuestionChanges();
+};
 
 /**
  * Saves updates to a question and its author answer (if present).
@@ -492,11 +506,11 @@ const saveQuestionChanges = async (displayToastOnSave: boolean = true) => {
     // Validate the entire form
     const isValid = await v$.value.$validate();
     if (!isValid || !questionId.value) throw Error();
+    //cancel a pending auto-save if there is one in progress
+    debouncedSaveQuestionChanges.cancel();
 
     //Prepare question data for submission to the the backend
     const submissionData = QuestionHelper.prepareQuestionSubmission(formData.value);
-
-    saveStatus.value = "saving";
 
     //save changes
     await questionStore.updateQuestion(questionId.value, submissionData);
@@ -521,18 +535,20 @@ const saveQuestionChanges = async (displayToastOnSave: boolean = true) => {
     // - Data consistency between frontend and backend is maintained
     // Note: No loading spinner is shown — this is a background fetch invisible to the user
     displayLoadingSpinner.value = false;
-    getQuestionById(question.value!.id);
+    await getQuestionById(question.value!.id);
   } catch {
+    const message =
+      saveStatus.value == "autoSaving"
+        ? "An issue occurred while saving your changes."
+        : "Something went wrong while saving your changes. Please try again.";
     toast.add({
       severity: "error",
       summary: "Save Failed",
-      detail: "We couldn’t save your changes. Please try again.",
+      detail: message,
       life: 8000,
     });
   } finally {
     saveStatus.value = "idle";
-    //cancel a pending auto-save if there is one in progress
-    debouncedSaveQuestionChanges.cancel();
   }
 };
 

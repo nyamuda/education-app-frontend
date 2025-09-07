@@ -22,7 +22,7 @@ export const useQuestionStore = defineStore("question", () => {
         })
         .catch((err) => {
           const message =
-            err.response.status == 404
+            err.response?.status == 404
               ? ErrorResponse.NotFound("Question")
               : "Something went wrong while fetching the question.";
 
@@ -100,6 +100,7 @@ export const useQuestionStore = defineStore("question", () => {
         .put(`${apiUrl.value}/${id}`, updateDetails)
         .then(() => resolve({}))
         .catch((err) => {
+          console.log(err);
           const message =
             err.response?.data?.message ||
             "There was a problem updating the question. Please try again.";
