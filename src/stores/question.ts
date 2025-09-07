@@ -68,6 +68,7 @@ export const useQuestionStore = defineStore("question", () => {
         .post(`${apiUrl.value}`, submissionData)
         .then((response) => resolve(response.data))
         .catch((err) => {
+          console.log(err);
           const message = err.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
         });
