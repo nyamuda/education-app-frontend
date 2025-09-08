@@ -5,7 +5,6 @@
     <!-- Hierarchy filters start-->
     <CurriculumHierarchyFilters
       :callback-method="getAllQuestions"
-      :show-question="false"
       @filter="(val: CurriculumHierarchyFilter) => (filter = val)"
     >
       <template #extraContent>
@@ -46,98 +45,32 @@
     </CurriculumHierarchyFilters>
     <!-- Hierarchy filters end-->
 
-    <!--Skeleton table start-->
-    <div id="question-list" v-if="isGettingQuestions" class="card">
-      <DataTable :value="rowSkeletons">
-        <Column field="questionName" header="Question Name">
-          <template #body>
-            <Skeleton></Skeleton>
-          </template>
-        </Column>
-        <Column field="subject" header="Subject">
-          <template #body>
-            <Skeleton></Skeleton>
-          </template>
-        </Column>
-        <Column field="level" header="Level">
-          <template #body>
-            <Skeleton></Skeleton>
-          </template>
-        </Column>
-
-        <Column field="curriculum" header="Curriculum">
-          <template #body>
-            <Skeleton></Skeleton>
-          </template>
-        </Column>
-
-        <Column field="actions" header="Actions">
-          <template #body>
-            <Skeleton></Skeleton>
-          </template>
-        </Column>
-      </DataTable>
+    <!--Skeletons start-->
+    <div id="question-list" v-if="isGettingQuestions">
+      <QuestionListItemSkeleton v-for="i in 5" :key="i" />
     </div>
-    <!--Skeleton table end-->
+    <!--Skeletons end-->
 
-    <!--Table start-->
-    <div id="question-list" v-else-if="questions.items?.length > 0" class="card">
-      <DataTable :value="questions.items">
-        <!--Question name-->
-        <Column field="questionName" header="Question Name">
-          <template #body="slotProps">
-            <span>{{ slotProps.data.name }}</span>
-          </template>
-        </Column>
-        <!--Subject name-->
-        <Column field="subject" header="Subject">
-          <template #body="slotProps">
-            <span>{{ slotProps.data.subject?.name }}</span>
-          </template>
-        </Column>
-        <!--Level name-->
-        <Column field="level" header="Level">
-          <template #body="slotProps">
-            <span>{{ slotProps.data.subject?.level?.name }}</span>
-          </template>
-        </Column>
-
-        <!--Curriculum name-->
-        <Column field="curriculum" header="Curriculum">
-          <template #body="slotProps">
-            <span>{{ slotProps.data.subject?.level?.examBoard?.curriculum?.name }}</span>
-          </template>
-        </Column>
-
-        <Column field="id" header="Actions">
-          <template #body="slotProps">
-            <div class="d-flex justify-content-start align-items-center gap-2">
-              <!--Button to see more details-->
-              <router-link :to="'questions/' + slotProps.data.id + '/details'">
-                <Button
-                  label=""
-                  severity="contrast"
-                  variant="text"
-                  size="small"
-                  icon="pi pi-info-circle"
-                  class="no-wrap-btn me-2"
-              /></router-link>
-
-              <!--Delete question button-->
-              <DeletePopup
-                button-label=""
-                button-variant="text"
-                title="Are You Sure?"
-                message="Deleting this question is permanent. Proceed?"
-                :delete-callback="() => deleteQuestion(slotProps.data.id)"
-                :is-deleting-item="
-                  slotProps.data.id == deletingQuestion.id && deletingQuestion.inProgress
-                "
-              />
-            </div>
-          </template>
-        </Column>
-      </DataTable>
+    <!--Questions start-->
+    <div id="question-list" v-else-if="questions.items?.length > 0">
+      <QuestionListItem
+        v-for="question in questions.items"
+        :key="question.id"
+        :title="question.title"
+        :content="question.contentText"
+        :marks="question.marks ?? 0"
+        :answers="question.totalAnswers ?? 0"
+        :upvotes="question.totalUpvotes ?? 0"
+        :curriculum="question.subject?.level?.examBoard?.curriculum?.name ?? null"
+        :exam-board="question.subject?.level?.examBoard?.name ?? null"
+        :level="question.subject?.level?.name ?? null"
+        :subject="question.subject?.name ?? null"
+        :topic="question.topic?.name"
+        :subtopic="question.subtopic?.name"
+        :modified="question.updatedAt"
+        :username="question.user?.username ?? null"
+        :tags="question.tags"
+      />
       <!-- Pagination start -->
       <Paginator
         :rows="questions.pageSize"
@@ -157,9 +90,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import Column from "primevue/column";
+
 import Button from "primevue/button";
-import Skeleton from "primevue/skeleton";
+
 import { useToast } from "primevue/usetoast";
 import EmptyList from "../shared/EmptyList.vue";
 import TitleSection from "../shared/TitleSection.vue";
@@ -167,32 +100,26 @@ import { PageInfo } from "@/models/pageInfo";
 import Select from "primevue/select";
 import type { Question } from "@/models/question";
 import { QuestionSortOption } from "@/enums/questions/questionSortOption";
-import { DataTable } from "primevue";
+
 import Paginator, { type PageState } from "primevue/paginator";
-import DeletePopup from "../shared/DeletePopup.vue";
-import { DeletionState } from "@/models/deletionState";
+
 import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 import { useQuestionStore } from "@/stores/question";
-import type { QuestionQueryParams } from "@/interfaces/questions/questionQueryParams";
+import { QuestionQueryParams } from "@/interfaces/questions/questionQueryParams";
 import CurriculumHierarchyFilters from "../shared/CurriculumHierarchyFilters.vue";
 import { CurriculumHierarchyFilter } from "@/models/curriculumHierarchyFilter";
-
-//table row skeletons
-const rowSkeletons = ref(new Array(10));
+import QuestionListItemSkeleton from "./skeletons/QuestionListItemSkeleton.vue";
+import QuestionListItem from "./QuestionListItem.vue";
 
 const questionStore = useQuestionStore();
 
 const toast = useToast();
 const questions = ref(new PageInfo<Question>());
 const isGettingQuestions = ref(false);
-const deletingQuestion = ref(new DeletionState());
 const filter = ref(new CurriculumHierarchyFilter());
 
 //sorting info
-const sortOptions = ref([
-  { name: "Name", value: QuestionSortOption.Name },
-  { name: "Date Created", value: QuestionSortOption.DateCreated },
-]);
+const sortOptions = ref([{ name: "Date Created", value: QuestionSortOption.DateCreated }]);
 const selectedSortOption = ref(QuestionSortOption.DateCreated);
 
 onMounted(() => {
@@ -247,32 +174,6 @@ const onPageChange = (state: PageState) => {
   //smoothly scroll to the top of the list
   const elementId = "question-list";
   SmoothScrollHelper.scrollToElement(elementId);
-};
-
-//Delete a question with a given ID
-const deleteQuestion = (id: number) => {
-  deletingQuestion.value = { id, inProgress: true };
-  questionStore
-    .deleteQuestion(id)
-    .then(() => {
-      toast.add({
-        severity: "success",
-        summary: "Done",
-        detail: "The question was successfully deleted.",
-        life: 5000,
-      });
-      //refresh the question list
-      getAllQuestions();
-    })
-    .catch((message) => {
-      toast.add({
-        severity: "error",
-        summary: "Delete Failed",
-        detail: message,
-        life: 10000,
-      });
-    })
-    .finally(() => (deletingQuestion.value.inProgress = false));
 };
 </script>
 

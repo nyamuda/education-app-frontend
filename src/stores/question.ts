@@ -5,9 +5,9 @@ import type { Question } from "@/models/question";
 import { UrlHelper } from "@/helpers/urlHelper";
 import { ErrorResponse } from "@/models/errorResponse";
 import type { PageInfo } from "@/models/pageInfo";
-import { QuestionSortOption } from "@/enums/questions/questionSortOption";
 import type { QuestionSubmission } from "@/interfaces/questions/questionSubmission";
 import type { QuestionStatus } from "@/enums/questions/questionStatus";
+import type { QuestionQueryParams } from "@/interfaces/questions/questionQueryParams";
 
 export const useQuestionStore = defineStore("question", () => {
   const apiUrl = ref(`${UrlHelper.apiUrl}/questions`);
@@ -32,18 +32,12 @@ export const useQuestionStore = defineStore("question", () => {
   };
 
   //Gets a paginated list of questions along with pagination metadata
-  const getQuestions = (
-    page: number = 1,
-    pageSize: number = 10,
-    sortBy: QuestionSortOption = QuestionSortOption.DateCreated,
-  ): Promise<PageInfo<Question>> => {
+  const getQuestions = (params: QuestionQueryParams): Promise<PageInfo<Question>> => {
     return new Promise((resolve, reject) => {
       axios
         .get<PageInfo<Question>>(`${apiUrl.value}`, {
           params: {
-            page,
-            pageSize,
-            sortBy,
+            ...params,
           },
         })
         .then((response) => {

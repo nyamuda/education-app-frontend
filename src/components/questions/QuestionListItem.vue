@@ -11,7 +11,7 @@
         </div>
         <div class="text-center">
           <span class="fw-bold fs-6">{{ upvotes }}</span>
-          <div class="small text-muted">{{ answers == 1 ? "Upvote" : "Upvotes" }}</div>
+          <div class="small text-muted">{{ upvotes == 1 ? "Upvote" : "Upvotes" }}</div>
         </div>
       </div>
       <!-- Stats (for small screens) -->
@@ -22,7 +22,7 @@
         </div>
         <div class="d-flex align-items-center gap-1">
           <span class="fs-6">{{ upvotes }}</span>
-          <div class="small text-muted">{{ answers == 1 ? "Upvote" : "Upvotes" }}</div>
+          <div class="small text-muted">{{ upvotes == 1 ? "Upvote" : "Upvotes" }}</div>
         </div>
       </div>
 
@@ -40,8 +40,9 @@
 
           <!-- Marks badge -->
           <Badge
+            v-if="marks != null"
             class="ms-md-2 mt-1 mt-md-0"
-            :value="marks + marks == 1 ? ' mark' : ' marks'"
+            :value="marks == 1 ? marks + ' mark' : marks + ' marks'"
             severity="secondary"
             size=""
           />
@@ -70,13 +71,21 @@
         <div class="d-flex flex-column justify-content-between small text-muted meta-info">
           <!-- Subject / Topic / Subtopic -->
           <div class="mb-2 d-flex align-items-center">
-            <i class="pi pi-book me-2 text-muted"></i>
-            <div>
-              <span class="fw-semibold">{{ subject }}</span>
-
-              <span v-if="topic"> › {{ topic }}</span>
-              <span v-if="subtopic"> › {{ subtopic }}</span>
-            </div>
+            <i class="d-none d-md-flex pi pi-book me-2 text-muted"></i>
+            <Breadcrumb
+              :model="
+                [
+                  { label: subject },
+                  topic ? { label: topic } : null,
+                  subtopic ? { label: subtopic } : null,
+                ].filter(Boolean) as MenuItem[]
+              "
+              class="p-0"
+            >
+              <template #item="{ item }">
+                <span class="text-sm font-semibold text-color-secondary">{{ item.label }}</span>
+              </template>
+            </Breadcrumb>
           </div>
 
           <!-- Curriculum / Exam Board / Level -->
@@ -119,22 +128,25 @@
 <script setup lang="ts">
 import type { Tag } from "@/models/Tag";
 import Badge from "primevue/badge";
-import type { PropType } from "vue";
+import Breadcrumb from "primevue/breadcrumb";
+import type { MenuItem } from "primevue/menuitem";
+
+import { type PropType } from "vue";
 defineProps({
-  curriculum: { type: String, required: true },
-  examBoard: { type: String, required: false },
-  level: { type: String, required: true },
-  subject: { type: String, required: true },
-  topic: { type: String, required: false },
-  subtopic: { type: String, required: false },
-  title: { type: String, required: true },
-  content: { type: String, required: true },
-  marks: { type: Number, required: true },
-  answers: { type: Number, required: true },
-  upvotes: { type: Number, required: true },
-  modified: { type: String, required: true },
-  username: { type: String, required: true },
-  tags: { type: Array as PropType<Tag[]>, required: false },
+  curriculum: { type: [String, null], required: true },
+  examBoard: { type: [String, null], required: false },
+  level: { type: [String, null], required: true },
+  subject: { type: [String, null], required: true },
+  topic: { type: [String, null], required: false },
+  subtopic: { type: [String, null], required: false },
+  title: { type: [String, null], required: true },
+  content: { type: [String, null], required: true },
+  marks: { type: [Number, null], required: true },
+  answers: { type: [Number, null], required: true },
+  upvotes: { type: [Number, null], required: true },
+  modified: { type: [Date, String, null], required: true },
+  username: { type: [String, null], required: true },
+  tags: { type: Array as PropType<Tag[]>, default: new Array<Tag>() },
 });
 </script>
 

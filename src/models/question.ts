@@ -15,7 +15,7 @@ export class Question {
     public title: string = "",
     public contentText: string = "",
     public contentHtml: string = "",
-    public marks: number | null = 0,
+    public marks: number | null = null,
 
     public authorAnswer: Answer | null = null,
 
@@ -29,7 +29,7 @@ export class Question {
     public topic: Topic | null = null,
 
     public subtopicId: number | null = null,
-    public Subtopic: Subtopic | null = null,
+    public subtopic: Subtopic | null = null,
 
     public userId: number | null = null,
     public user: User | null = null,
@@ -38,6 +38,8 @@ export class Question {
 
     public tags: Tag[] = [],
     public upvotes: Upvote[] = [],
+    public totalUpvotes: number | null = null,
+    public totalAnswers: number | null = null,
     public flags: QuestionFlag[] = [],
     public comments: Comment[] = [],
     public answers: Answer[] = [],
