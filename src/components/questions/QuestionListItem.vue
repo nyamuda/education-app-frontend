@@ -7,22 +7,22 @@
       >
         <div class="me-4 me-lg-0 text-center mb-0 mb-lg-2">
           <span class="fw-bold fs-6">{{ answers }}</span>
-          <div class="small text-muted">Answers</div>
+          <div class="small text-muted">{{ answers == 1 ? "Answer" : "Answers" }}</div>
         </div>
         <div class="text-center">
           <span class="fw-bold fs-6">{{ upvotes }}</span>
-          <div class="small text-muted">Upvotes</div>
+          <div class="small text-muted">{{ answers == 1 ? "Upvote" : "Upvotes" }}</div>
         </div>
       </div>
       <!-- Stats (for small screens) -->
-      <div class="d-flex justify-content-start align-items-center d-lg-none gap-3">
+      <div class="d-flex justify-content-start align-items-center d-lg-none gap-3 mb-1">
         <div class="d-flex align-items-center gap-1">
-          <span class="fw-bold fs-6">{{ answers }}</span>
-          <div class="small text-muted">Answers</div>
+          <span class="fs-6">{{ answers }}</span>
+          <div class="small text-muted">{{ answers == 1 ? "Answer" : "Answers" }}</div>
         </div>
         <div class="d-flex align-items-center gap-1">
-          <span class="fw-bold fs-6">{{ upvotes }}</span>
-          <div class="small text-muted">Upvotes</div>
+          <span class="fs-6">{{ upvotes }}</span>
+          <div class="small text-muted">{{ answers == 1 ? "Upvote" : "Upvotes" }}</div>
         </div>
       </div>
 
@@ -41,7 +41,7 @@
           <!-- Marks badge -->
           <Badge
             class="ms-md-2 mt-1 mt-md-0"
-            :value="marks + ' marks'"
+            :value="marks + marks == 1 ? ' mark' : ' marks'"
             severity="secondary"
             size=""
           />
