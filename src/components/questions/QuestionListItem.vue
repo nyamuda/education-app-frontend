@@ -17,21 +17,17 @@
       <!-- Stats (for small screens) -->
       <div class="d-flex justify-content-start align-items-center d-lg-none gap-3 mb-1">
         <div class="d-flex align-items-center gap-1">
-          <span class="fs-6">{{ answers }}</span>
+          <span class="fw-bold fs-6">{{ answers }}</span>
           <div class="small text-muted">{{ answers == 1 ? "Answer" : "Answers" }}</div>
         </div>
         <div class="d-flex align-items-center gap-1">
-          <span class="fs-6">{{ upvotes }}</span>
+          <span class="fw-bold fs-6">{{ upvotes }}</span>
           <div class="small text-muted">{{ upvotes == 1 ? "Upvote" : "Upvotes" }}</div>
         </div>
       </div>
 
       <!-- Main content -->
       <div>
-        <!-- Title -->
-        <!-- <h5 class="mb-2 fw-semibold text-primary cursor-pointer question-title">
-          {{ title }}
-        </h5> -->
         <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center mb-2">
           <!-- Title -->
           <h5 class="fw-semibold text-primary cursor-pointer mb-1 mb-md-0 flex-fill">
@@ -42,33 +38,31 @@
           <Badge
             v-if="marks != null"
             class="ms-md-2 mt-1 mt-md-0"
-            :value="marks == 1 ? marks + ' mark' : marks + ' marks'"
+            :value="!marks ? 'unknown marks' : marks == 1 ? marks + ' mark' : marks + ' marks'"
             severity="secondary"
             size=""
           />
         </div>
 
         <!-- Question content with marks badge -->
-        <div class="mb-3">
-          <p class="text-muted content-truncate">
-            {{ content }}
-          </p>
-        </div>
-
+        <p class="content-truncate mb-2">
+          {{ content }}
+        </p>
         <!-- Tags -->
-        <div class="mb-3">
+        <div class="mb-2">
           <a
             v-for="(tag, index) in tags?.slice(0, 5)"
             :key="index"
+            :id="tag.id.toString()"
             href="#"
             class="badge rounded-pill bg-light text-dark border me-1 mb-1 text-decoration-none px-3 py-2"
           >
-            #{{ tag }}
+            #{{ tag.name }}
           </a>
         </div>
 
         <!-- Meta info -->
-        <div class="d-flex flex-column justify-content-between small text-muted meta-info">
+        <div class="d-flex flex-column justify-content-between small meta-info">
           <!-- Subject / Topic / Subtopic -->
           <div class="mb-2 d-flex align-items-center">
             <i class="d-none d-md-flex pi pi-book me-2 text-muted"></i>
@@ -100,11 +94,11 @@
           </div>
 
           <!-- Updated / Author (stacked on mobile) -->
-          <div class="d-flex flex-column flex-md-row text-md-end text-muted">
+          <div class="d-flex flex-column flex-md-row text-md-end">
             <!-- Updated -->
             <span class="mb-2 mb-md-0 d-flex align-items-center">
               <i class="pi pi-clock me-2"></i>
-              <span>Updated {{ modified }}</span>
+              <span>Modified {{ dayjs.utc(modified).local().fromNow() }}</span>
             </span>
 
             <span class="mx-md-2 d-none d-md-inline">•</span>
@@ -126,6 +120,7 @@
 </template>
 
 <script setup lang="ts">
+import dayjs from "dayjs";
 import type { Tag } from "@/models/Tag";
 import Badge from "primevue/badge";
 import Breadcrumb from "primevue/breadcrumb";

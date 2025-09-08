@@ -51,6 +51,16 @@
         ref="topicSelectInputRef"
       />
     </div>
+    <!-- Filter by subtopic -->
+    <div class="col-6 col-md-3" v-if="showTopic">
+      <Subtopics
+        @change="onSubtopicChange"
+        :topics="filter?.subject?.topics"
+        placeholder="Topic"
+        :is-required="false"
+        ref="topicSelectInputRef"
+      />
+    </div>
 
     <!-- Allow parent components to inject extra content (e.g. sort options, buttons, etc.) -->
     <slot name="extraContent"></slot>
@@ -62,13 +72,14 @@
  * CurriculumHierarchyFilters
  *
  * A reusable filter component for narrowing down content using
- * hierarchical education entities (Curriculum → Exam Board → Level → Subject → Topic).
+ * hierarchical education entities (Curriculum → Exam Board → Level → Subject → Topic → Subtopic)).
  * Filters included (in order):
  *   1. Curriculum
  *   2. Exam Board
  *   3. Level
  *   4. Subject
  *   5. Topic
+ *   6. Subtopic
  *
  * Each level depends on the selection of the previous one.
  *

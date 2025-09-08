@@ -1,7 +1,13 @@
 <template>
   <div class="container mx-auto">
-    <TitleSection title="Questions" title-size="small" align-items="center" />
-
+    <div class="d-flex justify-content-between">
+      <TitleSection title="Questions" title-size="small" align-items="center" />
+      <div class="col-auto">
+        <router-link to="/questions/add">
+          <Button label="New question" icon="pi pi-plus" size="small" severity="primary" />
+        </router-link>
+      </div>
+    </div>
     <!-- Hierarchy filters start-->
     <CurriculumHierarchyFilters
       :callback-method="getAllQuestions"
@@ -25,22 +31,6 @@
         </div>
 
         <!-- Button -->
-        <div class="col-auto">
-          <router-link to="/questions/add">
-            <Button label="New question" icon="pi pi-plus" size="small" severity="primary" />
-          </router-link>
-        </div>
-        <div class="col-auto">
-          <router-link to="/questions/upload">
-            <Button
-              label="Upload questions"
-              icon="pi pi-upload"
-              size="small"
-              severity="primary"
-              variant="outlined"
-            />
-          </router-link>
-        </div>
       </template>
     </CurriculumHierarchyFilters>
     <!-- Hierarchy filters end-->
