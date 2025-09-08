@@ -52,13 +52,13 @@
       />
     </div>
     <!-- Filter by subtopic -->
-    <div class="col-6 col-md-3" v-if="showTopic">
-      <Subtopics
+    <div class="col-6 col-md-3" v-if="showSubtopic">
+      <SubtopicSelect
         @change="onSubtopicChange"
-        :topics="filter?.subject?.topics"
-        placeholder="Topic"
+        :topics="filter?.topic?.subtopics"
+        placeholder="Subtopic"
         :is-required="false"
-        ref="topicSelectInputRef"
+        ref="subtopicSelectInputRef"
       />
     </div>
 
@@ -105,6 +105,8 @@ import LevelSelect from "./selects/LevelSelect.vue";
 import SubjectSelect from "./selects/SubjectSelect.vue";
 import TopicSelect from "./selects/TopicSelect.vue";
 import { ref, type Ref } from "vue";
+import SubtopicSelect from "./selects/SubtopicSelect.vue";
+import type { Subtopic } from "@/models/subtopic";
 
 const props = defineProps({
   // Props to control which filters should be visible
@@ -128,6 +130,10 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  showSubtopic: {
+    type: Boolean,
+    default: true,
+  },
   // Method that is called called after a filter changes
   callbackMethod: {
     type: Function,
@@ -144,6 +150,7 @@ const examBoardSelectInputRef = ref();
 const levelSelectInputRef = ref();
 const subjectSelectInputRef = ref();
 const topicSelectInputRef = ref();
+const subtopicSelectInputRef = ref();
 
 // Show a loader in the select input when its items are being fetched
 const isLoadingSubjects = ref(false);
@@ -151,7 +158,7 @@ const isLoadingSubjects = ref(false);
 /**
  * Called when Curriculum changes
  * - Updates filter
- * - Resets all dependent filters (Exam board → Level → Subject → Topic)
+ * - Resets all dependent filters (Exam board → Level → Subject → Topic → Subtopic)
  */
 const onCurriculumChange = (curriculum: Curriculum) => {
   filter.value.reset();
@@ -164,6 +171,8 @@ const onCurriculumChange = (curriculum: Curriculum) => {
   subjectSelectInputRef.value?.resetSelectedValue();
   //reset topic select input value
   topicSelectInputRef.value?.resetSelectedValue();
+  //reset subtopic select input value
+  subtopicSelectInputRef.value?.resetSelectedValue();
 
   emit("filter", filter.value);
   props.callbackMethod();
@@ -172,7 +181,7 @@ const onCurriculumChange = (curriculum: Curriculum) => {
 /**
  * Called when ExamBoard changes
  * - Updates filter
- * - Resets Level, Subject, and Topic
+ * - Resets Level, Subject, Topic and Subtopic
  */
 const onExamBoardChange = (examBoard: ExamBoard) => {
   filter.value.onExamBoardChange(examBoard);
@@ -182,6 +191,8 @@ const onExamBoardChange = (examBoard: ExamBoard) => {
   subjectSelectInputRef.value?.resetSelectedValue();
   //reset topic select input value
   topicSelectInputRef.value?.resetSelectedValue();
+  //reset subtopic select input value
+  subtopicSelectInputRef.value?.resetSelectedValue();
   emit("filter", filter.value);
   props.callbackMethod();
 };
@@ -189,7 +200,7 @@ const onExamBoardChange = (examBoard: ExamBoard) => {
 /**
  * Called when Level changes
  * - Updates filter
- * - Resets Subject and Topic
+ * - Resets Subject, Topic and Subtopic
  */
 const onLevelChange = (level: Level) => {
   filter.value.onLevelChange(level);
@@ -197,6 +208,8 @@ const onLevelChange = (level: Level) => {
   subjectSelectInputRef.value?.resetSelectedValue();
   //reset topic select input value
   topicSelectInputRef.value?.resetSelectedValue();
+  //reset subtopic select input value
+  subtopicSelectInputRef.value?.resetSelectedValue();
   emit("filter", filter.value);
   props.callbackMethod();
 };
@@ -204,20 +217,35 @@ const onLevelChange = (level: Level) => {
 /**
  * Called when Subject changes
  * - Updates filter
- * - Resets Topic
+ * - Resets Topic and Subtopic
  */
 const onSubjectChange = (subject: Subject) => {
   filter.value.onSubjectChange(subject);
   //reset topic select input value
   topicSelectInputRef.value?.resetSelectedValue();
+  //reset subtopic select input value
+  subtopicSelectInputRef.value?.resetSelectedValue();
+  emit("filter", filter.value);
   props.callbackMethod();
 };
 /**
  * Called when Topic changes
  * - Updates filter
+ * - Resets subtopic
  */
 const onTopicChange = (topic: Topic) => {
   filter.value.onTopicChange(topic);
+  //reset subtopic select input value
+  subtopicSelectInputRef.value?.resetSelectedValue();
+  emit("filter", filter.value);
+  props.callbackMethod();
+};
+/**
+ * Called when Subtopic changes
+ * - Updates filter
+ */
+const onSubtopicChange = (subtopic: Subtopic) => {
+  filter.value.onSubtopicChange(subtopic);
   emit("filter", filter.value);
   props.callbackMethod();
 };
