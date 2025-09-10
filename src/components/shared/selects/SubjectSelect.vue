@@ -64,6 +64,12 @@ const props = defineProps({
     required: false,
     default: new Array<Subject>(),
   },
+  //ID of the default subject(if any)
+  defaultSubjectId: {
+    type: Number,
+    required: false,
+  },
+
   isLoadingSubjects: {
     type: Boolean,
     default: false,

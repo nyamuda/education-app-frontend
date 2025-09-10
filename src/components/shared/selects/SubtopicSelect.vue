@@ -63,6 +63,12 @@ const props = defineProps({
     required: false,
     default: new Array<Subtopic>(),
   },
+  //ID of the default subtopic(if any)
+  defaultSubtopicId: {
+    type: Number,
+    required: false,
+  },
+
   isGettingSubtopics: {
     type: Boolean,
     default: false,

@@ -63,6 +63,12 @@ const props = defineProps({
     required: false,
     default: new Array<Topic>(),
   },
+  //ID of the default topic(if any)
+  defaultTopicId: {
+    type: Number,
+    required: false,
+  },
+
   isGettingTopics: {
     type: Boolean,
     default: false,

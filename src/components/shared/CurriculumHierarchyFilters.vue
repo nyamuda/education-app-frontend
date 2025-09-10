@@ -3,6 +3,7 @@
     <!-- Filter by curriculum -->
     <div class="col-6 col-md-3" v-if="showCurriculum">
       <CurriculumSelect
+        :default-curriculum-id="defaultCurriculumId"
         placeholder="Curriculum"
         :is-required="false"
         @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
@@ -12,6 +13,7 @@
     <!-- Filter by exam board -->
     <div class="col-6 col-md-3" v-if="showExamBoard">
       <ExamBoardSelect
+        :default-exam-board-id="defaultExamBoardId"
         @change="onExamBoardChange"
         :exam-boards="filter?.curriculum?.examBoards"
         :is-getting-exam-boards="isLoadingCurriculums"
@@ -144,6 +146,14 @@ const props = defineProps({
     type: Function,
     required: true,
   },
+
+  // Default pre-selected IDs (useful when editing forms)
+  defaultCurriculumId: { type: Number, default: null },
+  defaultExamBoardId: { type: Number, default: null },
+  defaultLevelId: { type: Number, default: null },
+  defaultSubjectId: { type: Number, default: null },
+  defaultTopicId: { type: Number, default: null },
+  defaultSubtopicId: { type: Number, default: null },
 });
 
 // Emit any filter changes to the parent component

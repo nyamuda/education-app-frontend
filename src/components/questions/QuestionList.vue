@@ -100,13 +100,13 @@ import CurriculumHierarchyFilters from "../shared/CurriculumHierarchyFilters.vue
 import { CurriculumHierarchyFilter } from "@/models/curriculumHierarchyFilter";
 import QuestionListItemSkeleton from "./skeletons/QuestionListItemSkeleton.vue";
 import QuestionListItem from "./QuestionListItem.vue";
+import { useRouter } from "vue-router";
 
 const questionStore = useQuestionStore();
-
+const router = useRouter();
 const toast = useToast();
 const questions = ref(new PageInfo<Question>());
 const isGettingQuestions = ref(false);
-
 
 //sorting info
 const sortOptions = ref([{ name: "Date Created", value: QuestionSortOption.DateCreated }]);
@@ -125,6 +125,9 @@ const getAllQuestions = () => {
   const examBoardId = questionStore.filter.examBoard?.id ?? null;
   const levelId = questionStore.filter.level?.id ?? null;
   const subjectId = questionStore.filter.subject?.id ?? null;
+  const topicId = questionStore.filter.topic?.id ?? null;
+  const subtopicId = questionStore.filter.subtopic?.id ?? null;
+  const searchQuery = questionStore.filter.searchQuery;
   const params: QuestionQueryParams = {
     page,
     pageSize,
@@ -133,6 +136,9 @@ const getAllQuestions = () => {
     examBoardId,
     levelId,
     subjectId,
+    topicId,
+    subtopicId,
+    searchQuery,
   };
   //fetch the questions
   questionStore
@@ -164,6 +170,12 @@ const onPageChange = (state: PageState) => {
   //smoothly scroll to the top of the list
   const elementId = "question-list";
   SmoothScrollHelper.scrollToElement(elementId);
+};
+
+const onFilterChange = (filter: CurriculumHierarchyFilter) => {
+  questionStore.filter = filter;
+
+  router.push({query:{...filter}})
 };
 </script>
 

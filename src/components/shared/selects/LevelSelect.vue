@@ -66,6 +66,12 @@ const props = defineProps({
     required: false,
     default: new Array<Level>(),
   },
+  //ID of the default level(if any)
+  defaultLevelId: {
+    type: Number,
+    required: false,
+  },
+
   isGettingLevels: {
     type: Boolean,
     default: false,

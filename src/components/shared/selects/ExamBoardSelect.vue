@@ -66,6 +66,12 @@ const props = defineProps({
     required: false,
     default: new Array<ExamBoard>(),
   },
+  //ID of the default exam board (if any)
+  defaultExamBoardId: {
+    type: Number,
+    required: false,
+  },
+
   isGettingExamBoards: {
     type: Boolean,
     default: false,
@@ -76,6 +82,11 @@ const emit = defineEmits(["change", "isLoading"]);
 
 onMounted(() => {
   v$.value.$touch();
+  // apply the default value (if provided).
+  // This makes sure the correct option shows up in the select input instead of staying empty.
+  if (props.defaultExamBoardId) {
+    formData.value.examBoardId = props.defaultExamBoardId;
+  }
 });
 
 //select input validation start

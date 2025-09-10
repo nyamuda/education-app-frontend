@@ -9,6 +9,10 @@ import type { Topic } from "./topic";
  * A filter for selecting items based on their hierarchy:
  * Curriculum → Exam Board → Level → Subject → Topic → Subtopic.
  * Each property can be set to filter items or left as null to include all.
+ * Additional fields:
+ * - `searchQuery`: optional free-text search term
+ * - `page`: current page number for pagination
+ * - `pageSize`: number of items to return per page
  */
 export class CurriculumHierarchyFilter {
   public constructor(
@@ -19,6 +23,8 @@ export class CurriculumHierarchyFilter {
     public topic: Topic | null = null,
     public subtopic: Subtopic | null = null,
     public searchQuery: string | null = null,
+    public page: number | null = null,
+    public pageSize: number | null = null,
   ) {}
 
   /** Resets all values in the filter */
@@ -29,6 +35,9 @@ export class CurriculumHierarchyFilter {
     this.subject = null;
     this.topic = null;
     this.subtopic = null;
+    this.searchQuery = null;
+    this.page = null;
+    this.pageSize = null;
   }
 
   /**
