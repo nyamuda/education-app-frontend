@@ -35,6 +35,7 @@ import { useToast } from "primevue";
 import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 import { Message } from "primevue";
+import { useRouter } from "vue-router";
 
 const props = defineProps({
   //placeholder text of the select input
@@ -65,7 +66,6 @@ const props = defineProps({
     type: Number,
     required: false,
   },
-
 });
 
 const emit = defineEmits(["isLoading", "change"]);
@@ -76,6 +76,7 @@ onMounted(() => {
 });
 
 const toast = useToast();
+const router = useRouter();
 const curriculums: Ref<Curriculum[]> = ref([]);
 const curriculumStore = useCurriculumStore();
 const isGettingCurriculums = ref(false);
@@ -127,10 +128,7 @@ const getAllCurriculums = () => {
     .then((data) => {
       curriculums.value = data.items;
       // Once the list of curriculums is loaded, apply the default value (if provided).
-      // This makes sure the correct option shows up in the select input instead of staying empty.
-      if (props.defaultCurriculumId) {
-        formData.value.curriculumId = props.defaultCurriculumId;
-      }
+      applyDefaultsValue();
     })
     .catch((message) => {
       toast.add({
@@ -144,5 +142,20 @@ const getAllCurriculums = () => {
       isGettingCurriculums.value = false;
       emit("isLoading", false);
     });
+};
+
+/**
+ * Applies the default value for curriculum if it was provided via query params.
+ * This method is called once the list of curriculums is loaded.
+ * This makes sure the correct option shows up in the select input instead of staying empty.
+ */
+const applyDefaultsValue = () => {
+  try {
+    const query = router.currentRoute.value.query;
+    const defaultCurriculumId = query.curriculumId ? Number(query.curriculumId) : null;
+    if (defaultCurriculumId) {
+      formData.value.curriculumId = defaultCurriculumId;
+    }
+  } catch {}
 };
 </script>

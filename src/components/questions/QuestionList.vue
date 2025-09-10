@@ -11,7 +11,7 @@
     <!-- Hierarchy filters start-->
     <CurriculumHierarchyFilters
       :callback-method="getAllQuestions"
-      @filter="(val: CurriculumHierarchyFilter) => (questionStore.filter = val)"
+      @filter="(val: CurriculumHierarchyFilter) => onFilterChange(val)"
     >
       <template #extraContent>
         <!-- Sorting -->
@@ -115,35 +115,22 @@ const selectedSortOption = ref(QuestionSortOption.DateCreated);
 onMounted(() => {
   //get all questions
   getAllQuestions();
+  //get query params
 });
 //get all questions
 const getAllQuestions = () => {
   isGettingQuestions.value = true;
   //prepare the query parameter before fetching the questions
-  const { page, pageSize } = questions.value;
-  const curriculumId = questionStore.filter.curriculum?.id ?? null;
-  const examBoardId = questionStore.filter.examBoard?.id ?? null;
-  const levelId = questionStore.filter.level?.id ?? null;
-  const subjectId = questionStore.filter.subject?.id ?? null;
-  const topicId = questionStore.filter.topic?.id ?? null;
-  const subtopicId = questionStore.filter.subtopic?.id ?? null;
-  const searchQuery = questionStore.filter.searchQuery;
-  const params: QuestionQueryParams = {
-    page,
-    pageSize,
-    sortBy: selectedSortOption.value,
-    curriculumId,
-    examBoardId,
-    levelId,
-    subjectId,
-    topicId,
-    subtopicId,
-    searchQuery,
-  };
+  const params: QuestionQueryParams = questionStore.filter.toQueryParams(selectedSortOption.value);
   //fetch the questions
   questionStore
     .getQuestions(params)
-    .then((data) => (questions.value = data))
+    .then((data) => {
+      questions.value = data;
+      //store pagination info
+      questionStore.filter.page = data.page;
+      questionStore.filter.pageSize = data.pageSize;
+    })
     .catch((message) => {
       toast.add({
         severity: "error",
@@ -164,7 +151,7 @@ const getAllQuestions = () => {
 const onPageChange = (state: PageState) => {
   // PrimeVue uses a 0-based page index, so add 1 before sending
   // the request to the backend, which expects 1-based indexing.
-  questions.value.page = state.page + 1;
+  questionStore.filter.page = state.page + 1;
   getAllQuestions();
 
   //smoothly scroll to the top of the list
@@ -175,7 +162,9 @@ const onPageChange = (state: PageState) => {
 const onFilterChange = (filter: CurriculumHierarchyFilter) => {
   questionStore.filter = filter;
 
-  router.push({query:{...filter}})
+  const queryParams = filter.toQueryParams(selectedSortOption.value);
+
+  router.push({ query: { ...queryParams } });
 };
 </script>
 
