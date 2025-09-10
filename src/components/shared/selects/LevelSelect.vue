@@ -28,15 +28,13 @@
 <script setup lang="ts">
 import Select, { type SelectChangeEvent } from "primevue/select";
 import { Level } from "@/models/level";
-import { computed, onMounted, ref, toRef, type PropType, type Ref } from "vue";
+import { computed, onMounted, ref, type PropType, type Ref } from "vue";
 import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 import { Message, useToast } from "primevue";
 import { useSubjectStore } from "@/stores/subject";
 import type { SubjectQueryParams } from "@/interfaces/subjects/subjectQueryParams";
 import { SubjectSortOption } from "@/enums/subjects/subjectSortOption";
-import { watch } from "vue";
-import { useRouter } from "vue-router";
 
 const props = defineProps({
   //placeholder text of the select input
@@ -76,7 +74,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["change", "isLoadingLevels", "isLoadingSubjects", "subjects"]);
-const router = useRouter();
 
 onMounted(() => {
   v$.value.$touch();
@@ -85,8 +82,6 @@ onMounted(() => {
 const subjectStore = useSubjectStore();
 const isGettingSubjects = ref(false);
 const toast = useToast();
-// make levels reactive
-const levels = toRef(props, "levels");
 
 //select input validation start
 const formData: Ref<{ levelId: number | null }> = ref({
@@ -115,8 +110,6 @@ const onSelect = async (event: SelectChangeEvent) => {
 const resetSelectedValue = () => {
   formData.value.levelId = null;
 };
-//expose the `resetSelectedValue` method to call it in parent components
-defineExpose({ resetSelectedValue });
 
 /**
  * Fetches all subjects from the backend for a given educational level. These subjects are used
@@ -130,11 +123,12 @@ defineExpose({ resetSelectedValue });
  * If the dataset grows significantly in the future, the page size can be
  * reduced or proper pagination logic can be implemented.
  */
-const getSubjectsForLevel = (levelId: number) => {
+const getSubjectsForLevel = async (levelId: number) => {
   if (!levelId) return;
+
   isGettingSubjects.value = true;
 
-  //tell the parent component that the subjects are being loaded
+  // Tell the parent component that the subjects are being loaded
   emit("isLoadingSubjects", true);
 
   const page = 1;
@@ -149,62 +143,38 @@ const getSubjectsForLevel = (levelId: number) => {
     examBoardId: null,
   };
 
-  subjectStore
-    .getSubjectsForLevel(queryParams)
-    .then((data) => {
-      emit("subjects", data.items);
-    })
-    .catch((message) => {
-      toast.add({
-        severity: "error",
-        summary: "Error",
-        detail: message,
-        life: 5000,
-      });
-    })
-    .finally(() => {
-      isGettingSubjects.value = false;
-      emit("isLoadingSubjects", false);
+  try {
+    const data = await subjectStore.getSubjectsForLevel(queryParams);
+    emit("subjects", data.items);
+  } catch (message) {
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: message,
+      life: 5000,
     });
+  } finally {
+    isGettingSubjects.value = false;
+    emit("isLoadingSubjects", false);
+  }
 };
 
 /**
  * Applies the default value for level if it was provided via query params.
  * This method is called once the list of levels is loaded.
  * This makes sure the correct option shows up in the select input instead of staying empty.
+ *
+ * Note: The method also retrieves subjects for the given level.
  */
-const applyDefaultValue = () => {
+const applyDefaultValue = async (defaultLevelId: number | null) => {
   try {
-    const query = router.currentRoute.value.query;
-    const defaultLevelId = query.levelId ? Number(query.levelId) : null;
-    if (defaultLevelId) {
-      formData.value.levelId = defaultLevelId;
-
-      //get and emit the default level
-      const level = props.levels.find((x) => x.id == defaultLevelId);
-
-      emit("change", level);
-    }
+    formData.value.levelId = defaultLevelId;
+    //fetch subjects for the given level
+    if (!defaultLevelId) return;
+    await getSubjectsForLevel(defaultLevelId);
   } catch {}
 };
 
-/**
- * Watches the `levels` prop for changes.
- * Once the list of levels is populated (length > 0),
- * it triggers `applyDefaultValue()` to check if a default
- * level ID was provided via query params and apply it.
- *
- * This ensures that when the levels are loaded asynchronously,
- * the select input correctly reflects the user’s previously selected
- * level (from URL query params) instead of remaining empty.
- */
-watch(
-  levels,
-  (val) => {
-    if (val.length > 0) {
-      applyDefaultValue();
-    }
-  },
-  { deep: true },
-);
+//expose methods to call in parent components
+defineExpose({ resetSelectedValue, applyDefaultValue });
 </script>

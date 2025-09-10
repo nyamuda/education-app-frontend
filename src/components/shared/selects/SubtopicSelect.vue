@@ -28,11 +28,10 @@
 <script setup lang="ts">
 import Select, { type SelectChangeEvent } from "primevue/select";
 import { Subtopic } from "@/models/subtopic";
-import { computed, onMounted, ref, toRef, watch, type PropType, type Ref } from "vue";
+import { computed, onMounted, ref, type PropType, type Ref } from "vue";
 import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 import { Message } from "primevue";
-import { useRouter } from "vue-router";
 
 const props = defineProps({
   //placeholder text of the select input
@@ -72,9 +71,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["change", "isLoading"]);
-const router = useRouter();
-// make subtopics reactive
-const subtopics = toRef(props, "subtopics");
 
 onMounted(() => {
   v$.value.$touch();
@@ -103,46 +99,18 @@ const onSelect = async (event: SelectChangeEvent) => {
 const resetSelectedValue = () => {
   formData.value.subtopicId = null;
 };
-//expose the `resetSelectedValue` method to call it in parent components
-defineExpose({ resetSelectedValue });
 
 /**
  * Applies the default value for subtopic if it was provided via query params.
  * This method is called once the list of subtopics is loaded.
  * This makes sure the correct option shows up in the select input instead of staying empty.
  */
-const applyDefaultValue = () => {
+const applyDefaultValue = (defaultSubtopicId: number | null) => {
   try {
-    const query = router.currentRoute.value.query;
-    const defaultSubtopicId = query.subtopicId ? Number(query.subtopicId) : null;
-    if (defaultSubtopicId) {
-      formData.value.subtopicId = defaultSubtopicId;
-
-      //get and emit the default subtopic
-      const subtopic = props.subtopics.find((x) => x.id == defaultSubtopicId);
-
-      emit("change", subtopic);
-    }
+    formData.value.subtopicId = defaultSubtopicId;
   } catch {}
 };
 
-/**
- * Watches the `subtopics` prop for changes.
- * Once the list of subtopics is populated (length > 0),
- * it triggers `applyDefaultValue()` to check if a default
- * subtopic ID was provided via query params and apply it.
- *
- * This ensures that when the subtopics are loaded asynchronously,
- * the select input correctly reflects the user’s previously selected
- * subtopic (from URL query params) instead of remaining empty.
- */
-watch(
-  subtopics,
-  (val) => {
-    if (val.length > 0) {
-      applyDefaultValue();
-    }
-  },
-  { deep: true },
-);
+//expose methods to call in parent components
+defineExpose({ resetSelectedValue, applyDefaultValue });
 </script>

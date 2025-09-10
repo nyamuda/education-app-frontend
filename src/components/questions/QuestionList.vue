@@ -168,12 +168,26 @@ const onPageChange = (state: PageState) => {
   SmoothScrollHelper.scrollToElement(elementId);
 };
 
+/**
+ * Handles changes to the question filter.
+ * Converts the filter state into query params
+ *  and updates the URL with the resulting query parameters.
+ * @param filter - The updated CurriculumHierarchyFilter object
+ */
 const onFilterChange = (filter: CurriculumHierarchyFilter) => {
   questionStore.filter = filter;
-
+  // converts the current filter state into query params
   const queryParams = filter.toQueryParams(selectedSortOption.value);
+  // Filter out any query parameters that are null or undefined
+  const availableQueryParams = Object.fromEntries(
+    // Convert the queryParams object into an array of [key, value] pairs
+    Object.entries(queryParams)
+      // Keep only entries where the value is not null or undefined
+      .filter(([_, value]) => value != null),
+    // Convert the filtered array back into an object
+  );
 
-  router.push({ query: { ...queryParams } });
+  router.push({ query: { ...availableQueryParams } });
 };
 </script>
 

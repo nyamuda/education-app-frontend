@@ -29,11 +29,10 @@
 <script setup lang="ts">
 import Select, { type SelectChangeEvent } from "primevue/select";
 import { Subject } from "@/models/subject";
-import { computed, onMounted, ref, toRef, watch, type PropType, type Ref } from "vue";
+import { computed, onMounted, ref, type PropType, type Ref } from "vue";
 import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 import { Message } from "primevue";
-import { useRouter } from "vue-router";
 
 const props = defineProps({
   //placeholder text of the select input
@@ -73,9 +72,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["change", "isLoading"]);
-const router = useRouter();
-// make subjects reactive
-const subjects = toRef(props, "subjects");
 
 onMounted(() => {
   v$.value.$touch();
@@ -104,46 +100,18 @@ const onSelect = async (event: SelectChangeEvent) => {
 const resetSelectedValue = () => {
   formData.value.subjectId = null;
 };
-//expose the `resetSelectedValue` method to call it in parent componentsrea
-defineExpose({ resetSelectedValue });
 
 /**
  * Applies the default value for subject if it was provided via query params.
  * This method is called once the list of subjects is loaded.
  * This makes sure the correct option shows up in the select input instead of staying empty.
  */
-const applyDefaultValue = () => {
+const applyDefaultValue = (defaultSubjectId: number | null) => {
   try {
-    const query = router.currentRoute.value.query;
-    const defaultSubjectId = query.subjectId ? Number(query.subjectId) : null;
-    if (defaultSubjectId) {
-      formData.value.subjectId = defaultSubjectId;
-
-      //get and emit the default subject
-      const subject = props.subjects.find((x) => x.id == defaultSubjectId);
-
-      emit("change", subject);
-    }
+    formData.value.subjectId = defaultSubjectId;
   } catch {}
 };
 
-/**
- * Watches the `subjects` prop for changes.
- * Once the list of subjects is populated (length > 0),
- * it triggers `applyDefaultValue()` to check if a default
- * subject ID was provided via query params and apply it.
- *
- * This ensures that when the subjects are loaded asynchronously,
- * the select input correctly reflects the user’s previously selected
- * subject (from URL query params) instead of remaining empty.
- */
-watch(
-  subjects,
-  (val) => {
-    if (val.length > 0) {
-      applyDefaultValue();
-    }
-  },
-  { deep: true },
-);
+//expose methods to call in parent components
+defineExpose({ applyDefaultValue, resetSelectedValue });
 </script>

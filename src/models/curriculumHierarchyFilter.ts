@@ -121,7 +121,7 @@ export class CurriculumHierarchyFilter {
       subjectId: this.subject ? this.subject.id : null,
       topicId: this.topic ? this.topic.id : null,
       subtopicId: this.subtopic ? this.subtopic.id : null,
-      searchQuery: this.searchQuery,
+      search: this.searchQuery,
     };
   }
 }

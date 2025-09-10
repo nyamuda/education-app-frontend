@@ -35,7 +35,6 @@ import { useToast } from "primevue";
 import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 import { Message } from "primevue";
-import { useRouter } from "vue-router";
 
 const props = defineProps({
   //placeholder text of the select input
@@ -62,15 +61,13 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["isLoading", "change"]);
+const emit = defineEmits(["isLoading", "change", "curriculums"]);
 
 onMounted(() => {
-  getAllCurriculums();
   v$.value.$touch();
 });
 
 const toast = useToast();
-const router = useRouter();
 const curriculums: Ref<Curriculum[]> = ref([]);
 const curriculumStore = useCurriculumStore();
 const isGettingCurriculums = ref(false);
@@ -108,34 +105,31 @@ const onSelect = async (event: SelectChangeEvent) => {
  * If the dataset grows significantly in the future, the page size can be
  * reduced or proper pagination logic can be implemented.
  */
-const getAllCurriculums = () => {
+const getAllCurriculums = async () => {
   isGettingCurriculums.value = true;
 
-  //tell the parent component that the curriculums are being loaded
+  // tell the parent component that the curriculums are being loaded
   emit("isLoading", true);
 
   const page = 1;
   const pageSize = 100;
 
-  curriculumStore
-    .getCurriculums(page, pageSize)
-    .then((data) => {
-      curriculums.value = data.items;
-      // Once the list of curriculums is loaded, apply the default value (if provided).
-      applyDefaultValue();
-    })
-    .catch((message) => {
-      toast.add({
-        severity: "error",
-        summary: "Error",
-        detail: message,
-        life: 5000,
-      });
-    })
-    .finally(() => {
-      isGettingCurriculums.value = false;
-      emit("isLoading", false);
+  try {
+    const data = await curriculumStore.getCurriculums(page, pageSize);
+    curriculums.value = data.items;
+    //emit the loaded curriculums
+    emit("curriculums", curriculums.value);
+  } catch (message) {
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: message,
+      life: 5000,
     });
+  } finally {
+    isGettingCurriculums.value = false;
+    emit("isLoading", false);
+  }
 };
 
 /**
@@ -143,17 +137,10 @@ const getAllCurriculums = () => {
  * This method is called once the list of curriculums is loaded.
  * This makes sure the correct option shows up in the select input instead of staying empty.
  */
-const applyDefaultValue = () => {
+const applyDefaultValue = (defaultCurriculumId: number | null) => {
   try {
-    const query = router.currentRoute.value.query;
-    const defaultCurriculumId = query.curriculumId ? Number(query.curriculumId) : null;
-    if (defaultCurriculumId) {
-      formData.value.curriculumId = defaultCurriculumId;
-
-      //get and emit the default curriculum
-      const curriculum = curriculums.value.find((c) => c.id == defaultCurriculumId);
-      emit("change", curriculum);
-    }
+    formData.value.curriculumId = defaultCurriculumId;
   } catch {}
 };
+defineExpose({ getAllCurriculums, applyDefaultValue });
 </script>

@@ -10,5 +10,5 @@ export interface QuestionQueryParams {
   subjectId: number | null;
   topicId: number | null;
   subtopicId: number | null;
-  searchQuery: string | null;
+  search: string | null;
 }

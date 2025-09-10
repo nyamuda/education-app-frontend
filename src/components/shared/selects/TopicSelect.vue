@@ -28,11 +28,10 @@
 <script setup lang="ts">
 import Select, { type SelectChangeEvent } from "primevue/select";
 import { Topic } from "@/models/topic";
-import { computed, onMounted, ref, toRef, watch, type PropType, type Ref } from "vue";
+import { computed, onMounted, ref, type PropType, type Ref } from "vue";
 import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 import { Message } from "primevue";
-import { useRouter } from "vue-router";
 
 const props = defineProps({
   //placeholder text of the select input
@@ -72,9 +71,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["change", "isLoading"]);
-const router = useRouter();
-// make topics reactive
-const topics = toRef(props, "topics");
 
 onMounted(() => {
   v$.value.$touch();
@@ -103,46 +99,18 @@ const onSelect = async (event: SelectChangeEvent) => {
 const resetSelectedValue = () => {
   formData.value.topicId = null;
 };
-//expose the `resetSelectedValue` method to call it in parent components
-defineExpose({ resetSelectedValue });
 
 /**
  * Applies the default value for topic if it was provided via query params.
  * This method is called once the list of topics is loaded.
  * This makes sure the correct option shows up in the select input instead of staying empty.
  */
-const applyDefaultValue = () => {
+const applyDefaultValue = (defaultTopicId: number | null) => {
   try {
-    const query = router.currentRoute.value.query;
-    const defaultTopicId = query.topicId ? Number(query.topicId) : null;
-    if (defaultTopicId) {
-      formData.value.topicId = defaultTopicId;
-
-      //get and emit the default topic
-      const topic = props.topics.find((x) => x.id == defaultTopicId);
-
-      emit("change", topic);
-    }
+    formData.value.topicId = defaultTopicId;
   } catch {}
 };
 
-/**
- * Watches the `topics` prop for changes.
- * Once the list of topics is populated (length > 0),
- * it triggers `applyDefaultValue()` to check if a default
- * topic ID was provided via query params and apply it.
- *
- * This ensures that when the topics are loaded asynchronously,
- * the select input correctly reflects the user’s previously selected
- * topic (from URL query params) instead of remaining empty.
- */
-watch(
-  topics,
-  (val) => {
-    if (val.length > 0) {
-      applyDefaultValue();
-    }
-  },
-  { deep: true },
-);
+//expose methods to call in parent components
+defineExpose({ resetSelectedValue, applyDefaultValue });
 </script>

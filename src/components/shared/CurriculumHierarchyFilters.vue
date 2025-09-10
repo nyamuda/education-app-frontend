@@ -4,9 +4,11 @@
     <div class="col-6 col-md-3" v-if="showCurriculum">
       <CurriculumSelect
         placeholder="Curriculum"
+        @curriculums="(val: Curriculum[]) => (curriculums = val)"
         :is-required="false"
         @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
         @change="onCurriculumChange"
+        ref="curriculumSelectInputRef"
       />
     </div>
     <!-- Filter by exam board -->
@@ -109,9 +111,10 @@ import ExamBoardSelect from "./selects/ExamBoardSelect.vue";
 import LevelSelect from "./selects/LevelSelect.vue";
 import SubjectSelect from "./selects/SubjectSelect.vue";
 import TopicSelect from "./selects/TopicSelect.vue";
-import { ref, type Ref } from "vue";
+import { onMounted, ref, type Ref } from "vue";
 import SubtopicSelect from "./selects/SubtopicSelect.vue";
 import type { Subtopic } from "@/models/subtopic";
+import { useRouter } from "vue-router";
 
 defineProps({
   // Props to control which filters should be visible
@@ -146,11 +149,21 @@ defineProps({
   // },
 });
 
+onMounted(async () => {
+  await curriculumSelectInputRef.value?.getAllCurriculums();
+  applyDefaultsFromQuery(curriculums.value);
+});
+
 // Emit any filter changes to the parent component
 const emit = defineEmits(["filter"]);
+const router = useRouter();
+// All curriculum options for the curriculum select input
+// Used to apply the default curriculum from query params
+const curriculums: Ref<Curriculum[]> = ref([]);
 
 // Keep track of the currently applied filters
 const filter: Ref<CurriculumHierarchyFilter> = ref(new CurriculumHierarchyFilter());
+const curriculumSelectInputRef = ref();
 const examBoardSelectInputRef = ref();
 const levelSelectInputRef = ref();
 const subjectSelectInputRef = ref();
@@ -228,6 +241,7 @@ const onLevelChange = (level: Level) => {
  */
 const onSubjectChange = (subject: Subject) => {
   filter.value.onSubjectChange(subject);
+
   //reset topic select input value
   topicSelectInputRef.value?.resetSelectedValue();
   //reset subtopic select input value
@@ -255,5 +269,77 @@ const onSubtopicChange = (subtopic: Subtopic) => {
   filter.value.onSubtopicChange(subtopic);
   emit("filter", filter.value);
   // props.callbackMethod();
+};
+
+/**
+ * Applies default values from query parameters to the filter.
+ *
+ * The order of applying defaults is important because
+ * each hierarchy level depends on the one before it:
+ * Curriculum → Exam Board → Level → Subject → Topic → Subtopic
+ *
+ * This ensures that when a user lands on the page with query params
+ * (e.g., /questions?curriculumId=1&examBoardId=2&levelId=3),
+ * the correct values are pre-selected and the filter state
+ * matches the query string.
+ */
+const applyDefaultsFromQuery = async (curriculums: Curriculum[]) => {
+  const query = router.currentRoute.value.query;
+  // Curriculum
+  if (query.curriculumId) {
+    const curriculum = curriculums.find((x) => x.id === Number(query.curriculumId));
+    if (curriculum) {
+      filter.value.curriculum = curriculum;
+      curriculumSelectInputRef.value?.applyDefaultValue(curriculum.id);
+    }
+  }
+
+  // Exam Board
+  if (query.examBoardId) {
+    const examBoard = filter.value.curriculum?.examBoards.find(
+      (x) => x.id === Number(query.examBoardId),
+    );
+    if (examBoard) {
+      filter.value.examBoard = examBoard;
+      examBoardSelectInputRef.value?.applyDefaultValue(examBoard.id);
+    }
+  }
+
+  // Level
+  if (query.levelId) {
+    const level = filter.value.examBoard?.levels.find((x) => x.id === Number(query.levelId));
+    if (level) {
+      filter.value.level = level;
+      // Apply default value to level select input AND fetch subjects for that level
+      await levelSelectInputRef.value?.applyDefaultValue(level.id);
+    }
+  }
+
+  // Subject
+  if (query.subjectId) {
+    const subject = filter.value.level?.subjects.find((x) => x.id === Number(query.subjectId));
+    if (subject) {
+      filter.value.subject = subject;
+      subjectSelectInputRef.value?.applyDefaultValue(subject.id);
+    }
+  }
+
+  // Topic
+  if (query.topicId) {
+    const topic = filter.value.subject?.topics.find((x) => x.id === Number(query.topicId));
+    if (topic) {
+      filter.value.topic = topic;
+    }
+  }
+
+  // Subtopic
+  if (query.subtopicId) {
+    const subtopic = filter.value.topic?.subtopics.find((x) => x.id === Number(query.subtopicId));
+    if (subtopic) {
+      filter.value.subtopic = subtopic;
+    }
+  }
+
+  emit("filter", filter.value);
 };
 </script>

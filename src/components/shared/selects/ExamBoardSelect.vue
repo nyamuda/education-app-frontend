@@ -28,14 +28,10 @@
 <script setup lang="ts">
 import Select, { type SelectChangeEvent } from "primevue/select";
 import { ExamBoard } from "@/models/examBoard";
-//import { useExamBoardStore } from "@/stores/examBoard";
-//import FloatLabel from "primevue/floatlabel";
-import { computed, onMounted, ref, toRef, watch, type PropType, type Ref } from "vue";
-//import { useToast } from "primevue";
+import { computed, onMounted, ref, type PropType, type Ref } from "vue";
 import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 import { Message } from "primevue";
-import { useRouter } from "vue-router";
 
 const props = defineProps({
   //placeholder text of the select input
@@ -75,7 +71,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["change", "isLoading"]);
-const router = useRouter();
 
 onMounted(() => {
   v$.value.$touch();
@@ -104,49 +99,18 @@ const onSelect = async (event: SelectChangeEvent) => {
 const resetSelectedValue = () => {
   formData.value.examBoardId = null;
 };
-//expose the `resetSelectedValue` method to call it in parent components
-defineExpose({ resetSelectedValue });
 
 /**
  * Applies the default value for exam board if it was provided via query params.
  * This method is called once the list of exam boards is loaded.
  * This makes sure the correct option shows up in the select input instead of staying empty.
  */
-const applyDefaultValue = () => {
+const applyDefaultValue = (defaultExamBoardId: number | null) => {
   try {
-    const query = router.currentRoute.value.query;
-    const defaultExamBoardId = query.examBoardId ? Number(query.examBoardId) : null;
-    if (defaultExamBoardId) {
-      formData.value.examBoardId = defaultExamBoardId;
-
-      //get and emit the default exam board
-      const examBoard = props.examBoards.find((x) => x.id == defaultExamBoardId);
-
-      emit("change", examBoard);
-    }
+    formData.value.examBoardId = defaultExamBoardId;
   } catch {}
 };
 
-// make examBoards reactive
-const examBoards = toRef(props, "examBoards");
-
-/**
- * Watches the `examBoards` prop for changes.
- * Once the list of exam boards is populated (length > 0),
- * it triggers `applyDefaultValue()` to check if a default
- * exam board ID was provided via query params and apply it.
- *
- * This ensures that when the exam boards are loaded asynchronously,
- * the select input correctly reflects the user’s previously selected
- * exam board (from URL query params) instead of remaining empty.
- */
-watch(
-  examBoards,
-  (val) => {
-    if (val.length > 0) {
-      applyDefaultValue();
-    }
-  },
-  { deep: true },
-);
+//expose methods to call in parent components
+defineExpose({ resetSelectedValue, applyDefaultValue });
 </script>
