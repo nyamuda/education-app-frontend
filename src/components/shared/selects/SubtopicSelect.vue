@@ -73,6 +73,7 @@ const props = defineProps({
 
 const emit = defineEmits(["change", "isLoading"]);
 const router = useRouter();
+// make subtopics reactive
 const subtopics = toRef(props, "subtopics");
 
 onMounted(() => {

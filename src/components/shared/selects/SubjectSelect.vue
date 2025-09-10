@@ -74,6 +74,7 @@ const props = defineProps({
 
 const emit = defineEmits(["change", "isLoading"]);
 const router = useRouter();
+// make subjects reactive
 const subjects = toRef(props, "subjects");
 
 onMounted(() => {

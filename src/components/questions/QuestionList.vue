@@ -14,7 +14,7 @@
       @filter="(val: CurriculumHierarchyFilter) => onFilterChange(val)"
     >
       <template #extraContent>
-        <!-- Sorting -->
+        <!-- Sorting button -->
         <div class="col-6 col-md-3">
           <Select
             placeholder="Sort by"
@@ -30,7 +30,16 @@
           />
         </div>
 
-        <!-- Button -->
+        <div class="col-6 col-md-3">
+          <!-- Apply filters button -->
+          <Button
+            label="Apply"
+            icon="pi pi-filter"
+            size="small"
+            variant="outlined"
+            severity="contrast"
+          />
+        </div>
       </template>
     </CurriculumHierarchyFilters>
     <!-- Hierarchy filters end-->
