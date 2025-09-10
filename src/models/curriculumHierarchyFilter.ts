@@ -1,9 +1,11 @@
+import { QuestionSortOption } from "@/enums/questions/questionSortOption";
 import type { Curriculum } from "./curriculum";
 import type { ExamBoard } from "./examBoard";
 import type { Level } from "./level";
 import type { Subject } from "./subject";
 import type { Subtopic } from "./subtopic";
 import type { Topic } from "./topic";
+import type { QuestionQueryParams } from "@/interfaces/questions/questionQueryParams";
 
 /**
  * A filter for selecting items based on their hierarchy:
@@ -100,5 +102,26 @@ export class CurriculumHierarchyFilter {
    */
   public onSubtopicChange(subtopic: Subtopic | null) {
     this.subtopic = subtopic;
+  }
+
+  /**
+   * Converts the current filter state into a QuestionQueryParams object.
+   * Useful for building query strings or API calls.
+   */
+  public toQueryParams(
+    sortBy: QuestionSortOption = QuestionSortOption.DateCreated,
+  ): QuestionQueryParams {
+    return {
+      page: this.page ?? 1,
+      pageSize: this.pageSize ?? 10,
+      sortBy,
+      curriculumId: this.curriculum ? this.curriculum.id : null,
+      examBoardId: this.examBoard ? this.examBoard.id : null,
+      levelId: this.level ? this.level.id : null,
+      subjectId: this.subject ? this.subject.id : null,
+      topicId: this.topic ? this.topic.id : null,
+      subtopicId: this.subtopic ? this.subtopic.id : null,
+      searchQuery: this.searchQuery,
+    };
   }
 }
