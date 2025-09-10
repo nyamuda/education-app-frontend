@@ -142,15 +142,12 @@ defineProps({
     type: Boolean,
     default: true,
   },
-  // Method that is called called after a filter changes
-  // callbackMethod: {
-  //   type: Function,
-  //   required: true,
-  // },
 });
 
 onMounted(async () => {
+  //fetch all curriculums
   await curriculumSelectInputRef.value?.getAllCurriculums();
+  //then apply default filter values based on the provided query parameters
   applyDefaultsFromQuery(curriculums.value);
 });
 
@@ -329,6 +326,7 @@ const applyDefaultsFromQuery = async (curriculums: Curriculum[]) => {
     const topic = filter.value.subject?.topics.find((x) => x.id === Number(query.topicId));
     if (topic) {
       filter.value.topic = topic;
+      topicSelectInputRef.value?.applyDefaultValue(topic.id);
     }
   }
 
@@ -337,6 +335,7 @@ const applyDefaultsFromQuery = async (curriculums: Curriculum[]) => {
     const subtopic = filter.value.topic?.subtopics.find((x) => x.id === Number(query.subtopicId));
     if (subtopic) {
       filter.value.subtopic = subtopic;
+      subtopicSelectInputRef.value?.applyDefaultValue(subtopic.id);
     }
   }
 
