@@ -2,7 +2,7 @@
   <div class="">
     <Select
       id="subtopicSubtopic"
-      :placeholder="isGettingSubtopics ? 'Loading subtopics...' : placeholder"
+      :placeholder="isLoadingSubtopics ? 'Loading subtopics...' : placeholder"
       checkmark
       :options="subtopics"
       option-label="name"
@@ -10,8 +10,8 @@
       v-model="v$.subtopicId.$model"
       :invalid="v$.subtopicId.$error"
       class="w-100"
-      :loading="isGettingSubtopics"
-      :disabled="isGettingSubtopics"
+      :loading="isLoadingSubtopics"
+      :disabled="isLoadingSubtopics"
       @change="onSelect"
       :size="size"
       :show-clear="showClear"
@@ -28,10 +28,11 @@
 <script setup lang="ts">
 import Select, { type SelectChangeEvent } from "primevue/select";
 import { Subtopic } from "@/models/subtopic";
-import { computed, onMounted, ref, type PropType, type Ref } from "vue";
+import { computed, onMounted, ref, toRef, watch, type PropType, type Ref } from "vue";
 import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 import { Message } from "primevue";
+import { useRouter } from "vue-router";
 
 const props = defineProps({
   //placeholder text of the select input
@@ -63,19 +64,16 @@ const props = defineProps({
     required: false,
     default: new Array<Subtopic>(),
   },
-  //ID of the default subtopic(if any)
-  defaultSubtopicId: {
-    type: Number,
-    required: false,
-  },
 
-  isGettingSubtopics: {
+  isLoadingSubtopics: {
     type: Boolean,
     default: false,
   },
 });
 
 const emit = defineEmits(["change", "isLoading"]);
+const router = useRouter();
+const subtopics = toRef(props, "subtopics");
 
 onMounted(() => {
   v$.value.$touch();
@@ -87,7 +85,7 @@ const formData: Ref<{ subtopicId: number | null }> = ref({
 });
 
 const rules = computed(() => {
-  if (props.isGettingSubtopics || !props.isRequired) return { subtopicId: {} };
+  if (props.isLoadingSubtopics || !props.isRequired) return { subtopicId: {} };
   return { subtopicId: { required: helpers.withMessage("Select subtopic", required) } };
 });
 
@@ -106,4 +104,44 @@ const resetSelectedValue = () => {
 };
 //expose the `resetSelectedValue` method to call it in parent components
 defineExpose({ resetSelectedValue });
+
+/**
+ * Applies the default value for subtopic if it was provided via query params.
+ * This method is called once the list of subtopics is loaded.
+ * This makes sure the correct option shows up in the select input instead of staying empty.
+ */
+const applyDefaultValue = () => {
+  try {
+    const query = router.currentRoute.value.query;
+    const defaultSubtopicId = query.subtopicId ? Number(query.subtopicId) : null;
+    if (defaultSubtopicId) {
+      formData.value.subtopicId = defaultSubtopicId;
+
+      //get and emit the default subtopic
+      const subtopic = props.subtopics.find((x) => x.id == defaultSubtopicId);
+
+      emit("change", subtopic);
+    }
+  } catch {}
+};
+
+/**
+ * Watches the `subtopics` prop for changes.
+ * Once the list of subtopics is populated (length > 0),
+ * it triggers `applyDefaultValue()` to check if a default
+ * subtopic ID was provided via query params and apply it.
+ *
+ * This ensures that when the subtopics are loaded asynchronously,
+ * the select input correctly reflects the user’s previously selected
+ * subtopic (from URL query params) instead of remaining empty.
+ */
+watch(
+  subtopics,
+  (val) => {
+    if (val.length > 0) {
+      applyDefaultValue();
+    }
+  },
+  { deep: true },
+);
 </script>
