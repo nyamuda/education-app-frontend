@@ -128,7 +128,7 @@ const getAllCurriculums = () => {
     .then((data) => {
       curriculums.value = data.items;
       // Once the list of curriculums is loaded, apply the default value (if provided).
-      applyDefaultsValue();
+      applyDefaultValue();
     })
     .catch((message) => {
       toast.add({
@@ -149,12 +149,16 @@ const getAllCurriculums = () => {
  * This method is called once the list of curriculums is loaded.
  * This makes sure the correct option shows up in the select input instead of staying empty.
  */
-const applyDefaultsValue = () => {
+const applyDefaultValue = () => {
   try {
     const query = router.currentRoute.value.query;
     const defaultCurriculumId = query.curriculumId ? Number(query.curriculumId) : null;
     if (defaultCurriculumId) {
       formData.value.curriculumId = defaultCurriculumId;
+
+      //get and emit the default curriculum
+      const curriculum = curriculums.value.find((c) => c.id == defaultCurriculumId);
+      emit("change", curriculum);
     }
   } catch {}
 };
