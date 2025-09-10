@@ -28,13 +28,15 @@
 <script setup lang="ts">
 import Select, { type SelectChangeEvent } from "primevue/select";
 import { Level } from "@/models/level";
-import { computed, onMounted, ref, type PropType, type Ref } from "vue";
+import { computed, onMounted, ref, toRef, type PropType, type Ref } from "vue";
 import { helpers, required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
 import { Message, useToast } from "primevue";
 import { useSubjectStore } from "@/stores/subject";
 import type { SubjectQueryParams } from "@/interfaces/subjects/subjectQueryParams";
 import { SubjectSortOption } from "@/enums/subjects/subjectSortOption";
+import { watch } from "vue";
+import { useRouter } from "vue-router";
 
 const props = defineProps({
   //placeholder text of the select input
@@ -79,6 +81,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["change", "isLoadingLevels", "isLoadingSubjects", "subjects"]);
+const router = useRouter();
 
 onMounted(() => {
   v$.value.$touch();
@@ -87,6 +90,8 @@ onMounted(() => {
 const subjectStore = useSubjectStore();
 const isGettingSubjects = ref(false);
 const toast = useToast();
+
+const levels = toRef(props, "levels");
 
 //select input validation start
 const formData: Ref<{ levelId: number | null }> = ref({
@@ -167,4 +172,44 @@ const getSubjectsForLevel = (levelId: number) => {
       emit("isLoadingSubjects", false);
     });
 };
+
+/**
+ * Applies the default value for level if it was provided via query params.
+ * This method is called once the list of levels is loaded.
+ * This makes sure the correct option shows up in the select input instead of staying empty.
+ */
+const applyDefaultValue = () => {
+  try {
+    const query = router.currentRoute.value.query;
+    const defaultLevelId = query.levelId ? Number(query.levelId) : null;
+    if (defaultLevelId) {
+      formData.value.levelId = defaultLevelId;
+
+      //get and emit the default level
+      const level = props.levels.find((x) => x.id == defaultLevelId);
+
+      emit("change", level);
+    }
+  } catch {}
+};
+
+/**
+ * Watches the `levels` prop for changes.
+ * Once the list of levels is populated (length > 0),
+ * it triggers `applyDefaultValue()` to check if a default
+ * level ID was provided via query params and apply it.
+ *
+ * This ensures that when the levels are loaded asynchronously,
+ * the select input correctly reflects the user’s previously selected
+ * level (from URL query params) instead of remaining empty.
+ */
+watch(
+  levels,
+  (val) => {
+    if (val.length > 0) {
+      applyDefaultValue();
+    }
+  },
+  { deep: true },
+);
 </script>

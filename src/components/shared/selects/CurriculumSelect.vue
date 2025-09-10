@@ -60,12 +60,6 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-
-  //ID of the default curriculum(if any)
-  defaultCurriculumId: {
-    type: Number,
-    required: false,
-  },
 });
 
 const emit = defineEmits(["isLoading", "change"]);

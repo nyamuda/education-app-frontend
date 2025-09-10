@@ -2,7 +2,7 @@
   <div class="">
     <Select
       id="examBoardExamBoard"
-      :placeholder="isGettingExamBoards ? 'Loading exam boards...' : placeholder"
+      :placeholder="isLoadingExamBoards ? 'Loading exam boards...' : placeholder"
       checkmark
       :options="examBoards"
       option-label="name"
@@ -10,8 +10,8 @@
       v-model="v$.examBoardId.$model"
       :invalid="v$.examBoardId.$error"
       class="w-100"
-      :loading="isGettingExamBoards"
-      :disabled="isGettingExamBoards"
+      :loading="isLoadingExamBoards"
+      :disabled="isLoadingExamBoards"
       @change="onSelect"
       :size="size"
       :show-clear="showClear"
@@ -67,13 +67,8 @@ const props = defineProps({
     required: false,
     default: new Array<ExamBoard>(),
   },
-  //ID of the default exam board (if any)
-  defaultExamBoardId: {
-    type: Number,
-    required: false,
-  },
 
-  isGettingExamBoards: {
+  isLoadingExamBoards: {
     type: Boolean,
     default: false,
   },
@@ -84,11 +79,6 @@ const router = useRouter();
 
 onMounted(() => {
   v$.value.$touch();
-  // apply the default value (if provided).
-  // This makes sure the correct option shows up in the select input instead of staying empty.
-  if (props.defaultExamBoardId) {
-    formData.value.examBoardId = props.defaultExamBoardId;
-  }
 });
 
 //select input validation start
@@ -97,7 +87,7 @@ const formData: Ref<{ examBoardId: number | null }> = ref({
 });
 
 const rules = computed(() => {
-  if (props.isGettingExamBoards || !props.isRequired) return { examBoardId: {} };
+  if (props.isLoadingExamBoards || !props.isRequired) return { examBoardId: {} };
   return { examBoardId: { required: helpers.withMessage("Select exam board", required) } };
 });
 
@@ -125,7 +115,7 @@ defineExpose({ resetSelectedValue });
 const applyDefaultValue = () => {
   try {
     const query = router.currentRoute.value.query;
-    const defaultExamBoardId = query.curriculumId ? Number(query.examBoardId) : null;
+    const defaultExamBoardId = query.examBoardId ? Number(query.examBoardId) : null;
     if (defaultExamBoardId) {
       formData.value.examBoardId = defaultExamBoardId;
 
