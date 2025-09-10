@@ -2,7 +2,7 @@
   <div class="">
     <Select
       id="levelLevel"
-      :placeholder="isGettingLevels ? 'Loading levels...' : placeholder"
+      :placeholder="isLoadingLevels ? 'Loading levels...' : placeholder"
       checkmark
       :options="levels"
       option-label="name"
@@ -10,8 +10,8 @@
       v-model="v$.levelId.$model"
       :invalid="v$.levelId.$error"
       class="w-100"
-      :loading="isGettingLevels"
-      :disabled="isGettingLevels"
+      :loading="isLoadingLevels"
+      :disabled="isLoadingLevels"
       @change="onSelect"
       :size="size"
       :show-clear="showClear"
@@ -68,13 +68,8 @@ const props = defineProps({
     required: false,
     default: new Array<Level>(),
   },
-  //ID of the default level(if any)
-  defaultLevelId: {
-    type: Number,
-    required: false,
-  },
 
-  isGettingLevels: {
+  isLoadingLevels: {
     type: Boolean,
     default: false,
   },
@@ -99,7 +94,7 @@ const formData: Ref<{ levelId: number | null }> = ref({
 });
 
 const rules = computed(() => {
-  if (props.isGettingLevels || !props.isRequired) return { levelId: {} };
+  if (props.isLoadingLevels || !props.isRequired) return { levelId: {} };
   return { levelId: { required: helpers.withMessage("Select level", required) } };
 });
 
