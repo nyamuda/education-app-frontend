@@ -1,6 +1,7 @@
 <template>
   <div class="">
     <Select
+      editable
       id="subjectSubject"
       :placeholder="isLoadingSubjects ? 'Loading subjects...' : placeholder"
       checkmark

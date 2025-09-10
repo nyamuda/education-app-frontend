@@ -5,6 +5,7 @@
       <CurriculumSelect
         placeholder="Curriculum"
         :is-required="false"
+        @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
         @change="onCurriculumChange"
       />
     </div>
@@ -13,6 +14,7 @@
       <ExamBoardSelect
         @change="onExamBoardChange"
         :exam-boards="filter?.curriculum?.examBoards"
+        :is-getting-exam-boards="isLoadingCurriculums"
         placeholder="Exam board"
         :is-required="false"
         ref="examBoardSelectInputRef"
@@ -21,6 +23,7 @@
     <!-- Filter by level -->
     <div class="col-6 col-md-3" v-if="showLevel">
       <LevelSelect
+        :is-getting-levels="isLoadingCurriculums"
         @change="onLevelChange"
         @subjects="(val: Subject[]) => (filter.level ? (filter.level.subjects = val) : null)"
         @is-loading-subjects="(val: boolean) => (isLoadingSubjects = val)"
@@ -46,6 +49,7 @@
       <TopicSelect
         @change="onTopicChange"
         :topics="filter?.subject?.topics"
+        :is-getting-topics="isLoadingSubjects"
         placeholder="Topic"
         :is-required="false"
         ref="topicSelectInputRef"
@@ -55,7 +59,8 @@
     <div class="col-6 col-md-3" v-if="showSubtopic">
       <SubtopicSelect
         @change="onSubtopicChange"
-        :topics="filter?.topic?.subtopics"
+        :is-getting-subtopics="isLoadingSubjects"
+        :subtopics="filter?.topic?.subtopics"
         placeholder="Subtopic"
         :is-required="false"
         ref="subtopicSelectInputRef"
@@ -152,7 +157,9 @@ const subjectSelectInputRef = ref();
 const topicSelectInputRef = ref();
 const subtopicSelectInputRef = ref();
 
-// Show a loader in the select input when its items are being fetched
+// Show loader in curriculum, exam board and level selects when curriculums are being fetched
+const isLoadingCurriculums = ref(false);
+// Show loader in subject, topic and subtopic selects when subjects are being fetched
 const isLoadingSubjects = ref(false);
 
 /**

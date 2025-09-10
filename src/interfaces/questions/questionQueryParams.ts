@@ -8,4 +8,7 @@ export interface QuestionQueryParams {
   examBoardId: number | null;
   levelId: number | null;
   subjectId: number | null;
+  topicId: number | null;
+  subtopicId: number | null;
+  searchQuery: string | null;
 }

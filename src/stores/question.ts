@@ -8,9 +8,11 @@ import type { PageInfo } from "@/models/pageInfo";
 import type { QuestionSubmission } from "@/interfaces/questions/questionSubmission";
 import type { QuestionStatus } from "@/enums/questions/questionStatus";
 import type { QuestionQueryParams } from "@/interfaces/questions/questionQueryParams";
+import { CurriculumHierarchyFilter } from "@/models/curriculumHierarchyFilter";
 
 export const useQuestionStore = defineStore("question", () => {
   const apiUrl = ref(`${UrlHelper.apiUrl}/questions`);
+  const filter = ref(new CurriculumHierarchyFilter());
 
   //Gets a question with a given ID
   const getQuestionById = (id: number): Promise<Question> => {
@@ -134,5 +136,6 @@ export const useQuestionStore = defineStore("question", () => {
     deleteQuestion,
     addQuestion,
     updateQuestionStatus,
+    filter,
   };
 });

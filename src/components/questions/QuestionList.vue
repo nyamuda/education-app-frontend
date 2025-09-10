@@ -11,7 +11,7 @@
     <!-- Hierarchy filters start-->
     <CurriculumHierarchyFilters
       :callback-method="getAllQuestions"
-      @filter="(val: CurriculumHierarchyFilter) => (filter = val)"
+      @filter="(val: CurriculumHierarchyFilter) => (questionStore.filter = val)"
     >
       <template #extraContent>
         <!-- Sorting -->
@@ -106,7 +106,7 @@ const questionStore = useQuestionStore();
 const toast = useToast();
 const questions = ref(new PageInfo<Question>());
 const isGettingQuestions = ref(false);
-const filter = ref(new CurriculumHierarchyFilter());
+
 
 //sorting info
 const sortOptions = ref([{ name: "Date Created", value: QuestionSortOption.DateCreated }]);
@@ -121,10 +121,10 @@ const getAllQuestions = () => {
   isGettingQuestions.value = true;
   //prepare the query parameter before fetching the questions
   const { page, pageSize } = questions.value;
-  const curriculumId = filter.value.curriculum?.id ?? null;
-  const examBoardId = filter.value.examBoard?.id ?? null;
-  const levelId = filter.value.level?.id ?? null;
-  const subjectId = filter.value.subject?.id ?? null;
+  const curriculumId = questionStore.filter.curriculum?.id ?? null;
+  const examBoardId = questionStore.filter.examBoard?.id ?? null;
+  const levelId = questionStore.filter.level?.id ?? null;
+  const subjectId = questionStore.filter.subject?.id ?? null;
   const params: QuestionQueryParams = {
     page,
     pageSize,

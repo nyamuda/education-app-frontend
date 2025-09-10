@@ -18,6 +18,7 @@ export class CurriculumHierarchyFilter {
     public subject: Subject | null = null,
     public topic: Topic | null = null,
     public subtopic: Subtopic | null = null,
+    public searchQuery: string | null = null,
   ) {}
 
   /** Resets all values in the filter */
