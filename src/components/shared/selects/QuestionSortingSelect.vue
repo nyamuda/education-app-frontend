@@ -55,13 +55,16 @@ const onChange = () => {
   // Update the store
   questionStore.filter.sortBy = selectedSortOption.value;
 
+  questionStore.filter.updateBrowserQuery();
   // Update the URL query parameter without reloading the page
-  router.replace({
-    query: {
-      ...router.currentRoute.value.query,
-      sortBy: selectedSortOption.value,
-    },
-  });
+  // router.replace({
+  //   query: {
+  //     ...router.currentRoute.value.query,
+  //     // Only include sortBy if a sort option is selected;
+  //     // if selectedSortOption.value is null, sortBy will be omitted
+  //     ...(selectedSortOption.value ? { sortBy: selectedSortOption.value } : {}),
+  //   },
+  // });
 };
 // Apply default sort option from query parameter if present in the URL
 const applyDefaultFromQuery = () => {

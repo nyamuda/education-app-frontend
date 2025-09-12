@@ -6,6 +6,7 @@ import type { Subject } from "./subject";
 import type { Subtopic } from "./subtopic";
 import type { Topic } from "./topic";
 import type { QuestionQueryParams } from "@/interfaces/questions/questionQueryParams";
+import router from "@/router";
 
 /**
  * A filter for selecting items based on their hierarchy:
@@ -120,5 +121,25 @@ export class CurriculumHierarchyFilter {
       subtopicId: this.subtopic ? this.subtopic.id : null,
       search: this.search,
     };
+  }
+
+  /**
+   * Updates the browser URL to reflect the current filter state.
+   * Converts the filter state into query parameters, omitting any null or undefined values.
+   */
+  public applyFilterToBrowserUrl() {
+    // Convert the current filter state into query parameters
+    const queryParams = this.toQueryParams();
+    // Filter out any query parameters that are null or undefined
+    const availableQueryParams = Object.fromEntries(
+      // Convert the queryParams object into an array of [key, value] pairs
+      Object.entries(queryParams)
+        // Keep only entries where the value(index is 1) is not null or undefined
+        .filter((val) => val["1"] != null),
+      // Convert the filtered array back into an object
+    );
+
+    //update the browser URL
+    router.push({ query: { ...availableQueryParams } });
   }
 }
