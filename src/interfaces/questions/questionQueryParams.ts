@@ -1,8 +1,8 @@
 import type { QuestionSortOption } from "@/enums/questions/questionSortOption";
 
 export interface QuestionQueryParams {
-  page: number;
-  pageSize: number;
+  page: number | null;
+  pageSize: number | null;
   sortBy: QuestionSortOption | null;
   curriculumId: number | null;
   examBoardId: number | null;

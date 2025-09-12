@@ -25,7 +25,7 @@ export class CurriculumHierarchyFilter {
     public subject: Subject | null = null,
     public topic: Topic | null = null,
     public subtopic: Subtopic | null = null,
-    public searchQuery: string | null = null,
+    public search: string | null = null,
     public page: number | null = null,
     public pageSize: number | null = null,
     public sortBy: QuestionSortOption | null = null,
@@ -39,9 +39,6 @@ export class CurriculumHierarchyFilter {
     this.subject = null;
     this.topic = null;
     this.subtopic = null;
-    this.searchQuery = null;
-    this.page = null;
-    this.pageSize = null;
   }
 
   /**
@@ -112,8 +109,8 @@ export class CurriculumHierarchyFilter {
    */
   public toQueryParams(): QuestionQueryParams {
     return {
-      page: this.page ?? 1,
-      pageSize: this.pageSize ?? 10,
+      page: this.page ?? null,
+      pageSize: this.pageSize ?? null,
       sortBy: this.sortBy,
       curriculumId: this.curriculum ? this.curriculum.id : null,
       examBoardId: this.examBoard ? this.examBoard.id : null,
@@ -121,7 +118,7 @@ export class CurriculumHierarchyFilter {
       subjectId: this.subject ? this.subject.id : null,
       topicId: this.topic ? this.topic.id : null,
       subtopicId: this.subtopic ? this.subtopic.id : null,
-      search: this.searchQuery,
+      search: this.search,
     };
   }
 }

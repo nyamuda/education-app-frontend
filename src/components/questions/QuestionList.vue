@@ -9,16 +9,11 @@
       </div>
     </div>
     <!-- Hierarchy filters start-->
-    <CurriculumHierarchyFilters
-      :callback-method="getAllQuestions"
-      @filter="(val: CurriculumHierarchyFilter) => updateQuestionFilter(val)"
-    >
+    <CurriculumHierarchyQuestionFilter ref="curriculumHierarchyQuestionFilter">
       <template #extraContent>
         <!-- Sorting select input -->
         <div class="col-6 col-md-3">
-          <QuestionSortingSelect
-            @selected-sort-option="(val: QuestionSortOption) => updateQuestionSort(val)"
-          />
+          <QuestionSortingSelect />
         </div>
 
         <div class="col-6 col-md-3">
@@ -29,14 +24,16 @@
             size="small"
             variant="outlined"
             severity="contrast"
+            @click="getAllQuestions"
+            :disabled="isGettingCurriculums || isGettingQuestions"
           />
         </div>
       </template>
-    </CurriculumHierarchyFilters>
+    </CurriculumHierarchyQuestionFilter>
     <!-- Hierarchy filters end-->
 
     <!--Skeletons start-->
-    <div id="question-list" v-if="isGettingQuestions">
+    <div id="question-list" v-if="isGettingQuestions || isGettingCurriculums">
       <QuestionListItemSkeleton v-for="i in 5" :key="i" />
     </div>
     <!--Skeletons end-->
@@ -79,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, type Ref } from "vue";
+import { ref, onMounted } from "vue";
 
 import Button from "primevue/button";
 
@@ -88,52 +85,65 @@ import EmptyList from "../shared/EmptyList.vue";
 import TitleSection from "../shared/TitleSection.vue";
 import { PageInfo } from "@/models/pageInfo";
 import type { Question } from "@/models/question";
-import { QuestionSortOption } from "@/enums/questions/questionSortOption";
 import Paginator, { type PageState } from "primevue/paginator";
 import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 import { useQuestionStore } from "@/stores/question";
-import CurriculumHierarchyFilters from "../shared/CurriculumHierarchyFilters.vue";
-import { CurriculumHierarchyFilter } from "@/models/curriculumHierarchyFilter";
 import QuestionListItemSkeleton from "./skeletons/QuestionListItemSkeleton.vue";
 import QuestionListItem from "./QuestionListItem.vue";
-import { useRouter } from "vue-router";
 import QuestionSortingSelect from "../shared/selects/QuestionSortingSelect.vue";
+import CurriculumHierarchyQuestionFilter from "../shared/CurriculumHierarchyQuestionFilter.vue";
 
 const questionStore = useQuestionStore();
-const router = useRouter();
+
 const toast = useToast();
 const questions = ref(new PageInfo<Question>());
 const isGettingQuestions = ref(false);
-const selectedSortOption: Ref<QuestionSortOption | null> = ref(null);
+const isGettingCurriculums = ref(false);
+const curriculumHierarchyQuestionFilter = ref();
 
-onMounted(() => {
-  //get all questions
-  getAllQuestions();
-  //get query params
+onMounted(async () => {
+  await getCurriculumsAndApplyDefaults();
+  await getAllQuestions();
 });
-//get all questions
-const getAllQuestions = () => {
-  isGettingQuestions.value = true;
-  //prepare the query parameter before fetching the questions
-  const params = questionStore.filter.toQueryParams();
-  //fetch the questions
-  questionStore
-    .getQuestions(params)
-    .then((data) => {
-      questions.value = data;
-      //store pagination info
-      questionStore.filter.page = data.page;
-      questionStore.filter.pageSize = data.pageSize;
-    })
-    .catch((message) => {
-      toast.add({
-        severity: "error",
-        summary: "Error",
-        detail: message,
-        life: 5000,
-      });
-    })
-    .finally(() => (isGettingQuestions.value = false));
+
+/**
+ * Gets all curriculums to use in the filter dropdowns
+ * and applies any default filter values.
+ */
+const getCurriculumsAndApplyDefaults = async () => {
+  isGettingCurriculums.value = true;
+  await curriculumHierarchyQuestionFilter.value?.getCurriculumsAndApplyDefaults();
+  isGettingCurriculums.value = false;
+};
+
+// Gets all questions based on the current filter state
+const getAllQuestions = async () => {
+  try {
+    isGettingQuestions.value = true;
+
+    // Prepare the query parameters from the current filter
+    const params = questionStore.filter.toQueryParams();
+
+    // Fetch the questions
+    const data = await questionStore.getQuestions(params);
+
+    // Update the local questions state
+    questions.value = data;
+
+    // Update pagination info in the store filter
+    questionStore.filter.page = data.page;
+    questionStore.filter.pageSize = data.pageSize;
+  } catch (message) {
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: message,
+      life: 5000,
+    });
+  } finally {
+    // reset loading state
+    isGettingQuestions.value = false;
+  }
 };
 
 /**
@@ -152,19 +162,6 @@ const onPageChange = (state: PageState) => {
   const elementId = "question-list";
   SmoothScrollHelper.scrollToElement(elementId);
 };
-
-/**
- * Updates the question sorting option in the store and triggers a filter refresh.
- *
- * @param sortBy - The selected sorting option for questions.
- */
-const updateQuestionSort = (sortBy: QuestionSortOption) => {
-  selectedSortOption.value = sortBy;
-  // refresh the browser URL
-  updateQuestionFilter(questionStore.filter);
-};
-
-
 </script>
 
 <style lang="scss" scoped>

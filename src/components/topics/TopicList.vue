@@ -174,7 +174,7 @@ import { DeletionState } from "@/models/deletionState";
 import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 import { useTopicStore } from "@/stores/topic";
 import type { TopicQueryParams } from "@/interfaces/topics/topicQueryParams";
-import CurriculumHierarchyFilters from "../shared/CurriculumHierarchyFilters.vue";
+import CurriculumHierarchyFilters from "../shared/CurriculumHierarchyQuestionFilter.vue";
 import { CurriculumHierarchyFilter } from "@/models/curriculumHierarchyFilter";
 
 //table row skeletons

@@ -79,9 +79,9 @@
 
 <script setup lang="ts">
 /**
- * CurriculumHierarchyFilters
+ * CurriculumHierarchyQuestionFilter
  *
- * A reusable filter component for narrowing down content using
+ * A reusable filter component for narrowing down question list content using
  * hierarchical education entities (Curriculum → Exam Board → Level → Subject → Topic → Subtopic)).
  * Filters included (in order):
  *   1. Curriculum
@@ -99,8 +99,6 @@
  *
  * Cascading reset: Changing a higher-level filter (e.g. Curriculum) will reset all dependent filters below it.
  *
- * This component emits change events for each filter
- * so the parent can react to partial or full selections.
  */
 
 import type { Curriculum } from "@/models/curriculum";
@@ -147,8 +145,6 @@ defineProps({
   },
 });
 
-// Emit any filter changes to the parent component
-const emit = defineEmits(["filter"]);
 const questionStore = useQuestionStore();
 const router = useRouter();
 // All curriculum options for the curriculum select input
@@ -168,11 +164,11 @@ const isLoadingCurriculums = ref(false);
 const isLoadingSubjects = ref(false);
 
 //Retrieves all curriculums and then applies the default filter values
-const getCurriculums = async () => {
+const getCurriculumsAndApplyDefaults = async () => {
   //fetch all curriculums
   await curriculumSelectInputRef.value?.getAllCurriculums();
   //then apply default filter values based on the provided query parameters
-  applyDefaultsFromQuery(curriculums.value);
+  await applyDefaultsFromQuery(curriculums.value);
 };
 
 /**
@@ -194,8 +190,8 @@ const onCurriculumChange = (curriculum: Curriculum) => {
   //reset subtopic select input value
   subtopicSelectInputRef.value?.resetSelectedValue();
 
-  emit("filter", questionStore.filter);
-  // props.callbackMethod();
+  //convert filter state into query params
+  convertToQueryParams();
 };
 
 /**
@@ -213,8 +209,9 @@ const onExamBoardChange = (examBoard: ExamBoard) => {
   topicSelectInputRef.value?.resetSelectedValue();
   //reset subtopic select input value
   subtopicSelectInputRef.value?.resetSelectedValue();
-  emit("filter", questionStore.filter);
-  // props.callbackMethod();
+
+  //convert filter state into query params
+  convertToQueryParams();
 };
 
 /**
@@ -230,8 +227,9 @@ const onLevelChange = (level: Level) => {
   topicSelectInputRef.value?.resetSelectedValue();
   //reset subtopic select input value
   subtopicSelectInputRef.value?.resetSelectedValue();
-  emit("filter", questionStore.filter);
-  // props.callbackMethod();
+
+  //convert filter state into query params
+  convertToQueryParams();
 };
 
 /**
@@ -246,8 +244,9 @@ const onSubjectChange = (subject: Subject) => {
   topicSelectInputRef.value?.resetSelectedValue();
   //reset subtopic select input value
   subtopicSelectInputRef.value?.resetSelectedValue();
-  emit("filter", questionStore.filter);
-  // props.callbackMethod();
+
+  //convert filter state into query params
+  convertToQueryParams();
 };
 /**
  * Called when Topic changes
@@ -258,8 +257,8 @@ const onTopicChange = (topic: Topic) => {
   questionStore.filter.onTopicChange(topic);
   //reset subtopic select input value
   subtopicSelectInputRef.value?.resetSelectedValue();
-  emit("filter", questionStore.filter);
-  // props.callbackMethod();
+  //convert filter state into query params
+  convertToQueryParams();
 };
 /**
  * Called when Subtopic changes
@@ -267,8 +266,8 @@ const onTopicChange = (topic: Topic) => {
  */
 const onSubtopicChange = (subtopic: Subtopic) => {
   questionStore.filter.onSubtopicChange(subtopic);
-  emit("filter", questionStore.filter);
-  // props.callbackMethod();
+  //convert filter state into query params
+  convertToQueryParams();
 };
 
 /**
@@ -347,8 +346,6 @@ const applyDefaultsFromQuery = async (curriculums: Curriculum[]) => {
       subtopicSelectInputRef.value?.applyDefaultValue(subtopic.id);
     }
   }
-
-  emit("filter", questionStore.filter);
 };
 
 /**
@@ -371,5 +368,5 @@ const convertToQueryParams = () => {
   router.push({ query: { ...availableQueryParams } });
 };
 
-defineExpose({ getCurriculums });
+defineExpose({ getCurriculumsAndApplyDefaults });
 </script>

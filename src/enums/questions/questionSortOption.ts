@@ -1,4 +1,8 @@
 export enum QuestionSortOption {
-  Name = "Name",
-  DateCreated = "DateCreated",
+  Newest = "newest",
+  Oldest = "oldest",
+  MostUpvoted = "mostUpvoted",
+  MostAnswered = "mostAnswered",
+  Unanswered = "unanswered",
+  Marks = "marks",
 }

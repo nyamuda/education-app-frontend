@@ -172,7 +172,7 @@ import { DeletionState } from "@/models/deletionState";
 import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 import { useSubtopicStore } from "@/stores/subtopic";
 import type { SubtopicQueryParams } from "@/interfaces/subtopics/subtopicQueryParams";
-import CurriculumHierarchyFilters from "../shared/CurriculumHierarchyFilters.vue";
+import CurriculumHierarchyFilters from "../shared/CurriculumHierarchyQuestionFilter.vue";
 import { CurriculumHierarchyFilter } from "@/models/curriculumHierarchyFilter";
 
 //table row skeletons
