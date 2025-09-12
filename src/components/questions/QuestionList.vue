@@ -11,22 +11,13 @@
     <!-- Hierarchy filters start-->
     <CurriculumHierarchyFilters
       :callback-method="getAllQuestions"
-      @filter="(val: CurriculumHierarchyFilter) => onFilterChange(val)"
+      @filter="(val: CurriculumHierarchyFilter) => updateQuestionFilter(val)"
     >
       <template #extraContent>
-        <!-- Sorting button -->
+        <!-- Sorting select input -->
         <div class="col-6 col-md-3">
-          <Select
-            placeholder="Sort by"
-            checkmark
-            v-model="selectedSortOption"
-            :options="sortOptions"
-            option-label="name"
-            option-value="value"
-            @change="getAllQuestions"
-            size="small"
-            class="w-100"
-            show-clear
+          <QuestionSortingSelect
+            @selected-sort-option="(val: QuestionSortOption) => updateQuestionSort(val)"
           />
         </div>
 
@@ -88,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, type Ref } from "vue";
 
 import Button from "primevue/button";
 
@@ -96,30 +87,24 @@ import { useToast } from "primevue/usetoast";
 import EmptyList from "../shared/EmptyList.vue";
 import TitleSection from "../shared/TitleSection.vue";
 import { PageInfo } from "@/models/pageInfo";
-import Select from "primevue/select";
 import type { Question } from "@/models/question";
 import { QuestionSortOption } from "@/enums/questions/questionSortOption";
-
 import Paginator, { type PageState } from "primevue/paginator";
-
 import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 import { useQuestionStore } from "@/stores/question";
-import { QuestionQueryParams } from "@/interfaces/questions/questionQueryParams";
 import CurriculumHierarchyFilters from "../shared/CurriculumHierarchyFilters.vue";
 import { CurriculumHierarchyFilter } from "@/models/curriculumHierarchyFilter";
 import QuestionListItemSkeleton from "./skeletons/QuestionListItemSkeleton.vue";
 import QuestionListItem from "./QuestionListItem.vue";
 import { useRouter } from "vue-router";
+import QuestionSortingSelect from "../shared/selects/QuestionSortingSelect.vue";
 
 const questionStore = useQuestionStore();
 const router = useRouter();
 const toast = useToast();
 const questions = ref(new PageInfo<Question>());
 const isGettingQuestions = ref(false);
-
-//sorting info
-const sortOptions = ref([{ name: "Date Created", value: QuestionSortOption.DateCreated }]);
-const selectedSortOption = ref(QuestionSortOption.DateCreated);
+const selectedSortOption: Ref<QuestionSortOption | null> = ref(null);
 
 onMounted(() => {
   //get all questions
@@ -130,7 +115,7 @@ onMounted(() => {
 const getAllQuestions = () => {
   isGettingQuestions.value = true;
   //prepare the query parameter before fetching the questions
-  const params: QuestionQueryParams = questionStore.filter.toQueryParams(selectedSortOption.value);
+  const params = questionStore.filter.toQueryParams();
   //fetch the questions
   questionStore
     .getQuestions(params)
@@ -169,21 +154,33 @@ const onPageChange = (state: PageState) => {
 };
 
 /**
- * Handles changes to the question filter.
+ * Updates the question sorting option in the store and triggers a filter refresh.
+ *
+ * @param sortBy - The selected sorting option for questions.
+ */
+const updateQuestionSort = (sortBy: QuestionSortOption) => {
+  selectedSortOption.value = sortBy;
+  // refresh the browser URL
+  updateQuestionFilter(questionStore.filter);
+};
+
+/**
+ * Applies changes to the question filter.
  * Converts the filter state into query params
- *  and updates the URL with the resulting query parameters.
+ * and updates the browser URL with the resulting query parameters.
  * @param filter - The updated CurriculumHierarchyFilter object
  */
-const onFilterChange = (filter: CurriculumHierarchyFilter) => {
+const updateQuestionFilter = (filter: CurriculumHierarchyFilter) => {
   questionStore.filter = filter;
+  questionStore.filter.sortBy = selectedSortOption.value;
   // converts the current filter state into query params
-  const queryParams = filter.toQueryParams(selectedSortOption.value);
+  const queryParams = filter.toQueryParams();
   // Filter out any query parameters that are null or undefined
   const availableQueryParams = Object.fromEntries(
     // Convert the queryParams object into an array of [key, value] pairs
     Object.entries(queryParams)
-      // Keep only entries where the value is not null or undefined
-      .filter(([_, value]) => value != null),
+      // Keep only entries where the value(index is 1) is not null or undefined
+      .filter((val) => val["1"] != null),
     // Convert the filtered array back into an object
   );
 

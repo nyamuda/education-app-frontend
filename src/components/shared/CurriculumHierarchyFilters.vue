@@ -15,7 +15,7 @@
     <div class="col-6 col-md-3" v-if="showExamBoard">
       <ExamBoardSelect
         @change="onExamBoardChange"
-        :exam-boards="filter?.curriculum?.examBoards"
+        :exam-boards="questionStore.filter?.curriculum?.examBoards"
         :is-loading-exam-boards="isLoadingCurriculums"
         placeholder="Exam board"
         :is-required="false"
@@ -27,9 +27,12 @@
       <LevelSelect
         :is-loading-levels="isLoadingCurriculums"
         @change="onLevelChange"
-        @subjects="(val: Subject[]) => (filter.level ? (filter.level.subjects = val) : null)"
+        @subjects="
+          (val: Subject[]) =>
+            questionStore.filter.level ? (questionStore.filter.level.subjects = val) : null
+        "
         @is-loading-subjects="(val: boolean) => (isLoadingSubjects = val)"
-        :levels="filter?.examBoard?.levels"
+        :levels="questionStore.filter?.examBoard?.levels"
         placeholder="Level"
         :is-required="false"
         ref="levelSelectInputRef"
@@ -39,7 +42,7 @@
     <div class="col-6 col-md-3" v-if="showSubject">
       <SubjectSelect
         @change="onSubjectChange"
-        :subjects="filter?.level?.subjects"
+        :subjects="questionStore.filter?.level?.subjects"
         placeholder="Subject"
         :is-required="false"
         :is-loading-subjects="isLoadingSubjects"
@@ -50,7 +53,7 @@
     <div class="col-6 col-md-3" v-if="showTopic">
       <TopicSelect
         @change="onTopicChange"
-        :topics="filter?.subject?.topics"
+        :topics="questionStore.filter?.subject?.topics"
         :is-loading-topics="isLoadingSubjects"
         placeholder="Topic"
         :is-required="false"
@@ -62,7 +65,7 @@
       <SubtopicSelect
         @change="onSubtopicChange"
         :is-loading-subtopics="isLoadingSubjects"
-        :subtopics="filter?.topic?.subtopics"
+        :subtopics="questionStore.filter?.topic?.subtopics"
         placeholder="Subtopic"
         :is-required="false"
         ref="subtopicSelectInputRef"
@@ -102,7 +105,6 @@
 
 import type { Curriculum } from "@/models/curriculum";
 import type { ExamBoard } from "@/models/examBoard";
-import { CurriculumHierarchyFilter } from "@/models/curriculumHierarchyFilter";
 import type { Level } from "@/models/level";
 import type { Subject } from "@/models/subject";
 import type { Topic } from "@/models/topic";
@@ -111,10 +113,11 @@ import ExamBoardSelect from "./selects/ExamBoardSelect.vue";
 import LevelSelect from "./selects/LevelSelect.vue";
 import SubjectSelect from "./selects/SubjectSelect.vue";
 import TopicSelect from "./selects/TopicSelect.vue";
-import { onMounted, ref, type Ref } from "vue";
+import { ref, type Ref } from "vue";
 import SubtopicSelect from "./selects/SubtopicSelect.vue";
 import type { Subtopic } from "@/models/subtopic";
 import { useRouter } from "vue-router";
+import { useQuestionStore } from "@/stores/question";
 
 defineProps({
   // Props to control which filters should be visible
@@ -144,22 +147,14 @@ defineProps({
   },
 });
 
-onMounted(async () => {
-  //fetch all curriculums
-  await curriculumSelectInputRef.value?.getAllCurriculums();
-  //then apply default filter values based on the provided query parameters
-  applyDefaultsFromQuery(curriculums.value);
-});
-
 // Emit any filter changes to the parent component
 const emit = defineEmits(["filter"]);
+const questionStore = useQuestionStore();
 const router = useRouter();
 // All curriculum options for the curriculum select input
 // Used to apply the default curriculum from query params
 const curriculums: Ref<Curriculum[]> = ref([]);
 
-// Keep track of the currently applied filters
-const filter: Ref<CurriculumHierarchyFilter> = ref(new CurriculumHierarchyFilter());
 const curriculumSelectInputRef = ref();
 const examBoardSelectInputRef = ref();
 const levelSelectInputRef = ref();
@@ -172,14 +167,22 @@ const isLoadingCurriculums = ref(false);
 // Show loader in subject, topic and subtopic selects when subjects are being fetched
 const isLoadingSubjects = ref(false);
 
+//Retrieves all curriculums and then applies the default filter values
+const getCurriculums = async () => {
+  //fetch all curriculums
+  await curriculumSelectInputRef.value?.getAllCurriculums();
+  //then apply default filter values based on the provided query parameters
+  applyDefaultsFromQuery(curriculums.value);
+};
+
 /**
  * Called when Curriculum changes
  * - Updates filter
  * - Resets all dependent filters (Exam board → Level → Subject → Topic → Subtopic)
  */
 const onCurriculumChange = (curriculum: Curriculum) => {
-  filter.value.reset();
-  filter.value.onCurriculumChange(curriculum);
+  questionStore.filter.reset();
+  questionStore.filter.onCurriculumChange(curriculum);
   //reset exam board select input value
   examBoardSelectInputRef.value?.resetSelectedValue();
   //reset level select input value
@@ -191,7 +194,7 @@ const onCurriculumChange = (curriculum: Curriculum) => {
   //reset subtopic select input value
   subtopicSelectInputRef.value?.resetSelectedValue();
 
-  emit("filter", filter.value);
+  emit("filter", questionStore.filter);
   // props.callbackMethod();
 };
 
@@ -201,7 +204,7 @@ const onCurriculumChange = (curriculum: Curriculum) => {
  * - Resets Level, Subject, Topic and Subtopic
  */
 const onExamBoardChange = (examBoard: ExamBoard) => {
-  filter.value.onExamBoardChange(examBoard);
+  questionStore.filter.onExamBoardChange(examBoard);
   //reset level select input value
   levelSelectInputRef.value?.resetSelectedValue();
   //reset subject select input value
@@ -210,7 +213,7 @@ const onExamBoardChange = (examBoard: ExamBoard) => {
   topicSelectInputRef.value?.resetSelectedValue();
   //reset subtopic select input value
   subtopicSelectInputRef.value?.resetSelectedValue();
-  emit("filter", filter.value);
+  emit("filter", questionStore.filter);
   // props.callbackMethod();
 };
 
@@ -220,14 +223,14 @@ const onExamBoardChange = (examBoard: ExamBoard) => {
  * - Resets Subject, Topic and Subtopic
  */
 const onLevelChange = (level: Level) => {
-  filter.value.onLevelChange(level);
+  questionStore.filter.onLevelChange(level);
   //reset subject select input value
   subjectSelectInputRef.value?.resetSelectedValue();
   //reset topic select input value
   topicSelectInputRef.value?.resetSelectedValue();
   //reset subtopic select input value
   subtopicSelectInputRef.value?.resetSelectedValue();
-  emit("filter", filter.value);
+  emit("filter", questionStore.filter);
   // props.callbackMethod();
 };
 
@@ -237,13 +240,13 @@ const onLevelChange = (level: Level) => {
  * - Resets Topic and Subtopic
  */
 const onSubjectChange = (subject: Subject) => {
-  filter.value.onSubjectChange(subject);
+  questionStore.filter.onSubjectChange(subject);
 
   //reset topic select input value
   topicSelectInputRef.value?.resetSelectedValue();
   //reset subtopic select input value
   subtopicSelectInputRef.value?.resetSelectedValue();
-  emit("filter", filter.value);
+  emit("filter", questionStore.filter);
   // props.callbackMethod();
 };
 /**
@@ -252,10 +255,10 @@ const onSubjectChange = (subject: Subject) => {
  * - Resets subtopic
  */
 const onTopicChange = (topic: Topic) => {
-  filter.value.onTopicChange(topic);
+  questionStore.filter.onTopicChange(topic);
   //reset subtopic select input value
   subtopicSelectInputRef.value?.resetSelectedValue();
-  emit("filter", filter.value);
+  emit("filter", questionStore.filter);
   // props.callbackMethod();
 };
 /**
@@ -263,8 +266,8 @@ const onTopicChange = (topic: Topic) => {
  * - Updates filter
  */
 const onSubtopicChange = (subtopic: Subtopic) => {
-  filter.value.onSubtopicChange(subtopic);
-  emit("filter", filter.value);
+  questionStore.filter.onSubtopicChange(subtopic);
+  emit("filter", questionStore.filter);
   // props.callbackMethod();
 };
 
@@ -286,27 +289,29 @@ const applyDefaultsFromQuery = async (curriculums: Curriculum[]) => {
   if (query.curriculumId) {
     const curriculum = curriculums.find((x) => x.id === Number(query.curriculumId));
     if (curriculum) {
-      filter.value.curriculum = curriculum;
+      questionStore.filter.curriculum = curriculum;
       curriculumSelectInputRef.value?.applyDefaultValue(curriculum.id);
     }
   }
 
   // Exam Board
   if (query.examBoardId) {
-    const examBoard = filter.value.curriculum?.examBoards.find(
+    const examBoard = questionStore.filter.curriculum?.examBoards.find(
       (x) => x.id === Number(query.examBoardId),
     );
     if (examBoard) {
-      filter.value.examBoard = examBoard;
+      questionStore.filter.examBoard = examBoard;
       examBoardSelectInputRef.value?.applyDefaultValue(examBoard.id);
     }
   }
 
   // Level
   if (query.levelId) {
-    const level = filter.value.examBoard?.levels.find((x) => x.id === Number(query.levelId));
+    const level = questionStore.filter.examBoard?.levels.find(
+      (x) => x.id === Number(query.levelId),
+    );
     if (level) {
-      filter.value.level = level;
+      questionStore.filter.level = level;
       // Apply default value to level select input AND fetch subjects for that level
       await levelSelectInputRef.value?.applyDefaultValue(level.id);
     }
@@ -314,31 +319,37 @@ const applyDefaultsFromQuery = async (curriculums: Curriculum[]) => {
 
   // Subject
   if (query.subjectId) {
-    const subject = filter.value.level?.subjects.find((x) => x.id === Number(query.subjectId));
+    const subject = questionStore.filter.level?.subjects.find(
+      (x) => x.id === Number(query.subjectId),
+    );
     if (subject) {
-      filter.value.subject = subject;
+      questionStore.filter.subject = subject;
       subjectSelectInputRef.value?.applyDefaultValue(subject.id);
     }
   }
 
   // Topic
   if (query.topicId) {
-    const topic = filter.value.subject?.topics.find((x) => x.id === Number(query.topicId));
+    const topic = questionStore.filter.subject?.topics.find((x) => x.id === Number(query.topicId));
     if (topic) {
-      filter.value.topic = topic;
+      questionStore.filter.topic = topic;
       topicSelectInputRef.value?.applyDefaultValue(topic.id);
     }
   }
 
   // Subtopic
   if (query.subtopicId) {
-    const subtopic = filter.value.topic?.subtopics.find((x) => x.id === Number(query.subtopicId));
+    const subtopic = questionStore.filter.topic?.subtopics.find(
+      (x) => x.id === Number(query.subtopicId),
+    );
     if (subtopic) {
-      filter.value.subtopic = subtopic;
+      questionStore.filter.subtopic = subtopic;
       subtopicSelectInputRef.value?.applyDefaultValue(subtopic.id);
     }
   }
 
-  emit("filter", filter.value);
+  emit("filter", questionStore.filter);
 };
+
+defineExpose({ getCurriculums });
 </script>

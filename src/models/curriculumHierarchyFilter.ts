@@ -12,7 +12,8 @@ import type { QuestionQueryParams } from "@/interfaces/questions/questionQueryPa
  * Curriculum → Exam Board → Level → Subject → Topic → Subtopic.
  * Each property can be set to filter items or left as null to include all.
  * Additional fields:
- * - `searchQuery`: optional free-text search term
+ * - `search`: optional free-text search term
+ * - `sortBy`: optional sorting option
  * - `page`: current page number for pagination
  * - `pageSize`: number of items to return per page
  */
@@ -27,6 +28,7 @@ export class CurriculumHierarchyFilter {
     public searchQuery: string | null = null,
     public page: number | null = null,
     public pageSize: number | null = null,
+    public sortBy: QuestionSortOption | null = null,
   ) {}
 
   /** Resets all values in the filter */
@@ -108,13 +110,11 @@ export class CurriculumHierarchyFilter {
    * Converts the current filter state into a QuestionQueryParams object.
    * Useful for building query strings or API calls.
    */
-  public toQueryParams(
-    sortBy: QuestionSortOption = QuestionSortOption.DateCreated,
-  ): QuestionQueryParams {
+  public toQueryParams(): QuestionQueryParams {
     return {
       page: this.page ?? 1,
       pageSize: this.pageSize ?? 10,
-      sortBy,
+      sortBy: this.sortBy,
       curriculumId: this.curriculum ? this.curriculum.id : null,
       examBoardId: this.examBoard ? this.examBoard.id : null,
       levelId: this.level ? this.level.id : null,

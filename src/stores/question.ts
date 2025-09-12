@@ -9,10 +9,12 @@ import type { QuestionSubmission } from "@/interfaces/questions/questionSubmissi
 import type { QuestionStatus } from "@/enums/questions/questionStatus";
 import type { QuestionQueryParams } from "@/interfaces/questions/questionQueryParams";
 import { CurriculumHierarchyFilter } from "@/models/curriculumHierarchyFilter";
+import type { Ref } from "vue";
 
 export const useQuestionStore = defineStore("question", () => {
   const apiUrl = ref(`${UrlHelper.apiUrl}/questions`);
-  const filter = ref(new CurriculumHierarchyFilter());
+  // Keep track of the currently applied filters
+  const filter: Ref<CurriculumHierarchyFilter> = ref(new CurriculumHierarchyFilter());
 
   //Gets a question with a given ID
   const getQuestionById = (id: number): Promise<Question> => {
