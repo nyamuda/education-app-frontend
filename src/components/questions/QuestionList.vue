@@ -17,7 +17,7 @@
         </div>
 
         <div class="col-6 col-md-3">
-          <!-- Apply filters button -->
+          <!-- Apply button -->
           <Button
             label="Apply"
             icon="pi pi-filter"

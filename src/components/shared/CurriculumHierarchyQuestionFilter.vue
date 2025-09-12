@@ -191,7 +191,7 @@ const onCurriculumChange = (curriculum: Curriculum) => {
   subtopicSelectInputRef.value?.resetSelectedValue();
 
   //convert filter state into query params
-  convertToQueryParams();
+  questionStore.filter.applyFilterToBrowserUrl();
 };
 
 /**
@@ -211,7 +211,8 @@ const onExamBoardChange = (examBoard: ExamBoard) => {
   subtopicSelectInputRef.value?.resetSelectedValue();
 
   //convert filter state into query params
-  convertToQueryParams();
+
+  questionStore.filter.applyFilterToBrowserUrl();
 };
 
 /**
@@ -229,7 +230,8 @@ const onLevelChange = (level: Level) => {
   subtopicSelectInputRef.value?.resetSelectedValue();
 
   //convert filter state into query params
-  convertToQueryParams();
+
+  questionStore.filter.applyFilterToBrowserUrl();
 };
 
 /**
@@ -246,7 +248,8 @@ const onSubjectChange = (subject: Subject) => {
   subtopicSelectInputRef.value?.resetSelectedValue();
 
   //convert filter state into query params
-  convertToQueryParams();
+
+  questionStore.filter.applyFilterToBrowserUrl();
 };
 /**
  * Called when Topic changes
@@ -258,7 +261,8 @@ const onTopicChange = (topic: Topic) => {
   //reset subtopic select input value
   subtopicSelectInputRef.value?.resetSelectedValue();
   //convert filter state into query params
-  convertToQueryParams();
+
+  questionStore.filter.applyFilterToBrowserUrl();
 };
 /**
  * Called when Subtopic changes
@@ -267,7 +271,8 @@ const onTopicChange = (topic: Topic) => {
 const onSubtopicChange = (subtopic: Subtopic) => {
   questionStore.filter.onSubtopicChange(subtopic);
   //convert filter state into query params
-  convertToQueryParams();
+
+  questionStore.filter.applyFilterToBrowserUrl();
 };
 
 /**
@@ -346,26 +351,6 @@ const applyDefaultsFromQuery = async (curriculums: Curriculum[]) => {
       subtopicSelectInputRef.value?.applyDefaultValue(subtopic.id);
     }
   }
-};
-
-/**
- * Converts the filter state into query params
- * and updates the browser URL with the resulting query parameters.
- */
-const convertToQueryParams = () => {
-  // converts the current filter state into query params
-  const queryParams = questionStore.filter.toQueryParams();
-  // Filter out any query parameters that are null or undefined
-  const availableQueryParams = Object.fromEntries(
-    // Convert the queryParams object into an array of [key, value] pairs
-    Object.entries(queryParams)
-      // Keep only entries where the value(index is 1) is not null or undefined
-      .filter((val) => val["1"] != null),
-    // Convert the filtered array back into an object
-  );
-
-  //update the browser URL
-  router.push({ query: { ...availableQueryParams } });
 };
 
 defineExpose({ getCurriculumsAndApplyDefaults });
