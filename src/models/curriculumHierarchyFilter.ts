@@ -32,14 +32,55 @@ export class CurriculumHierarchyFilter {
     public sortBy: QuestionSortOption | null = null,
   ) {}
 
-  /** Resets all values in the filter */
-  public reset() {
+  /**
+   * Clears all filters, including:
+   * - Hierarchical filters (curriculum → subtopic)
+   * - Search term
+   * - Pagination info
+   * - Sorting option
+   *
+   * Use this when you want to fully reset the filter state.
+   */
+  public clear() {
     this.curriculum = null;
     this.examBoard = null;
     this.level = null;
     this.subject = null;
     this.topic = null;
     this.subtopic = null;
+    this.search = null;
+    this.page = null;
+    this.pageSize = null;
+    this.sortBy = null;
+  }
+
+  /**
+   * Clears only the hierarchical filters:
+   * curriculum, examBoard, level, subject, topic, and subtopic.
+   *
+   * Does NOT reset the search term, pagination, or sort options.
+   */
+  public clearHierarchyFilters() {
+    this.curriculum = null;
+    this.examBoard = null;
+    this.level = null;
+    this.subject = null;
+    this.topic = null;
+    this.subtopic = null;
+  }
+
+  /**
+   * Clears all filters except for `search`, `page`, and `pageSize`.
+   * This is useful when performing a text-based search to make sure the results are not
+   * unintentionally restricted by previously selected filters. It allows the search
+   * to run across all questions while keeping the current search term and pagination state.
+   */
+  public clearFiltersExceptSearchAndPagination() {
+    const { search, page, pageSize } = this;
+    this.clear();
+    this.search = search;
+    this.page = page;
+    this.pageSize = pageSize;
   }
 
   /**

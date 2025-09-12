@@ -62,9 +62,10 @@ const items = ref<Question[]>([]);
 const questionStore = useQuestionStore();
 const router = useRouter();
 
-const search = async (event: { query: string }) => {
+const search = async () => {
   try {
-    console.log(event.query);
+    //reset filters
+
     const questions = await questionStore.getQuestions(questionStore.filter.toQueryParams());
     items.value = questions.items;
   } catch {}

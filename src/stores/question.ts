@@ -57,6 +57,26 @@ export const useQuestionStore = defineStore("question", () => {
     });
   };
 
+  const getQuestions = (params: QuestionQueryParams): Promise<PageInfo<Question>> => {
+    return new Promise((resolve, reject) => {
+      axios
+        .get<PageInfo<Question>>(`${apiUrl.value}`, {
+          params: {
+            ...params,
+          },
+        })
+        .then((response) => {
+          questions.value = response.data;
+          //return the questions
+          resolve(response.data);
+        })
+        .catch((err) => {
+          const message = err.response?.data?.message || ErrorResponse.Unexpected();
+          reject(message);
+        });
+    });
+  };
+
   //Creates a new question
   //Returns the newly created question
   const addQuestion = (submissionData: QuestionSubmission): Promise<Question> => {
