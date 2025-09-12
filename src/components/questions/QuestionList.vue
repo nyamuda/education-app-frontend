@@ -25,7 +25,7 @@
             variant="outlined"
             severity="contrast"
             @click="getAllQuestions"
-            :disabled="isGettingCurriculums || questionStore.isGettingQuestions"
+            :disabled="isGettingCurriculums || isGettingQuestions"
           />
         </div>
       </template>
@@ -33,15 +33,15 @@
     <!-- Hierarchy filters end-->
 
     <!--Skeletons start-->
-    <div id="question-list" v-if="questionStore.isGettingQuestions || isGettingCurriculums">
+    <div id="question-list" v-if="isGettingQuestions || isGettingCurriculums">
       <QuestionListItemSkeleton v-for="i in 5" :key="i" />
     </div>
     <!--Skeletons end-->
 
     <!--Questions start-->
-    <div id="question-list" v-else-if="questionStore.questions.items?.length > 0">
+    <div id="question-list" v-else-if="questions.items?.length > 0">
       <QuestionListItem
-        v-for="question in questionStore.questions.items"
+        v-for="question in questions.items"
         :key="question.id"
         :title="question.title"
         :content="question.contentText"
@@ -60,10 +60,10 @@
       />
       <!-- Pagination start -->
       <Paginator
-        :rows="questionStore.questions.pageSize"
-        :totalRecords="questionStore.questions.totalItems"
+        :rows="questions.pageSize"
+        :totalRecords="questions.totalItems"
         @page="onPageChange"
-        :first="(questionStore.questions.page - 1) * questionStore.questions.pageSize"
+        :first="(questions.page - 1) * questions.pageSize"
       />
       <!-- Pagination end -->
     </div>
@@ -90,12 +90,16 @@ import QuestionListItemSkeleton from "./skeletons/QuestionListItemSkeleton.vue";
 import QuestionListItem from "./QuestionListItem.vue";
 import QuestionSortingSelect from "../shared/selects/QuestionSortingSelect.vue";
 import CurriculumHierarchyQuestionFilter from "../shared/CurriculumHierarchyQuestionFilter.vue";
+import { PageInfo } from "@/models/pageInfo";
+import type { Question } from "@/models/question";
 
 const questionStore = useQuestionStore();
 
 const toast = useToast();
 const isGettingCurriculums = ref(false);
+const isGettingQuestions = ref(false);
 const curriculumHierarchyQuestionFilterRef = ref();
+const questions = ref(new PageInfo<Question>());
 
 onMounted(async () => {
   await getCurriculumsAndApplyDefaults();
@@ -117,9 +121,9 @@ const getAllQuestions = async () => {
   try {
     // Prepare the query parameters from the current filter
     const params = questionStore.filter.toQueryParams();
-
+    isGettingQuestions.value = true;
     // Fetch the questions
-    await questionStore.getQuestions(params);
+    questions.value = await questionStore.getQuestions(params);
   } catch (message) {
     toast.add({
       severity: "error",
@@ -127,6 +131,8 @@ const getAllQuestions = async () => {
       detail: message,
       life: 5000,
     });
+  } finally {
+    isGettingQuestions.value = false;
   }
 };
 

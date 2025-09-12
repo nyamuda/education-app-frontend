@@ -16,7 +16,6 @@ export const useQuestionStore = defineStore("question", () => {
   // Keep track of the currently applied filters
   const filter: Ref<CurriculumHierarchyFilter> = ref(new CurriculumHierarchyFilter());
   const questions = ref(new PageInfo<Question>());
-  const isGettingQuestions = ref(false);
 
   //Gets a question with a given ID
   const getQuestionById = (id: number): Promise<Question> => {
@@ -40,7 +39,6 @@ export const useQuestionStore = defineStore("question", () => {
   //Gets a paginated list of questions along with pagination metadata
   const getQuestions = (params: QuestionQueryParams): Promise<PageInfo<Question>> => {
     return new Promise((resolve, reject) => {
-      isGettingQuestions.value = true;
       axios
         .get<PageInfo<Question>>(`${apiUrl.value}`, {
           params: {
@@ -55,8 +53,7 @@ export const useQuestionStore = defineStore("question", () => {
         .catch((err) => {
           const message = err.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
-        })
-        .finally(() => (isGettingQuestions.value = false));
+        });
     });
   };
 
@@ -144,7 +141,5 @@ export const useQuestionStore = defineStore("question", () => {
     addQuestion,
     updateQuestionStatus,
     filter,
-    questions,
-    isGettingQuestions,
   };
 });

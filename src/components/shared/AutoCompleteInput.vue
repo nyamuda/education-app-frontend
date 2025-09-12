@@ -5,6 +5,7 @@
       id="navbar-search"
       v-model="questionStore.filter.search"
       placeholder="Search questions..."
+      @keyup.enter="handleSearchSubmit"
       :suggestions="items"
       option-label="contentText"
       @complete="search"
@@ -31,7 +32,7 @@
           </div>
         </div>
       </template>
-      <template #footer>
+      <!-- <template #footer>
         <div class="d-flex justify-content-center py-2">
           <Button
             label="View all results"
@@ -43,7 +44,7 @@
             @click="viewAllResults"
           />
         </div>
-      </template>
+      </template> -->
     </AutoComplete>
   </IconField>
 </template>
@@ -55,7 +56,6 @@ import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
 import { useQuestionStore } from "@/stores/question";
 import type { Question } from "@/models/question";
-import Button from "primevue/button";
 import { useRouter } from "vue-router";
 
 const items = ref<Question[]>([]);
@@ -70,11 +70,19 @@ const search = async (event: { query: string }) => {
   } catch {}
 };
 
-const viewAllResults = () => {
-  //update the browser URL with the search input as a query param
-  questionStore.filter.applyFilterToBrowserUrl();
+/**
+ * Navigates to the main questions list page with the current search filters
+ * applied as query parameters in the URL.
+ *
+ * This is triggered when the user presses Enter in the search input,
+ * allowing them to view a full list of questions matching their entered text.
+ */
+const handleSearchSubmit = () => {
+  const availableQueryParams = questionStore.filter.applyFilterToBrowserUrl();
+  router.push({ path: "/questions", query: { ...availableQueryParams } });
 };
 </script>
+
 <style lang="scss" scoped>
 .text-truncate {
   display: -webkit-box;

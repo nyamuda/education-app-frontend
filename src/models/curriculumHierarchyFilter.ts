@@ -135,11 +135,13 @@ export class CurriculumHierarchyFilter {
       // Convert the queryParams object into an array of [key, value] pairs
       Object.entries(queryParams)
         // Keep only entries where the value(index is 1) is not null or undefined
-        .filter((val) => val["1"] != null),
+        .filter((val) => val["1"] != null && val),
       // Convert the filtered array back into an object
     );
 
     //update the browser URL
     router.push({ query: { ...availableQueryParams } });
+
+    return availableQueryParams;
   }
 }
