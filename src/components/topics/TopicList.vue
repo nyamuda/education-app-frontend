@@ -175,7 +175,7 @@ import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 import { useTopicStore } from "@/stores/topic";
 import type { TopicQueryParams } from "@/interfaces/topics/topicQueryParams";
 import CurriculumHierarchyFilters from "../shared/CurriculumHierarchyQuestionFilter.vue";
-import { CurriculumHierarchyFilter } from "@/models/curriculumHierarchyFilter";
+import { CurriculumHierarchyFilter } from "@/models/curriculumHierarchyQuestionFilter";
 
 //table row skeletons
 const rowSkeletons = ref(new Array(10));

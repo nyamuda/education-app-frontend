@@ -8,7 +8,7 @@ import { PageInfo } from "@/models/pageInfo";
 import type { QuestionSubmission } from "@/interfaces/questions/questionSubmission";
 import type { QuestionStatus } from "@/enums/questions/questionStatus";
 import type { QuestionQueryParams } from "@/interfaces/questions/questionQueryParams";
-import { CurriculumHierarchyFilter } from "@/models/curriculumHierarchyFilter";
+import { CurriculumHierarchyFilter } from "@/models/curriculumHierarchyQuestionFilter";
 import type { Ref } from "vue";
 
 export const useQuestionStore = defineStore("question", () => {
@@ -57,12 +57,28 @@ export const useQuestionStore = defineStore("question", () => {
     });
   };
 
-  const getQuestions = (params: QuestionQueryParams): Promise<PageInfo<Question>> => {
+  /**
+   * Fetches questions that match the provided search term.
+   * This method is intended for lightweight search suggestions (e.g. autocomplete),
+   * and does NOT apply other filters such as subject, topic, or level.
+   *
+   * @param search The search term to match against question content or title.
+   * @param page Optional page number (default is 1).
+   * @param pageSize Optional page size (default is 10).
+   * @returns A paginated list of matching questions.
+   */
+  const searchQuestions = (
+    search: string,
+    page = 1,
+    pageSize = 10,
+  ): Promise<PageInfo<Question>> => {
     return new Promise((resolve, reject) => {
       axios
         .get<PageInfo<Question>>(`${apiUrl.value}`, {
           params: {
-            ...params,
+            search,
+            page,
+            pageSize,
           },
         })
         .then((response) => {
