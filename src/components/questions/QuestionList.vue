@@ -9,7 +9,7 @@
       </div>
     </div>
     <!-- Hierarchy filters start-->
-    <CurriculumHierarchyQuestionFilter ref="curriculumHierarchyQuestionFilter">
+    <CurriculumHierarchyQuestionFilter ref="curriculumHierarchyQuestionFilterRef">
       <template #extraContent>
         <!-- Sorting select input -->
         <div class="col-6 col-md-3">
@@ -25,7 +25,7 @@
             variant="outlined"
             severity="contrast"
             @click="getAllQuestions"
-            :disabled="isGettingCurriculums || isGettingQuestions"
+            :disabled="isGettingCurriculums || questionStore.isGettingQuestions"
           />
         </div>
       </template>
@@ -33,15 +33,15 @@
     <!-- Hierarchy filters end-->
 
     <!--Skeletons start-->
-    <div id="question-list" v-if="isGettingQuestions || isGettingCurriculums">
+    <div id="question-list" v-if="questionStore.isGettingQuestions || isGettingCurriculums">
       <QuestionListItemSkeleton v-for="i in 5" :key="i" />
     </div>
     <!--Skeletons end-->
 
     <!--Questions start-->
-    <div id="question-list" v-else-if="questions.items?.length > 0">
+    <div id="question-list" v-else-if="questionStore.questions.items?.length > 0">
       <QuestionListItem
-        v-for="question in questions.items"
+        v-for="question in questionStore.questions.items"
         :key="question.id"
         :title="question.title"
         :content="question.contentText"
@@ -60,10 +60,10 @@
       />
       <!-- Pagination start -->
       <Paginator
-        :rows="questions.pageSize"
-        :totalRecords="questions.totalItems"
+        :rows="questionStore.questions.pageSize"
+        :totalRecords="questionStore.questions.totalItems"
         @page="onPageChange"
-        :first="(questions.page - 1) * questions.pageSize"
+        :first="(questionStore.questions.page - 1) * questionStore.questions.pageSize"
       />
       <!-- Pagination end -->
     </div>
@@ -83,8 +83,6 @@ import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";
 import EmptyList from "../shared/EmptyList.vue";
 import TitleSection from "../shared/TitleSection.vue";
-import { PageInfo } from "@/models/pageInfo";
-import type { Question } from "@/models/question";
 import Paginator, { type PageState } from "primevue/paginator";
 import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 import { useQuestionStore } from "@/stores/question";
@@ -96,10 +94,8 @@ import CurriculumHierarchyQuestionFilter from "../shared/CurriculumHierarchyQues
 const questionStore = useQuestionStore();
 
 const toast = useToast();
-const questions = ref(new PageInfo<Question>());
-const isGettingQuestions = ref(false);
 const isGettingCurriculums = ref(false);
-const curriculumHierarchyQuestionFilter = ref();
+const curriculumHierarchyQuestionFilterRef = ref();
 
 onMounted(async () => {
   await getCurriculumsAndApplyDefaults();
@@ -112,27 +108,18 @@ onMounted(async () => {
  */
 const getCurriculumsAndApplyDefaults = async () => {
   isGettingCurriculums.value = true;
-  await curriculumHierarchyQuestionFilter.value?.getCurriculumsAndApplyDefaults();
+  await curriculumHierarchyQuestionFilterRef.value?.getCurriculumsAndApplyDefaults();
   isGettingCurriculums.value = false;
 };
 
 // Gets all questions based on the current filter state
 const getAllQuestions = async () => {
   try {
-    isGettingQuestions.value = true;
-
     // Prepare the query parameters from the current filter
     const params = questionStore.filter.toQueryParams();
 
     // Fetch the questions
-    const data = await questionStore.getQuestions(params);
-
-    // Update the local questions state
-    questions.value = data;
-
-    // Update pagination info in the store filter
-    questionStore.filter.page = data.page;
-    questionStore.filter.pageSize = data.pageSize;
+    await questionStore.getQuestions(params);
   } catch (message) {
     toast.add({
       severity: "error",
@@ -140,9 +127,6 @@ const getAllQuestions = async () => {
       detail: message,
       life: 5000,
     });
-  } finally {
-    // reset loading state
-    isGettingQuestions.value = false;
   }
 };
 
