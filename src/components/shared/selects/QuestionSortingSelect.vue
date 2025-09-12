@@ -29,6 +29,7 @@
  */
 
 import { QuestionSortOption } from "@/enums/questions/questionSortOption";
+import { useQuestionStore } from "@/stores/question";
 import Select from "primevue/select";
 import { onMounted, ref, type Ref } from "vue";
 import { useRouter } from "vue-router";
@@ -37,22 +38,66 @@ onMounted(() => {
   applyDefaultFromQuery();
 });
 const router = useRouter();
-const emit = defineEmits(["selectedSortOption"]);
+const questionStore = useQuestionStore();
 
 const selectedSortOption: Ref<QuestionSortOption | null> = ref(null);
 // List of available sort options
-const sortOptions = ref([{ name: "Date Created", value: QuestionSortOption.DateCreated }]);
+const sortOptions = ref([
+  { name: "Newest", value: QuestionSortOption.Newest },
+  { name: "Oldest", value: QuestionSortOption.Oldest },
+  { name: "Top Rated", value: QuestionSortOption.MostUpvoted },
+  { name: "Most Answered", value: QuestionSortOption.MostAnswered },
+  { name: "No Answers Yet", value: QuestionSortOption.Unanswered },
+  { name: "Highest Marks", value: QuestionSortOption.HighestMarks },
+]);
 
-const onChange = () => emit("selectedSortOption", selectedSortOption.value);
+const onChange = () => {
+  // Update the store
+  questionStore.filter.sortBy = selectedSortOption.value;
 
+  // Update the URL query parameter without reloading the page
+  router.replace({
+    query: {
+      ...router.currentRoute.value.query,
+      sortBy: selectedSortOption.value,
+    },
+  });
+};
 // Apply default sort option from query parameter if present in the URL
 const applyDefaultFromQuery = () => {
-  //get default sort option from the query parameter
   const query = router.currentRoute.value.query;
+
   if (query.sortBy) {
     switch (query.sortBy) {
-      case "DateCreated":
-        selectedSortOption.value = QuestionSortOption.DateCreated;
+      case QuestionSortOption.Newest:
+        selectedSortOption.value = QuestionSortOption.Newest;
+        //save the sort option to the filter state
+        questionStore.filter.sortBy = QuestionSortOption.Newest;
+        break;
+      case QuestionSortOption.Oldest:
+        selectedSortOption.value = QuestionSortOption.Oldest;
+        //save the sort option to the filter state
+        questionStore.filter.sortBy = QuestionSortOption.Oldest;
+        break;
+      case QuestionSortOption.MostUpvoted:
+        selectedSortOption.value = QuestionSortOption.MostUpvoted;
+        //save the sort option to the filter state
+        questionStore.filter.sortBy = QuestionSortOption.MostUpvoted;
+        break;
+      case QuestionSortOption.MostAnswered:
+        selectedSortOption.value = QuestionSortOption.MostAnswered;
+        //save the sort option to the filter state
+        questionStore.filter.sortBy = QuestionSortOption.MostAnswered;
+        break;
+      case QuestionSortOption.Unanswered:
+        selectedSortOption.value = QuestionSortOption.Unanswered;
+        //save the sort option to the filter state
+        questionStore.filter.sortBy = QuestionSortOption.Unanswered;
+        break;
+      case QuestionSortOption.HighestMarks:
+        selectedSortOption.value = QuestionSortOption.HighestMarks;
+        //save the sort option to the filter state
+        questionStore.filter.sortBy = QuestionSortOption.HighestMarks;
         break;
       default:
         break;

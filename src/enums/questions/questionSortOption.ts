@@ -4,5 +4,5 @@ export enum QuestionSortOption {
   MostUpvoted = "mostUpvoted",
   MostAnswered = "mostAnswered",
   Unanswered = "unanswered",
-  Marks = "marks",
+  HighestMarks = "highestMarks",
 }
