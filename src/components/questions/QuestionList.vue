@@ -164,28 +164,7 @@ const updateQuestionSort = (sortBy: QuestionSortOption) => {
   updateQuestionFilter(questionStore.filter);
 };
 
-/**
- * Applies changes to the question filter.
- * Converts the filter state into query params
- * and updates the browser URL with the resulting query parameters.
- * @param filter - The updated CurriculumHierarchyFilter object
- */
-const updateQuestionFilter = (filter: CurriculumHierarchyFilter) => {
-  questionStore.filter = filter;
-  questionStore.filter.sortBy = selectedSortOption.value;
-  // converts the current filter state into query params
-  const queryParams = filter.toQueryParams();
-  // Filter out any query parameters that are null or undefined
-  const availableQueryParams = Object.fromEntries(
-    // Convert the queryParams object into an array of [key, value] pairs
-    Object.entries(queryParams)
-      // Keep only entries where the value(index is 1) is not null or undefined
-      .filter((val) => val["1"] != null),
-    // Convert the filtered array back into an object
-  );
 
-  router.push({ query: { ...availableQueryParams } });
-};
 </script>
 
 <style lang="scss" scoped>

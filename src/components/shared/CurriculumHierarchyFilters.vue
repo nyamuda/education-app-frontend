@@ -351,5 +351,25 @@ const applyDefaultsFromQuery = async (curriculums: Curriculum[]) => {
   emit("filter", questionStore.filter);
 };
 
+/**
+ * Converts the filter state into query params
+ * and updates the browser URL with the resulting query parameters.
+ */
+const convertToQueryParams = () => {
+  // converts the current filter state into query params
+  const queryParams = questionStore.filter.toQueryParams();
+  // Filter out any query parameters that are null or undefined
+  const availableQueryParams = Object.fromEntries(
+    // Convert the queryParams object into an array of [key, value] pairs
+    Object.entries(queryParams)
+      // Keep only entries where the value(index is 1) is not null or undefined
+      .filter((val) => val["1"] != null),
+    // Convert the filtered array back into an object
+  );
+
+  //update the browser URL
+  router.push({ query: { ...availableQueryParams } });
+};
+
 defineExpose({ getCurriculums });
 </script>
