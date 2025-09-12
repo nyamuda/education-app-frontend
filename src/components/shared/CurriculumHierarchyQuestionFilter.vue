@@ -177,7 +177,7 @@ const getCurriculumsAndApplyDefaults = async () => {
  * - Resets all dependent filters (Exam board → Level → Subject → Topic → Subtopic)
  */
 const onCurriculumChange = (curriculum: Curriculum) => {
-  questionStore.filter.reset();
+  questionStore.filter.clearHierarchyFilters();
   questionStore.filter.onCurriculumChange(curriculum);
   //reset exam board select input value
   examBoardSelectInputRef.value?.resetSelectedValue();
@@ -350,6 +350,10 @@ const applyDefaultsFromQuery = async (curriculums: Curriculum[]) => {
       questionStore.filter.subtopic = subtopic;
       subtopicSelectInputRef.value?.applyDefaultValue(subtopic.id);
     }
+  }
+  //search
+  if (query.search) {
+    questionStore.filter.search = query.search.toString();
   }
 };
 

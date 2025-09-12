@@ -64,9 +64,10 @@ const router = useRouter();
 
 const search = async () => {
   try {
-    //reset filters
+    const searchQuery = questionStore.filter.search;
+    if (!searchQuery) return;
 
-    const questions = await questionStore.getQuestions(questionStore.filter.toQueryParams());
+    const questions = await questionStore.searchQuestions(searchQuery);
     items.value = questions.items;
   } catch {}
 };
@@ -78,9 +79,15 @@ const search = async () => {
  * This is triggered when the user presses Enter in the search input,
  * allowing them to view a full list of questions matching their entered text.
  */
-const handleSearchSubmit = () => {
+const handleSearchSubmit = async () => {
+  //reset all filters except search and pagination
+  questionStore.filter.clearFiltersExceptSearchAndPagination();
+
   const availableQueryParams = questionStore.filter.applyFilterToBrowserUrl();
+
   router.push({ path: "/questions", query: { ...availableQueryParams } });
+
+  await questionStore.getQuestions(questionStore.filter.toQueryParams());
 };
 </script>
 

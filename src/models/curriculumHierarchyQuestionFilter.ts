@@ -58,6 +58,9 @@ export class CurriculumHierarchyFilter {
    * Clears only the hierarchical filters:
    * curriculum, examBoard, level, subject, topic, and subtopic.
    *
+   * This method is called when curriculum changes and so it resets
+   * all dependent filters (Exam board → Level → Subject → Topic → Subtopic)
+   * before setting the new curriculum.
    * Does NOT reset the search term, pagination, or sort options.
    */
   public clearHierarchyFilters() {
