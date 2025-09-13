@@ -180,7 +180,7 @@ defineProps({
 });
 
 //The initial state of panel content.
-const collapsed = ref(true);
+const collapsed = ref(false);
 const questionStore = useQuestionStore();
 const router = useRouter();
 // All curriculum options for the curriculum select input

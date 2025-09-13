@@ -54,7 +54,7 @@
             v-for="(tag, index) in tags?.slice(0, 5)"
             :key="index"
             :id="tag.id.toString()"
-            href="#"
+            @click="() => onTagClick(tag.name)"
             class="badge rounded-pill bg-light text-dark border me-1 mb-1 text-decoration-none px-3 py-2"
           >
             #{{ tag.name }}
@@ -77,7 +77,7 @@
               class="p-0"
             >
               <template #item="{ item }">
-                <span class="text-sm font-semibold text-color-secondary">{{ item.label }}</span>
+                <span class="">{{ item.label }}</span>
               </template>
             </Breadcrumb>
           </div>
@@ -127,6 +127,8 @@ import Breadcrumb from "primevue/breadcrumb";
 import type { MenuItem } from "primevue/menuitem";
 
 import { type PropType } from "vue";
+import { useRouter } from "vue-router";
+import { useQuestionStore } from "@/stores/question";
 defineProps({
   curriculum: { type: [String, null], required: true },
   examBoard: { type: [String, null], required: false },
@@ -143,6 +145,34 @@ defineProps({
   username: { type: [String, null], required: true },
   tags: { type: Array as PropType<Tag[]>, default: new Array<Tag>() },
 });
+
+const router = useRouter();
+const questionStore = useQuestionStore();
+
+/**
+ * Handles clicking on a tag to filter questions.
+ *
+ * - Resets any existing filters.
+ * - Applies the selected tag as the active filter.
+ * - Updates the browser URL with the new filter query parameters.
+ * - Navigates to the questions page and fetches filtered questions.
+ *
+ * @param tagName The name of the tag that was clicked.
+ */
+const onTagClick = async (tagName: string) => {
+  // Clear any previously applied filters
+  questionStore.filter.clear();
+
+  // Apply the clicked tag as the active filter
+  questionStore.filter.tags = tagName;
+
+  // Update the browser URL to reflect the current filter state
+  const availableQueryParams = questionStore.filter.applyFilterToBrowserUrl();
+  router.push({ path: "/questions", query: { ...availableQueryParams } });
+
+  // Fetch the list of questions based on the updated filter
+  await questionStore.getQuestions(questionStore.filter.toQueryParams());
+};
 </script>
 
 <style scoped lang="scss">
