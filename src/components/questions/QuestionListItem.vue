@@ -49,7 +49,7 @@
           {{ content }}
         </p>
         <!-- Tags -->
-        <div class="mb-2">
+        <div class="mb-2 cursor-pointer">
           <a
             v-for="(tag, index) in tags?.slice(0, 5)"
             :key="index"

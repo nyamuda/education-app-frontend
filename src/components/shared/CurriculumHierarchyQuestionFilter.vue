@@ -391,6 +391,10 @@ const applyDefaultsFromQuery = async (curriculums: Curriculum[]) => {
   if (query.search) {
     questionStore.filter.search = query.search.toString();
   }
+  //tags
+  if (query.tags) {
+    questionStore.filter.tags = query.tags.toString();
+  }
 };
 
 defineExpose({ getCurriculumsAndApplyDefaults });
