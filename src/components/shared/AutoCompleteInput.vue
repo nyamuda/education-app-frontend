@@ -19,7 +19,7 @@
           </div>
 
           <!-- Meta details row -->
-          <div class="text-muted small d-flex flex-wrap gap-1">
+          <div class="text-muted small">
             <Breadcrumb
               :model="[
                 { label: slotProps.option.subject?.level?.examBoard?.curriculum?.name },
@@ -30,7 +30,7 @@
               class="p-0"
             >
               <template #item="{ item }">
-                <span class="text-sm font-semibold text-color-secondary">{{ item.label }}</span>
+                <span style="font-size: 0.85rem; padding: 2px">{{ item.label }}</span>
               </template>
             </Breadcrumb>
           </div>

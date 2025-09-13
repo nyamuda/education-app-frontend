@@ -30,6 +30,7 @@ export class CurriculumHierarchyFilter {
     public page: number | null = null,
     public pageSize: number | null = null,
     public sortBy: QuestionSortOption | null = null,
+    public tags: string | null = null,
   ) {}
 
   /**
@@ -52,6 +53,7 @@ export class CurriculumHierarchyFilter {
     this.page = null;
     this.pageSize = null;
     this.sortBy = null;
+    this.tags = null;
   }
 
   /**
@@ -164,6 +166,7 @@ export class CurriculumHierarchyFilter {
       topicId: this.topic ? this.topic.id : null,
       subtopicId: this.subtopic ? this.subtopic.id : null,
       search: this.search,
+      tags: this.tags,
     };
   }
 
