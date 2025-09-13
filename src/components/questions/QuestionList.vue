@@ -8,6 +8,7 @@
         </router-link>
       </div>
     </div>
+
     <!-- Hierarchy filters start-->
     <CurriculumHierarchyQuestionFilter ref="curriculumHierarchyQuestionFilterRef">
       <template #extraContent>
@@ -116,9 +117,9 @@ const getAllQuestions = async () => {
     // Prepare the query parameters from the current filter
     const params = questionStore.filter.toQueryParams();
 
-    // c:
+    // Prevent duplicate requests:
     // If a fetch is already in progress (for example, triggered by the
-    // AutoComplete component when the user presses Enter), cancel this call.
+    // AutoComplete search component when the user presses Enter), cancel this call.
     if (questionStore.isGettingQuestions) return;
 
     await questionStore.getQuestions(params);

@@ -1,80 +1,112 @@
 <template>
-  <div class="list-actions row mt-0 justify-content-start g-3">
-    <!-- Filter by curriculum -->
-    <div class="col-6 col-md-3" v-if="showCurriculum">
-      <CurriculumSelect
-        placeholder="Curriculum"
-        @curriculums="(val: Curriculum[]) => (curriculums = val)"
-        :is-required="false"
-        @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
-        @change="onCurriculumChange"
-        ref="curriculumSelectInputRef"
-      />
-    </div>
-    <!-- Filter by exam board -->
-    <div class="col-6 col-md-3" v-if="showExamBoard">
-      <ExamBoardSelect
-        @change="onExamBoardChange"
-        :exam-boards="questionStore.filter?.curriculum?.examBoards"
-        :is-loading-exam-boards="isLoadingCurriculums"
-        placeholder="Exam board"
-        :is-required="false"
-        ref="examBoardSelectInputRef"
-      />
-    </div>
-    <!-- Filter by level -->
-    <div class="col-6 col-md-3" v-if="showLevel">
-      <LevelSelect
-        :is-loading-levels="isLoadingCurriculums"
-        @change="onLevelChange"
-        @subjects="
-          (val: Subject[]) =>
-            questionStore.filter.level ? (questionStore.filter.level.subjects = val) : null
-        "
-        @is-loading-subjects="(val: boolean) => (isLoadingSubjects = val)"
-        :levels="questionStore.filter?.examBoard?.levels"
-        placeholder="Level"
-        :is-required="false"
-        ref="levelSelectInputRef"
-      />
-    </div>
-    <!-- Filter by subject -->
-    <div class="col-6 col-md-3" v-if="showSubject">
-      <SubjectSelect
-        @change="onSubjectChange"
-        :subjects="questionStore.filter?.level?.subjects"
-        placeholder="Subject"
-        :is-required="false"
-        :is-loading-subjects="isLoadingSubjects"
-        ref="subjectSelectInputRef"
-      />
-    </div>
-    <!-- Filter by topic -->
-    <div class="col-6 col-md-3" v-if="showTopic">
-      <TopicSelect
-        @change="onTopicChange"
-        :topics="questionStore.filter?.subject?.topics"
-        :is-loading-topics="isLoadingSubjects"
-        placeholder="Topic"
-        :is-required="false"
-        ref="topicSelectInputRef"
-      />
-    </div>
-    <!-- Filter by subtopic -->
-    <div class="col-6 col-md-3" v-if="showSubtopic">
-      <SubtopicSelect
-        @change="onSubtopicChange"
-        :is-loading-subtopics="isLoadingSubjects"
-        :subtopics="questionStore.filter?.topic?.subtopics"
-        placeholder="Subtopic"
-        :is-required="false"
-        ref="subtopicSelectInputRef"
-      />
-    </div>
+  <Panel
+    class="mb-4"
+    :collapsed="collapsed"
+    :pt="{
+      root: { class: 'p-0 border-0' },
+      header: { class: 'p-0' },
+      content: { class: 'p-0' },
+      toggler: { class: 'p-0' },
+    }"
+    toggleable
+  >
+    <!-- Panel header -->
+    <template #header>
+      <div>
+        <span class="font-bold"></span>
+      </div>
+    </template>
 
-    <!-- Allow parent components to inject extra content (e.g. sort options, buttons, etc.) -->
-    <slot name="extraContent"></slot>
-  </div>
+    <!-- Panel toggle button -->
+    <template #togglebutton>
+      <Button
+        icon="pi pi-sliders-h"
+        severity="secondary"
+        label="Filters"
+        text
+        size="small"
+        @click="collapsed = !collapsed"
+      />
+    </template>
+    <!-- Filters start -->
+    <div class="row mt-0 justify-content-start g-3" style="margin-top: -0.5rem !important">
+      <!-- Filter by curriculum -->
+      <div class="col-6 col-md-3" v-if="showCurriculum">
+        <CurriculumSelect
+          placeholder="Curriculum"
+          @curriculums="(val: Curriculum[]) => (curriculums = val)"
+          :is-required="false"
+          @is-loading="(val: boolean) => (isLoadingCurriculums = val)"
+          @change="onCurriculumChange"
+          ref="curriculumSelectInputRef"
+        />
+      </div>
+      <!-- Filter by exam board -->
+      <div class="col-6 col-md-3" v-if="showExamBoard">
+        <ExamBoardSelect
+          @change="onExamBoardChange"
+          :exam-boards="questionStore.filter?.curriculum?.examBoards"
+          :is-loading-exam-boards="isLoadingCurriculums"
+          placeholder="Exam board"
+          :is-required="false"
+          ref="examBoardSelectInputRef"
+        />
+      </div>
+      <!-- Filter by level -->
+      <div class="col-6 col-md-3" v-if="showLevel">
+        <LevelSelect
+          :is-loading-levels="isLoadingCurriculums"
+          @change="onLevelChange"
+          @subjects="
+            (val: Subject[]) =>
+              questionStore.filter.level ? (questionStore.filter.level.subjects = val) : null
+          "
+          @is-loading-subjects="(val: boolean) => (isLoadingSubjects = val)"
+          :levels="questionStore.filter?.examBoard?.levels"
+          placeholder="Level"
+          :is-required="false"
+          ref="levelSelectInputRef"
+        />
+      </div>
+      <!-- Filter by subject -->
+      <div class="col-6 col-md-3" v-if="showSubject">
+        <SubjectSelect
+          @change="onSubjectChange"
+          :subjects="questionStore.filter?.level?.subjects"
+          placeholder="Subject"
+          :is-required="false"
+          :is-loading-subjects="isLoadingSubjects"
+          ref="subjectSelectInputRef"
+        />
+      </div>
+      <!-- Filter by topic -->
+      <div class="col-6 col-md-3" v-if="showTopic">
+        <TopicSelect
+          @change="onTopicChange"
+          :topics="questionStore.filter?.subject?.topics"
+          :is-loading-topics="isLoadingSubjects"
+          placeholder="Topic"
+          :is-required="false"
+          ref="topicSelectInputRef"
+        />
+      </div>
+      <!-- Filter by subtopic -->
+      <div class="col-6 col-md-3" v-if="showSubtopic">
+        <SubtopicSelect
+          @change="onSubtopicChange"
+          :is-loading-subtopics="isLoadingSubjects"
+          :subtopics="questionStore.filter?.topic?.subtopics"
+          placeholder="Subtopic"
+          :is-required="false"
+          ref="subtopicSelectInputRef"
+        />
+      </div>
+
+      <!-- Allow parent components to inject extra content (e.g. sort options, buttons, etc.) -->
+      <slot name="extraContent"></slot>
+    </div>
+    <!-- Filters end -->
+  </Panel>
 </template>
 
 <script setup lang="ts">
@@ -116,6 +148,8 @@ import SubtopicSelect from "./selects/SubtopicSelect.vue";
 import type { Subtopic } from "@/models/subtopic";
 import { useRouter } from "vue-router";
 import { useQuestionStore } from "@/stores/question";
+import Button from "primevue/button";
+import Panel from "primevue/panel";
 
 defineProps({
   // Props to control which filters should be visible
@@ -145,6 +179,8 @@ defineProps({
   },
 });
 
+//The initial state of panel content.
+const collapsed = ref(true);
 const questionStore = useQuestionStore();
 const router = useRouter();
 // All curriculum options for the curriculum select input
