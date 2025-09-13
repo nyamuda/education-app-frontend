@@ -49,13 +49,13 @@
           {{ content }}
         </p>
         <!-- Tags -->
-        <div class="mb-2 cursor-pointer">
+        <div class="mb-2">
           <a
             v-for="(tag, index) in tags?.slice(0, 5)"
             :key="index"
             :id="tag.id.toString()"
             @click="() => onTagClick(tag.name)"
-            class="badge rounded-pill bg-light text-dark border me-1 mb-1 text-decoration-none px-3 py-2"
+            class="badge cursor-pointer rounded-pill bg-light text-dark border me-1 mb-1 text-decoration-none px-3 py-2"
           >
             #{{ tag.name }}
           </a>
@@ -129,6 +129,7 @@ import type { MenuItem } from "primevue/menuitem";
 import { type PropType } from "vue";
 import { useRouter } from "vue-router";
 import { useQuestionStore } from "@/stores/question";
+
 defineProps({
   curriculum: { type: [String, null], required: true },
   examBoard: { type: [String, null], required: false },

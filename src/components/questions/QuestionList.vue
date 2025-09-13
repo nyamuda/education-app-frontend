@@ -71,7 +71,11 @@
     <!--Table end-->
 
     <!--No Questions Start-->
-    <EmptyList v-else message="No question data to display at the moment." />
+    <EmptyList
+      v-else
+      title="No Questions Available"
+      message="We couldn’t find any questions. Try adjusting your filters or search terms."
+    />
     <!--No Questions End-->
   </div>
 </template>
