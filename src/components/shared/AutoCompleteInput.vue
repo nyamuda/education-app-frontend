@@ -19,16 +19,20 @@
           </div>
 
           <!-- Meta details row -->
-          <div class="text-muted small d-flex flex-wrap">
-            <span class="me-1">{{
-              slotProps.option.subject?.level?.examBoard?.curriculum?.name
-            }}</span>
-            <span class="me-1">•</span>
-            <span class="me-1">{{ slotProps.option.subject?.level?.examBoard?.name }}</span>
-            <span class="me-1">•</span>
-            <span class="me-1">{{ slotProps.option.subject?.level?.name }}</span>
-            <span class="me-1">•</span>
-            <span>{{ slotProps.option.subject?.name }}</span>
+          <div class="text-muted small d-flex flex-wrap gap-1">
+            <Breadcrumb
+              :model="[
+                { label: slotProps.option.subject?.level?.examBoard?.curriculum?.name },
+                { label: slotProps.option.subject?.level?.examBoard?.name },
+                { label: slotProps.option.subject?.level?.name },
+                { label: slotProps.option.subject?.name },
+              ]"
+              class="p-0"
+            >
+              <template #item="{ item }">
+                <span class="text-sm font-semibold text-color-secondary">{{ item.label }}</span>
+              </template>
+            </Breadcrumb>
           </div>
         </div>
       </template>
@@ -57,6 +61,7 @@ import InputIcon from "primevue/inputicon";
 import { useQuestionStore } from "@/stores/question";
 import type { Question } from "@/models/question";
 import { useRouter } from "vue-router";
+import Breadcrumb from "primevue/breadcrumb";
 
 const items = ref<Question[]>([]);
 const questionStore = useQuestionStore();

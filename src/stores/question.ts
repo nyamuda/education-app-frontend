@@ -85,7 +85,6 @@ export const useQuestionStore = defineStore("question", () => {
           },
         })
         .then((response) => {
-          questions.value = response.data;
           //return the questions
           resolve(response.data);
         })

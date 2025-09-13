@@ -93,6 +93,10 @@ const onSelect = async (event: SelectChangeEvent) => {
   emit("change", curriculum);
 };
 
+const resetSelectedValue = () => {
+  formData.value.curriculumId = null;
+};
+
 /**
  * Fetches all curriculums from the backend. These curriculums are used
  * to select the curriculum for things like exam boards, subjects, topics in forms
@@ -142,5 +146,5 @@ const applyDefaultValue = (defaultCurriculumId: number | null) => {
     formData.value.curriculumId = defaultCurriculumId;
   } catch {}
 };
-defineExpose({ getAllCurriculums, applyDefaultValue });
+defineExpose({ getAllCurriculums, applyDefaultValue, resetSelectedValue });
 </script>

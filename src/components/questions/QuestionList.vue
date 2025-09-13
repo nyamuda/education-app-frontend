@@ -77,9 +77,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-
 import Button from "primevue/button";
-
 import { useToast } from "primevue/usetoast";
 import EmptyList from "../shared/EmptyList.vue";
 import TitleSection from "../shared/TitleSection.vue";
