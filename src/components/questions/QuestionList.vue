@@ -59,13 +59,15 @@
         :username="question.user?.username ?? null"
         :tags="question.tags"
       />
+
+      <LoadMoreButton />
       <!-- Pagination start -->
-      <Paginator
+      <!-- <Paginator
         :rows="questionStore.questions.pageSize"
         :totalRecords="questionStore.questions.totalItems"
         @page="onPageChange"
         :first="(questionStore.questions.page - 1) * questionStore.questions.pageSize"
-      />
+      /> -->
       <!-- Pagination end -->
     </div>
     <!--Table end-->
@@ -86,13 +88,14 @@ import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";
 import EmptyList from "../shared/EmptyList.vue";
 import TitleSection from "../shared/TitleSection.vue";
-import Paginator, { type PageState } from "primevue/paginator";
-import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
+//import Paginator, { type PageState } from "primevue/paginator";
+//import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 import { useQuestionStore } from "@/stores/question";
 import QuestionListItemSkeleton from "./skeletons/QuestionListItemSkeleton.vue";
 import QuestionListItem from "./QuestionListItem.vue";
 import QuestionSortingSelect from "../shared/selects/QuestionSortingSelect.vue";
 import CurriculumHierarchyQuestionFilter from "../shared/CurriculumHierarchyQuestionFilter.vue";
+import LoadMoreButton from "../shared/LoadMoreButton.vue";
 
 const questionStore = useQuestionStore();
 
@@ -137,22 +140,42 @@ const getAllQuestions = async () => {
   }
 };
 
+// Load mores questions
+const loadMoreQuestions = async () => {
+  try {
+    //increment the page number
+    const page = questionStore.questions.page + 1;
+    const pageSize = questionStore.questions.pageSize;
+    // Prepare the query parameters from the current filter
+    const params = questionStore.filter.toQueryParams(page, pageSize);
+
+    await questionStore.getQuestions(params);
+  } catch (message) {
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: message,
+      life: 5000,
+    });
+  }
+};
+
 /**
  * Called when the user switches pages in the paginator.
  * 1. Converts PrimeVue's 0-based page index to 1-based.
  * 2. Stores the new page in state.
  * 3. Fetches the updated questions list and scrolls to the top of that list.
  */
-const onPageChange = (state: PageState) => {
-  // PrimeVue uses a 0-based page index, so add 1 before sending
-  // the request to the backend, which expects 1-based indexing.
-  questionStore.filter.page = state.page + 1;
-  getAllQuestions();
+// const onPageChange = (state: PageState) => {
+//   // PrimeVue uses a 0-based page index, so add 1 before sending
+//   // the request to the backend, which expects 1-based indexing.
+//   questionStore.filter.page = state.page + 1;
+//   getAllQuestions();
 
-  //smoothly scroll to the top of the list
-  const elementId = "question-list";
-  SmoothScrollHelper.scrollToElement(elementId);
-};
+//   //smoothly scroll to the top of the list
+//   const elementId = "question-list";
+//   SmoothScrollHelper.scrollToElement(elementId);
+// };
 </script>
 
 <style lang="scss" scoped>

@@ -27,8 +27,8 @@ export class CurriculumHierarchyFilter {
     public topic: Topic | null = null,
     public subtopic: Subtopic | null = null,
     public search: string | null = null,
-    public page: number | null = null,
-    public pageSize: number | null = null,
+    public page: number = 1,
+    public pageSize: number = 10,
     public sortBy: QuestionSortOption | null = null,
     public tags: string | null = null,
   ) {}
@@ -50,8 +50,8 @@ export class CurriculumHierarchyFilter {
     this.topic = null;
     this.subtopic = null;
     this.search = null;
-    this.page = null;
-    this.pageSize = null;
+    // this.page = 1;
+    // this.pageSize = 10;
     this.sortBy = null;
     this.tags = null;
   }
@@ -81,11 +81,9 @@ export class CurriculumHierarchyFilter {
    * to run across all questions while keeping the current search term and pagination state.
    */
   public clearFiltersExceptSearchAndPagination() {
-    const { search, page, pageSize } = this;
+    const { search } = this;
     this.clear();
     this.search = search;
-    this.page = page;
-    this.pageSize = pageSize;
   }
 
   /**
@@ -154,10 +152,11 @@ export class CurriculumHierarchyFilter {
    * Converts the current filter state into a QuestionQueryParams object.
    * Useful for building query strings or API calls.
    */
-  public toQueryParams(): QuestionQueryParams {
+  public toQueryParams(page = 1, pageSize = 10): QuestionQueryParams {
     return {
-      page: this.page ?? null,
-      pageSize: this.pageSize ?? null,
+      page,
+      pageSize,
+
       sortBy: this.sortBy,
       curriculumId: this.curriculum ? this.curriculum.id : null,
       examBoardId: this.examBoard ? this.examBoard.id : null,

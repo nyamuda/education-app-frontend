@@ -60,6 +60,36 @@ export const useQuestionStore = defineStore("question", () => {
     });
   };
 
+  //Loads more questions
+  const loadMoreQuestions = (params: QuestionQueryParams) => {
+    return new Promise((resolve, reject) => {
+      isGettingQuestions.value = true;
+      axios
+        .get<PageInfo<Question>>(`${apiUrl.value}`, {
+          params: {
+            ...params,
+          },
+        })
+        .then((response) => {
+          //new data
+          const { page, pageSize, totalItems, items } = response.data;
+          //update the questions metadata
+          questions.value = {
+            page,
+            pageSize,
+            totalItems,
+            items: [...questions.value.items, ...items],
+          };
+          resolve({});
+        })
+        .catch((err) => {
+          const message = err.response?.data?.message || ErrorResponse.Unexpected();
+          reject(message);
+        })
+        .finally(() => (isGettingQuestions.value = false));
+    });
+  };
+
   /**
    * Fetches questions that match the provided search term.
    * This method is intended for lightweight search suggestions (e.g. autocomplete),
@@ -182,5 +212,6 @@ export const useQuestionStore = defineStore("question", () => {
     filter,
     questions,
     isGettingQuestions,
+    loadMoreQuestions,
   };
 });
