@@ -1,21 +1,25 @@
 <template>
+  <DynamicTags />
   <div>
     <AutoComplete
       v-model="tags"
       @change="tagsToQueryParam"
-      inputId="addBlogTags"
-      option-value="name"
       multiple
-      fluid
       :typeahead="false"
+      :size="'small'"
+      placeholder="Tags"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 import { useQuestionStore } from "@/stores/question";
+
+import AutoComplete from "primevue/autocomplete";
+
 import { onMounted, ref, type Ref } from "vue";
 import { useRouter } from "vue-router";
+import DynamicTags from "./DynamicTags.vue";
 
 defineProps({});
 const router = useRouter();
@@ -65,7 +69,12 @@ const applyDefaultsFromQuery = () => {
  *   ["definition", "electricity", "ohm"]
  *   → "definition,electricity,ohm"
  */
-const tagsToQueryParam = () => {
+const tagsToQueryParam = async () => {
   questionStore.filter.tags = tags.value.join(",");
+
+  //update browser URL with the new tags
+  questionStore.filter.applyFilterToBrowserUrl();
 };
 </script>
+
+<style lang="scss" scoped></style>

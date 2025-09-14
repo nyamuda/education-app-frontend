@@ -1,4 +1,5 @@
 <template>
+  <QuestionTagFilter />
   <div class="container mx-auto">
     <div class="d-flex justify-content-between">
       <TitleSection title="Questions" title-size="small" align-items="center" />
@@ -12,6 +13,10 @@
     <!-- Hierarchy filters start-->
     <CurriculumHierarchyQuestionFilter ref="curriculumHierarchyQuestionFilterRef">
       <template #extraContent>
+        <!-- Tags input-->
+        <div class="col-auto">
+          <QuestionTagFilter />
+        </div>
         <!-- Sorting select input -->
         <div class="col-6 col-md-3">
           <QuestionSortingSelect />
@@ -109,6 +114,7 @@ import QuestionListItem from "./QuestionListItem.vue";
 import QuestionSortingSelect from "../shared/selects/QuestionSortingSelect.vue";
 import CurriculumHierarchyQuestionFilter from "../shared/CurriculumHierarchyQuestionFilter.vue";
 import LoadMoreButton from "../shared/LoadMoreButton.vue";
+import QuestionTagFilter from "./QuestionTagFilter.vue";
 
 const questionStore = useQuestionStore();
 
