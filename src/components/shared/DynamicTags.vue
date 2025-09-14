@@ -40,7 +40,7 @@
 
 defineProps({});
 
-import { onMounted, ref, type Ref } from "vue";
+import { onMounted, ref, watch, type Ref } from "vue";
 import Chip from "primevue/chip";
 import InputText from "primevue/inputtext";
 import { useRouter } from "vue-router";
@@ -108,6 +108,15 @@ const applyDefaultsFromQuery = () => {
     emit("tagsQuery", query.tags.toString());
   }
 };
+
+//Watch for any changes in the query params
+watch(
+  () => router.currentRoute.value.query,
+  () => {
+    applyDefaultsFromQuery();
+  },
+  { immediate: true, deep: true },
+);
 </script>
 
 <style scoped lang="scss">

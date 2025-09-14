@@ -129,6 +129,7 @@ import type { MenuItem } from "primevue/menuitem";
 import { type PropType } from "vue";
 import { useRouter } from "vue-router";
 import { useQuestionStore } from "@/stores/question";
+import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 
 defineProps({
   curriculum: { type: [String, null], required: true },
@@ -170,6 +171,10 @@ const onTagClick = async (tagName: string) => {
   // Update the browser URL to reflect the current filter state
   const availableQueryParams = questionStore.filter.applyFilterToBrowserUrl();
   router.push({ path: "/questions", query: { ...availableQueryParams } });
+
+  //smoothly scroll to the top of the question list
+  const elementId = "question-list";
+  SmoothScrollHelper.scrollToElement(elementId);
 
   // Fetch the list of questions based on the updated filter
   await questionStore.getQuestions(questionStore.filter.toQueryParams());
