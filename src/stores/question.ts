@@ -59,8 +59,7 @@ export const useQuestionStore = defineStore("question", () => {
         .finally(() => (isGettingQuestions.value = false));
     });
   };
-
-  //Loads more questions
+  //Loads the next batch of questions and appends them to the current list.
   const loadMoreQuestions = (params: QuestionQueryParams) => {
     return new Promise((resolve, reject) => {
       isGettingQuestions.value = true;
@@ -72,11 +71,12 @@ export const useQuestionStore = defineStore("question", () => {
         })
         .then((response) => {
           //new data
-          const { page, pageSize, totalItems, items } = response.data;
+          const { page, pageSize, hasMore, totalItems, items } = response.data;
           //update the questions metadata
           questions.value = {
             page,
             pageSize,
+            hasMore,
             totalItems,
             items: [...questions.value.items, ...items],
           };

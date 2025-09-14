@@ -60,7 +60,14 @@
         :tags="question.tags"
       />
 
-      <LoadMoreButton />
+      <LoadMoreButton
+        @click-callback="loadMoreQuestions"
+        :is-loading="isLoadingMoreQuestions"
+        label="Load more questions"
+        loading-label="Loading questions..."
+        end-label="No more questions to show"
+        end-variant="text"
+      />
       <!-- Pagination start -->
       <!-- <Paginator
         :rows="questionStore.questions.pageSize"
@@ -102,6 +109,7 @@ const questionStore = useQuestionStore();
 const toast = useToast();
 const isGettingCurriculums = ref(false);
 const curriculumHierarchyQuestionFilterRef = ref();
+const isLoadingMoreQuestions = ref(false);
 
 onMounted(async () => {
   await getCurriculumsAndApplyDefaults();
@@ -130,11 +138,11 @@ const getAllQuestions = async () => {
     if (questionStore.isGettingQuestions) return;
 
     await questionStore.getQuestions(params);
-  } catch (message) {
+  } catch {
     toast.add({
       severity: "error",
-      summary: "Error",
-      detail: message,
+      summary: "Unable to Fetch Questions",
+      detail: "We couldn’t retrieve the questions. Please retry.",
       life: 5000,
     });
   }
@@ -143,20 +151,22 @@ const getAllQuestions = async () => {
 // Load mores questions
 const loadMoreQuestions = async () => {
   try {
-    //increment the page number
+    // Determine the next page number based on the current pagination state
     const page = questionStore.questions.page + 1;
     const pageSize = questionStore.questions.pageSize;
     // Prepare the query parameters from the current filter
     const params = questionStore.filter.toQueryParams(page, pageSize);
-
-    await questionStore.getQuestions(params);
-  } catch (message) {
+    isLoadingMoreQuestions.value = true;
+    await questionStore.loadMoreQuestions(params);
+  } catch {
     toast.add({
       severity: "error",
-      summary: "Error",
-      detail: message,
+      summary: "Unable to Load More Questions",
+      detail: "Something went wrong while fetching more questions.",
       life: 5000,
     });
+  } finally {
+    isLoadingMoreQuestions.value = false;
   }
 };
 

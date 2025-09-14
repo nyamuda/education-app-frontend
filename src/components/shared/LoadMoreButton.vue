@@ -1,6 +1,6 @@
 <template>
   <Button
-    @click="onClick()"
+    @click="onClickCallback()"
     type="button"
     :label="isLoading ? loadingLabel : !hasMore ? endLabel : label"
     :icon="!hasMore ? '' : 'fas fa-chevron-down'"
@@ -45,7 +45,7 @@ defineProps({
     required: true,
   },
   // Callback function to be triggered when the button is clicked
-  onClick: {
+  onClickCallback: {
     type: Function,
     required: true,
   },
