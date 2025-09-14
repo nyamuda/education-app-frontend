@@ -1,5 +1,4 @@
 <template>
-  <QuestionTagFilter />
   <div class="container mx-auto">
     <div class="d-flex justify-content-between">
       <TitleSection title="Questions" title-size="small" align-items="center" />
@@ -13,21 +12,23 @@
     <!-- Hierarchy filters start-->
     <CurriculumHierarchyQuestionFilter ref="curriculumHierarchyQuestionFilterRef">
       <template #extraContent>
-        <!-- Tags input-->
-        <div class="col-auto">
-          <QuestionTagFilter />
-        </div>
         <!-- Sorting select input -->
         <div class="col-6 col-md-3">
           <QuestionSortingSelect />
         </div>
 
-        <div class="col-6 col-md-3">
+        <!-- Tags input-->
+        <div class="col-12">
+          <QuestionTagFilter />
+        </div>
+
+        <div class="col-12 col-md-3 col-lg-2 ms-auto d-flex justify-content-end">
           <!-- Apply button -->
           <Button
             label="Apply"
             icon="pi pi-filter"
             size="small"
+            fluid
             variant="outlined"
             severity="contrast"
             @click="getAllQuestions"

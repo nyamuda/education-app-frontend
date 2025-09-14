@@ -1,8 +1,10 @@
 <template>
-  <DynamicTags
-    @tags="(val: string[]) => tagsToQueryParam(val)"
-    @tags-query="(val: string) => (questionStore.filter.tags = val)"
-  />
+  <div>
+    <DynamicTags
+      @tags="(val: string[]) => tagsToQueryParam(val)"
+      @tags-query="(val: string) => (questionStore.filter.tags = val)"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">

@@ -1,10 +1,10 @@
 <template>
-  <div class="d-flex flex-wrap align-items-center gap-2">
+  <div class="tag-container">
     <!-- Existing tags -->
     <Chip
       v-for="(tag, index) in tags"
       :key="index"
-      class="py-1 px-2 rounded-0"
+      class="py-0 px-2 rounded-0"
       @remove="removeTag(index)"
       removable
     >
@@ -17,7 +17,7 @@
       @keyup.enter.prevent="addTag"
       v-model="newTag"
       size="small"
-      placeholder="# Add a tag"
+      placeholder="# Enter tags (press Enter after each)"
       autofocus
     />
   </div>
@@ -38,14 +38,9 @@
  * - Applies default tags from the query parameters and emits those query parameters.
  */
 
-const props = defineProps({
-  tags: {
-    type: Array as PropType<string[]>,
-    default: new Array<string>(),
-  },
-});
+defineProps({});
 
-import { onMounted, ref, toRef, type PropType } from "vue";
+import { onMounted, ref, type Ref } from "vue";
 import Chip from "primevue/chip";
 import InputText from "primevue/inputtext";
 import { useRouter } from "vue-router";
@@ -54,7 +49,7 @@ onMounted(() => {
   applyDefaultsFromQuery();
 });
 
-const tags = toRef(props, "tags");
+const tags: Ref<string[]> = ref([]);
 const newTag = ref("");
 const router = useRouter();
 const emit = defineEmits(["tags", "tagsQuery"]);
@@ -108,15 +103,36 @@ const applyDefaultsFromQuery = () => {
       .split(",")
       .map((t) => t.trim());
 
+    emit("tags", tags.value);
     //emit the query parameters
     emit("tagsQuery", query.tags.toString());
   }
 };
 </script>
 
-<style scoped>
-/* Optional: align chips nicely inside border */
-.p-chip {
-  border-radius: 20px;
+<style scoped lang="scss">
+.tag-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  cursor: text;
+}
+
+.tag-container .p-chip {
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+}
+
+.tag-container input {
+  flex: 1;
+  min-width: 120px;
+  border: none;
+  outline: none;
+  padding: 0.25rem 0;
 }
 </style>
