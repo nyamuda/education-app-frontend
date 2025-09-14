@@ -63,6 +63,7 @@
       <LoadMoreButton
         @click-callback="loadMoreQuestions"
         :is-loading="isLoadingMoreQuestions"
+        :has-more="questionStore.questions.hasMore"
         label="Load more questions"
         loading-label="Loading questions..."
         end-label="No more questions to show"
