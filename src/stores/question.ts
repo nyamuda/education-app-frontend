@@ -62,7 +62,6 @@ export const useQuestionStore = defineStore("question", () => {
   //Loads the next batch of questions and appends them to the current list.
   const loadMoreQuestions = (params: QuestionQueryParams) => {
     return new Promise((resolve, reject) => {
-      isGettingQuestions.value = true;
       axios
         .get<PageInfo<Question>>(`${apiUrl.value}`, {
           params: {
@@ -85,8 +84,7 @@ export const useQuestionStore = defineStore("question", () => {
         .catch((err) => {
           const message = err.response?.data?.message || ErrorResponse.Unexpected();
           reject(message);
-        })
-        .finally(() => (isGettingQuestions.value = false));
+        });
     });
   };
 

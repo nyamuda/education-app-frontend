@@ -3,12 +3,12 @@
     @click="onClickCallback()"
     type="button"
     :label="isLoading ? loadingLabel : !hasMore ? endLabel : label"
-    :icon="!hasMore ? '' : 'fas fa-chevron-down'"
+    :icon="!hasMore ? '' : 'pi pi-chevron-down'"
     :loading="isLoading"
     :disabled="isLoading || !hasMore || isDisabled"
     :severity="severity"
     :size="size"
-    :variant="!hasMore ? endVariant : variant"
+    :variant="isLoading ? loadingVariant : !hasMore ? endVariant : variant"
   />
 </template>
 
@@ -62,6 +62,11 @@ defineProps({
 
   // The button style variant when more items are available (e.g., "filled")
   variant: {
+    type: String,
+    default: "filled",
+  },
+  // The button style variant when more items are being loaded (e.g., "filled")
+  loadingVariant: {
     type: String,
     default: "filled",
   },

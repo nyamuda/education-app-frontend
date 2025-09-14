@@ -60,15 +60,20 @@
         :tags="question.tags"
       />
 
-      <LoadMoreButton
-        @click-callback="loadMoreQuestions"
-        :is-loading="isLoadingMoreQuestions"
-        :has-more="questionStore.questions.hasMore"
-        label="Load more questions"
-        loading-label="Loading questions..."
-        end-label="No more questions to show"
-        end-variant="text"
-      />
+      <!-- Load more questions button -->
+      <div v-if="!isGettingCurriculums" class="text-center mt-4">
+        <LoadMoreButton
+          @click-callback="loadMoreQuestions"
+          :is-loading="isLoadingMoreQuestions"
+          :has-more="questionStore.questions.hasMore"
+          :is-disabled="isLoadingMoreQuestions"
+          label="Load more questions"
+          loading-label="Loading questions..."
+          end-label="No more questions to show"
+          end-variant="text"
+          loading-variant="outlined"
+        />
+      </div>
       <!-- Pagination start -->
       <!-- <Paginator
         :rows="questionStore.questions.pageSize"

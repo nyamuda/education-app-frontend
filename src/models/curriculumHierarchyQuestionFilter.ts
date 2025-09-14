@@ -152,11 +152,13 @@ export class CurriculumHierarchyFilter {
    * Converts the current filter state into a QuestionQueryParams object.
    * Useful for building query strings or API calls.
    */
-  public toQueryParams(page = 1, pageSize = 10): QuestionQueryParams {
+  public toQueryParams(
+    page: number | null = null,
+    pageSize: number | null = null,
+  ): QuestionQueryParams {
     return {
       page,
       pageSize,
-
       sortBy: this.sortBy,
       curriculumId: this.curriculum ? this.curriculum.id : null,
       examBoardId: this.examBoard ? this.examBoard.id : null,
@@ -181,7 +183,7 @@ export class CurriculumHierarchyFilter {
       // Convert the queryParams object into an array of [key, value] pairs
       Object.entries(queryParams)
         // Keep only entries where the value(index is 1) is not null or undefined
-        .filter((val) => val["1"] != null && val),
+        .filter((val) => val["1"] != null && val["1"]),
       // Convert the filtered array back into an object
     );
 
