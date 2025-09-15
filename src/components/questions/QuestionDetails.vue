@@ -4,9 +4,15 @@
       <!-- Main Content -->
       <div class="col-12 col-lg-8">
         <!-- Question Section -->
-        <Card class="">
+        <Card class="position-relative">
           <template #content>
             <div class="d-flex flex-column flex-md-row">
+              <!-- Ribbon -->
+              <div
+                class="position-absolute top-0 end-0 bg-secondary text-white px-3 py-1 rounded-start"
+              >
+                {{ question.marks }} marks
+              </div>
               <!-- Vote panel -->
               <div
                 class="vote-panel d-flex flex-row flex-md-column align-items-center mb-3 mb-md-0 me-md-4"
@@ -26,12 +32,14 @@
                 </div>
 
                 <!-- Title + body -->
-                <h2 class="question-title">{{ question.title }}</h2>
+                <h2 class="question-title text-secondary">{{ question.title }}</h2>
+
                 <div class="ms-auto d-flex gap-3 meta-text mb-2">
                   <small class="text-muted">Created 15h ago</small>
                   <small class="text-muted">Modified 3h ago</small>
                 </div>
                 <p class="question-body mb-3">{{ question.body }}</p>
+
                 <!-- Metadata -->
                 <dl class="row">
                   <dt class="col-sm-3">Curriculum</dt>
@@ -52,7 +60,7 @@
 
                 <!-- Action buttons + author -->
                 <div class="d-flex flex-column">
-                  <div class="action-bar d-flex gap-3 mt-3 mt-md-0">
+                  <div class="action-bar d-flex gap-3 mt-0">
                     <Button
                       icon="pi pi-share-alt"
                       text
@@ -189,6 +197,7 @@ const question = ref({
   subject: "Life Sciences",
   topic: "Photosynthesis",
   subtopic: "Light-dependent reactions",
+  marks: 5,
 });
 
 const answers = ref([
