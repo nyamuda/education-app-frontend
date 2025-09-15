@@ -8,8 +8,8 @@
       @remove="removeTag(index)"
       removable
     >
-      <i class="pi pi-hashtag"></i>
-      <span style="margin-left: -0.4rem">{{ tag }}</span>
+      <i style="font-size: 0.9rem" class="pi pi-hashtag"></i>
+      <span style="margin-left: -0.4rem; font-size: 0.9rem">{{ tag }}</span>
     </Chip>
 
     <!-- Input for adding new tags -->

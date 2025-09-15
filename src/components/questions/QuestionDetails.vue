@@ -1,1 +1,268 @@
-<template><div></div></template>
+<template>
+  <div>
+    <div class="row">
+      <!-- Main Content -->
+      <div class="col-12 col-lg-8">
+        <!-- Question Section -->
+        <Card class="question-card">
+          <template #content>
+            <div class="d-flex flex-column flex-md-row">
+              <!-- Vote panel -->
+              <div
+                class="vote-panel d-flex flex-row flex-md-column align-items-center mb-3 mb-md-0 me-md-4"
+              >
+                <Button icon="pi pi-arrow-up" text rounded class="vote-btn" />
+                <div class="vote-count my-0 mx-3 my-md-2 mx-md-0">124</div>
+                <Button icon="pi pi-arrow-down" text rounded class="vote-btn" />
+              </div>
+
+              <!-- Main content -->
+              <div class="flex-grow-1">
+                <!-- Tags + meta -->
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                  <Tag value="blockchain" severity="info" rounded class="tag-chip" />
+                  <Tag value="computer-science" severity="info" rounded class="tag-chip" />
+                  <Tag value="cryptography" severity="info" rounded class="tag-chip" />
+                </div>
+
+                <!-- Title + body -->
+                <h2 class="question-title">{{ question.title }}</h2>
+                <div class="ms-auto d-flex gap-3 meta-text mb-2">
+                  <small class="text-muted">Created 15h ago</small>
+                  <small class="text-muted">Modified 3h ago</small>
+                </div>
+                <p class="question-body mb-4">{{ question.body }}</p>
+
+                <hr class="separator my-2" />
+
+                <!-- Action buttons + author -->
+                <div class="d-flex flex-column">
+                  <div class="action-bar d-flex gap-3 mt-3 mt-md-0">
+                    <Button
+                      icon="pi pi-share-alt"
+                      text
+                      size="small"
+                      class="action-btn"
+                      label="Share"
+                    />
+                    <Button
+                      icon="pi pi-bookmark"
+                      text
+                      size="small"
+                      class="action-btn"
+                      label="Bookmark"
+                    />
+                    <Button icon="pi pi-flag" text size="small" class="action-btn" label="Flag" />
+                  </div>
+
+                  <div class="author-info d-flex align-items-center gap-2 ms-auto">
+                    <Avatar label="A" shape="circle" />
+                    <div>
+                      <span class="d-block fw-bold cursor-pointer">{{ question.author }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+        </Card>
+
+        <!-- Answers Section -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="mb-0">{{ answers.length }} Answers</h4>
+          <Dropdown v-model="sortBy" :options="sortOptions" optionLabel="label" class="w-auto" />
+        </div>
+
+        <Card v-for="answer in answers" :key="answer.id" class="mb-3">
+          <template #content>
+            <div class="d-flex">
+              <!-- Votes -->
+              <div class="me-3 text-center">
+                <Button icon="pi pi-arrow-up" text @click="voteAnswer(answer.id, 'up')" />
+                <div>{{ answer.votes }}</div>
+                <Button icon="pi pi-arrow-down" text @click="voteAnswer(answer.id, 'down')" />
+              </div>
+
+              <!-- Answer content -->
+              <div class="flex-grow-1">
+                <p>{{ answer.body }}</p>
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                  <div class="d-flex align-items-center gap-2 text-muted">
+                    <Avatar label="A" size="small" />
+                    <small>by Nyamuda</small>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <Button icon="pi pi-comments" text size="small" />
+                    <Button icon="pi pi-flag" text size="small" />
+                  </div>
+                </div>
+
+                <!-- Comments -->
+                <div class="mt-3 ps-3 border-start">
+                  <div v-for="comment in answer.comments" :key="comment.id" class="mb-2">
+                    <small>
+                      <strong>{{ comment.author }}:</strong> {{ comment.text }}
+                      <span class="text-muted">• {{ comment.date }}</span>
+                    </small>
+                  </div>
+                  <div class="d-flex gap-2 mt-2">
+                    <InputText
+                      v-model="newComment"
+                      placeholder="Add a comment"
+                      class="flex-grow-1"
+                    />
+                    <Button label="Post" size="small" @click="postComment(answer.id)" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+        </Card>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="col-12 col-lg-4 mt-4 mt-lg-0">
+        <Card>
+          <template #title>
+            <h5>Related Questions</h5>
+          </template>
+          <template #content>
+            <ul class="list-unstyled mb-0">
+              <li v-for="q in relatedQuestions" :key="q.id">
+                <a href="#" class="d-block mb-2">{{ q.title }}</a>
+              </li>
+            </ul>
+          </template>
+        </Card>
+
+        <Card class="mt-4">
+          <template #title>
+            <h5>Popular Tags</h5>
+          </template>
+          <template #content>
+            <div class="d-flex flex-wrap gap-2">
+              <Tag v-for="tag in popularTags" :key="tag" :value="tag" severity="info" rounded />
+            </div>
+          </template>
+        </Card>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from "vue";
+
+import Card from "primevue/card";
+import Avatar from "primevue/avatar";
+import Button from "primevue/button";
+import Tag from "primevue/tag";
+//import Avatar from "primevue/avatar";
+// import Dropdown from "primevue/dropdown";
+import InputText from "primevue/inputtext";
+
+const question = ref({
+  title: "How does photosynthesis produce oxygen?",
+  body: "I am struggling to understand how oxygen is produced during photosynthesis. Can someone explain?",
+  tags: ["biology", "photosynthesis"],
+  votes: 12,
+  author: "Jane Doe",
+  date: "2 days ago",
+});
+
+const answers = ref([
+  {
+    id: 1,
+    body: "Oxygen is released during the light-dependent reactions...",
+    votes: 8,
+    author: "John Smith",
+    date: "1 day ago",
+    comments: [{ id: 1, author: "Alex", text: "Thanks, this helped!", date: "10h ago" }],
+  },
+  {
+    id: 2,
+    body: "It comes from the splitting of water molecules in the thylakoids...",
+    votes: 3,
+    author: "Sarah Lee",
+    date: "5h ago",
+    comments: [],
+  },
+]);
+
+const relatedQuestions = ref([
+  { id: 1, title: "What is the role of chlorophyll?" },
+  { id: 2, title: "Why are plants green?" },
+]);
+
+const popularTags = ref(["biology", "chemistry", "physics", "math"]);
+
+const sortBy = ref();
+const sortOptions = [
+  { label: "Most Upvoted", value: "votes" },
+  { label: "Newest", value: "newest" },
+  { label: "Oldest", value: "oldest" },
+];
+
+const newComment = ref("");
+
+// function vote(direction: "up" | "down") {
+//   console.log("vote on question", direction);
+// }
+function voteAnswer(id: number, direction: "up" | "down") {
+  console.log("vote on answer", id, direction);
+}
+function postComment(answerId: number) {
+  console.log("posting comment to", answerId, newComment.value);
+  newComment.value = "";
+}
+</script>
+<style scoped lang="scss">
+.vote-panel {
+  .vote-btn {
+    color: #6c757d;
+    transition: background 0.2s ease-in-out;
+  }
+  .vote-btn:hover {
+    background-color: #f8f9fa;
+    color: #495057;
+  }
+  .vote-count {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #495057;
+  }
+}
+
+.meta-text small {
+  font-size: 0.8rem;
+}
+
+.tag-chip {
+  font-size: 0.75rem;
+  font-weight: 600;
+  background-color: #e9f2ff;
+  color: #2196f3;
+  border: 1px solid #bbdffc;
+}
+
+.question-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.question-body {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #495057;
+}
+
+.action-btn {
+  color: #6c757d;
+  font-weight: 500;
+  transition: color 0.2s ease-in-out;
+  &:hover {
+    color: #2196f3;
+  }
+}
+</style>
