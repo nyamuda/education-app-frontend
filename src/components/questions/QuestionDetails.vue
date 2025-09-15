@@ -4,7 +4,7 @@
       <!-- Main Content -->
       <div class="col-12 col-lg-8">
         <!-- Question Section -->
-        <Card class="question-card">
+        <Card class="">
           <template #content>
             <div class="d-flex flex-column flex-md-row">
               <!-- Vote panel -->
@@ -31,7 +31,22 @@
                   <small class="text-muted">Created 15h ago</small>
                   <small class="text-muted">Modified 3h ago</small>
                 </div>
-                <p class="question-body mb-4">{{ question.body }}</p>
+                <p class="question-body mb-3">{{ question.body }}</p>
+                <!-- Metadata -->
+                <dl class="row">
+                  <dt class="col-sm-3">Curriculum</dt>
+                  <dd class="col-sm-9">{{ question.curriculum }}</dd>
+                  <dt class="col-sm-3">Exam Board</dt>
+                  <dd class="col-sm-9">{{ question.examBoard }}</dd>
+                  <dt class="col-sm-3">Level</dt>
+                  <dd class="col-sm-9">{{ question.level }}</dd>
+                  <dt class="col-sm-3">Subject</dt>
+                  <dd class="col-sm-9">{{ question.subject }}</dd>
+                  <dt class="col-sm-3">Topic</dt>
+                  <dd class="col-sm-9">{{ question.topic }}</dd>
+                  <dt class="col-sm-3">Subtopic</dt>
+                  <dd class="col-sm-9">{{ question.subtopic }}</dd>
+                </dl>
 
                 <hr class="separator my-2" />
 
@@ -168,6 +183,12 @@ const question = ref({
   votes: 12,
   author: "Jane Doe",
   date: "2 days ago",
+  curriculum: "CAPS",
+  examBoard: "NSC",
+  level: "Grade 12",
+  subject: "Life Sciences",
+  topic: "Photosynthesis",
+  subtopic: "Light-dependent reactions",
 });
 
 const answers = ref([
