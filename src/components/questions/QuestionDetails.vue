@@ -13,14 +13,6 @@
               >
                 {{ question.marks }} marks
               </div>
-              <!-- Vote panel -->
-              <div
-                class="vote-panel d-flex flex-row flex-md-column align-items-center mb-3 mb-md-0 me-md-4"
-              >
-                <Button icon="pi pi-arrow-up" text rounded class="vote-btn" />
-                <div class="vote-count my-0 mx-3 my-md-2 mx-md-0">124</div>
-                <Button icon="pi pi-arrow-down" text rounded class="vote-btn" />
-              </div>
 
               <!-- Main content -->
               <div class="flex-grow-1">
@@ -61,21 +53,32 @@
                 <!-- Action buttons + author -->
                 <div class="d-flex flex-column">
                   <div class="action-bar d-flex gap-3 mt-0">
+                    <VotePanel />
+
                     <Button
                       icon="pi pi-share-alt"
                       text
                       size="small"
+                      severity="secondary"
                       class="action-btn"
                       label="Share"
                     />
                     <Button
                       icon="pi pi-bookmark"
                       text
+                      severity="secondary"
                       size="small"
                       class="action-btn"
                       label="Bookmark"
                     />
-                    <Button icon="pi pi-flag" text size="small" class="action-btn" label="Flag" />
+                    <Button
+                      icon="pi pi-flag"
+                      text
+                      size="small"
+                      severity="secondary"
+                      class="action-btn"
+                      label="Flag"
+                    />
                   </div>
 
                   <div class="author-info d-flex align-items-center gap-2 ms-auto">
@@ -183,6 +186,7 @@ import Tag from "primevue/tag";
 //import Avatar from "primevue/avatar";
 // import Dropdown from "primevue/dropdown";
 import InputText from "primevue/inputtext";
+import VotePanel from "../shared/VotePanel.vue";
 
 const question = ref({
   title: "How does photosynthesis produce oxygen?",
@@ -247,22 +251,6 @@ function postComment(answerId: number) {
 }
 </script>
 <style scoped lang="scss">
-.vote-panel {
-  .vote-btn {
-    color: #6c757d;
-    transition: background 0.2s ease-in-out;
-  }
-  .vote-btn:hover {
-    background-color: #f8f9fa;
-    color: #495057;
-  }
-  .vote-count {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #495057;
-  }
-}
-
 .meta-text small {
   font-size: 0.8rem;
 }
@@ -287,6 +275,7 @@ function postComment(answerId: number) {
   color: #495057;
 }
 
+/*
 .action-btn {
   color: #6c757d;
   font-weight: 500;
@@ -294,5 +283,5 @@ function postComment(answerId: number) {
   &:hover {
     color: #2196f3;
   }
-}
+}*/
 </style>
