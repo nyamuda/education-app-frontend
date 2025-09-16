@@ -186,7 +186,7 @@ import Tag from "primevue/tag";
 //import Avatar from "primevue/avatar";
 // import Dropdown from "primevue/dropdown";
 import InputText from "primevue/inputtext";
-import VotePanel from "../shared/VotePanel.vue";
+import VotePanel from "../shared/UpvoteButton.vue";
 
 const question = ref({
   title: "How does photosynthesis produce oxygen?",
