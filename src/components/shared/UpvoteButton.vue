@@ -5,9 +5,14 @@
     @click="handleClick"
     :severity="localIsUpvoted ? 'primary' : 'secondary'"
     size="small"
-    variant="text"
+    :variant="isUpvoted ? '' : 'text'"
     class="action-btn"
     :disabled="loading"
+    v-tooltip="
+      isUpvoted
+        ? 'This question is clear, helpful, and adds value for students (click to undo your upvote)'
+        : 'This question is clear, helpful, and adds value for students'
+    "
   />
 </template>
 
@@ -15,8 +20,8 @@
 /**
  * Reusable UpvoteButton component.
  *
- * Displays the current upvote count and allows the user to toggle
- * between upvoted and not-upvoted states.
+ * Shows how many upvotes an item has and lets
+ * the user upvote or remove their upvote.
  */
 
 import { ref, watch, type PropType, type Ref } from "vue";
@@ -54,7 +59,12 @@ const localCount: Ref<number> = ref(props.count);
 const localIsUpvoted = ref(props.isUpvoted);
 const loading = ref(false);
 
-// Keep local state in sync if parent props change
+/**
+ * WATCHERS
+ * --------
+ * If the parent component sends new values for count or isUpvoted,
+ * update our local copies so the button stays in sync.
+ */
 watch([() => props.count, () => props.isUpvoted], ([newCount, newIsUpvoted]) => {
   localCount.value = newCount;
   localIsUpvoted.value = newIsUpvoted;
@@ -62,8 +72,11 @@ watch([() => props.count, () => props.isUpvoted], ([newCount, newIsUpvoted]) => 
 
 /**
  * Handles the click event on the button.
- * Performs optimistic UI updates while awaiting the actual API call.
- * On error, reverts the local state to the original props.
+ * - Called when the button is clicked.
+ * - If already upvoted → remove the upvote.
+ * - If not yet upvoted → add an upvote.
+ * - Updates the UI immediately (optimistic) then calls the backend.
+ * - If the backend call fails, it resets the UI and shows an error.
  */
 const handleClick = async () => {
   if (loading.value) return;

@@ -164,7 +164,7 @@ const getQuestionById = async () => {
 //Adds an upvote to the question on behalf of the current user.
 const upvoteQuestion = async () => {
   try {
-    if (!questionId.value || hasUpvoted) return;
+    if (!questionId.value) return;
     await upvoteStore.addQuestionUpvote(questionId.value);
 
     await getQuestionUpvotes();
