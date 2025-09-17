@@ -18,7 +18,7 @@
  * Lets the user bookmark or remove their bookmark.
  */
 
-import { ref, watch, type PropType} from "vue";
+import { ref, watch, type PropType } from "vue";
 import Button from "primevue/button";
 import { useToast } from "primevue";
 
@@ -38,6 +38,12 @@ const props = defineProps({
   /** Callback to call when removing a bookmark */
   onRemoveBookmark: {
     type: Function as PropType<() => Promise<void>>,
+    required: true,
+  },
+
+  /**Tooltip text to show when a user hovers over the button */
+  tooltipMessage: {
+    type: String,
     required: true,
   },
 });
