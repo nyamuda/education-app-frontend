@@ -120,7 +120,6 @@ import { useToast } from "primevue";
 import { useQuestionStore } from "@/stores/question";
 import { useUpvoteStore } from "@/stores/upvote";
 import type { Upvote } from "@/models/upvote";
-
 import { useAuthStore } from "@/stores/auth";
 
 onMounted(async () => {
@@ -165,7 +164,7 @@ const getQuestionById = async () => {
 //Adds an upvote to the question on behalf of the current user.
 const upvoteQuestion = async () => {
   try {
-    if (!questionId.value) return;
+    if (!questionId.value || hasUpvoted) return;
     await upvoteStore.addQuestionUpvote(questionId.value);
 
     await getQuestionUpvotes();

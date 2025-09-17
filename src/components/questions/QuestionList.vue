@@ -50,6 +50,7 @@
       <QuestionListItem
         v-for="question in questionStore.questions.items"
         :key="question.id"
+        :id="question.id"
         :title="question.title"
         :content="question.contentText"
         :marks="question.marks ?? 0"

@@ -31,7 +31,7 @@
         <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center mb-2">
           <!-- Title -->
           <h5 class="fw-semibold text-primary cursor-pointer mb-1 mb-md-0 flex-fill">
-            {{ title }}
+            <RouterLink :to="'/questions/' + id + '/details'"> {{ title }}</RouterLink>
           </h5>
 
           <!-- Marks badge -->
@@ -139,6 +139,7 @@ defineProps({
   topic: { type: [String, null], required: false },
   subtopic: { type: [String, null], required: false },
   title: { type: [String, null], required: true },
+  id: { type: [Number, null], required: true },
   content: { type: [String, null], required: true },
   marks: { type: [Number, null], required: true },
   answers: { type: [Number, null], required: true },

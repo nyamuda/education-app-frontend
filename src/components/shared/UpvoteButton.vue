@@ -12,6 +12,13 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Reusable UpvoteButton component.
+ *
+ * Displays the current upvote count and allows the user to toggle
+ * between upvoted and not-upvoted states.
+ */
+
 import { ref, watch, type PropType, type Ref } from "vue";
 import Button from "primevue/button";
 import { useToast } from "primevue";
@@ -53,6 +60,11 @@ watch([() => props.count, () => props.isUpvoted], ([newCount, newIsUpvoted]) => 
   localIsUpvoted.value = newIsUpvoted;
 });
 
+/**
+ * Handles the click event on the button.
+ * Performs optimistic UI updates while awaiting the actual API call.
+ * On error, reverts the local state to the original props.
+ */
 const handleClick = async () => {
   if (loading.value) return;
 
