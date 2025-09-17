@@ -177,7 +177,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, type Ref } from "vue";
 
 import Card from "primevue/card";
 import Avatar from "primevue/avatar";
@@ -187,22 +187,32 @@ import Tag from "primevue/tag";
 // import Dropdown from "primevue/dropdown";
 import InputText from "primevue/inputtext";
 import VotePanel from "../shared/UpvoteButton.vue";
+import { useRouter } from "vue-router";
+import type { Question } from "@/models/question";
+import { useToast } from "primevue";
+import { useQuestionStore } from "@/stores/question";
 
-const question = ref({
-  title: "How does photosynthesis produce oxygen?",
-  body: "I am struggling to understand how oxygen is produced during photosynthesis. Can someone explain?",
-  tags: ["biology", "photosynthesis"],
-  votes: 12,
-  author: "Jane Doe",
-  date: "2 days ago",
-  curriculum: "CAPS",
-  examBoard: "NSC",
-  level: "Grade 12",
-  subject: "Life Sciences",
-  topic: "Photosynthesis",
-  subtopic: "Light-dependent reactions",
-  marks: 5,
+onMounted(() => {
+  //scroll up to the top of the page
+  window.scrollTo(0, 0);
+
+  //get the question ID from a query parameter
+  const id = router.currentRoute.value.params["id"];
+
+  //fetch question with the given ID from the backend
+  if (!id) return;
+
+  try {
+    questionId.value = Number(id);
+    getQuestionById(questionId.value);
+  } catch {}
 });
+
+const router = useRouter();
+const toast = useToast();
+const questionStore = useQuestionStore();
+const questionId: Ref<number | null> = ref(null);
+const question: Ref<Question | null> = ref(null);
 
 const answers = ref([
   {
@@ -249,6 +259,22 @@ function postComment(answerId: number) {
   console.log("posting comment to", answerId, newComment.value);
   newComment.value = "";
 }
+
+const getQuestionById = async () => {
+  try {
+    if (!questionId.value) return;
+    question.value = await questionStore.getQuestionById(questionId.value);
+  } catch (message) {
+    toast.add({
+      severity: "error",
+      summary: "Fetch Failed",
+      detail: message,
+      life: 10000,
+    });
+  }
+};
+
+const upvoteQuestion = async (que) => {};
 </script>
 <style scoped lang="scss">
 .meta-text small {
