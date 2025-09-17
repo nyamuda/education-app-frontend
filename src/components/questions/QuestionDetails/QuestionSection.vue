@@ -71,12 +71,12 @@
                 <div class="d-flex flex-column">
                   <div class="action-bar d-flex gap-3 mt-0">
                     <UpvoteButton
-                      :count="upvotes.length"
-                      :is-upvoted="hasUpvoted"
+                      :count="question?.totalUpvotes ?? 0"
+                      :is-upvoted="question?.isUpvoted ?? false"
                       :onUpvote="upvoteQuestion"
                       :onRemoveUpvote="removeQuestionUpvote"
                       :tooltip-message="
-                        hasUpvoted
+                        question?.isUpvoted
                           ? 'This question is clear, helpful, and adds value for students (click to undo your upvote)'
                           : 'This question is clear, helpful, and adds value for students'
                       "
@@ -140,7 +140,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, type Ref } from "vue";
+import { onMounted, ref, type Ref } from "vue";
 
 import Card from "primevue/card";
 import Avatar from "primevue/avatar";
@@ -152,17 +152,12 @@ import type { Question } from "@/models/question";
 import { useToast } from "primevue";
 import { useQuestionStore } from "@/stores/question";
 import { useUpvoteStore } from "@/stores/upvote";
-import type { Upvote } from "@/models/upvote";
 import dayjs from "dayjs";
-import { useAuthStore } from "@/stores/auth";
 import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 import { useBookmarkStore } from "@/stores/bookmark";
 import BookmarkButton from "@/components/shared/BookmarkButton.vue";
 
 onMounted(async () => {
-  //scroll up to the top of the page
-  window.scrollTo(0, 0);
-
   //get the question ID from a query parameter
   const id = router.currentRoute.value.params["id"];
 
@@ -172,7 +167,6 @@ onMounted(async () => {
   try {
     questionId.value = Number(id);
     await getQuestionById();
-    await getQuestionUpvotes();
   } catch {}
 });
 
@@ -181,10 +175,8 @@ const toast = useToast();
 const questionStore = useQuestionStore();
 const upvoteStore = useUpvoteStore();
 const bookmarkStore = useBookmarkStore();
-const authStore = useAuthStore();
 const questionId: Ref<number | null> = ref(null);
 const question: Ref<Question | null> = ref(null);
-const upvotes: Ref<Upvote[]> = ref([]);
 const isUpvoting = ref(false);
 const isRemovingUpvote = ref(false);
 const isBookmarking = ref(false);
@@ -210,8 +202,6 @@ const upvoteQuestion = async () => {
 
     isUpvoting.value = true;
     await upvoteStore.addQuestionUpvote(questionId.value);
-
-    await getQuestionUpvotes();
   } catch {
     toast.add({
       severity: "error",
@@ -224,9 +214,6 @@ const upvoteQuestion = async () => {
   }
 };
 
-//Checks whether the current user has upvoted this question
-const hasUpvoted = computed(() => upvotes.value.some((x) => x.userId === authStore.user?.id));
-
 // Removes the current user's upvote from the question.
 const removeQuestionUpvote = async () => {
   try {
@@ -234,8 +221,6 @@ const removeQuestionUpvote = async () => {
 
     isRemovingUpvote.value = true;
     await upvoteStore.deleteQuestionUpvote(questionId.value);
-
-    await getQuestionUpvotes();
   } catch {
     toast.add({
       severity: "error",
@@ -246,14 +231,6 @@ const removeQuestionUpvote = async () => {
   } finally {
     isRemovingUpvote.value = false;
   }
-};
-
-//Gets all upvotes for the question.
-const getQuestionUpvotes = async () => {
-  try {
-    if (!questionId.value) return;
-    upvotes.value = await upvoteStore.getQuestionUpvotes(questionId.value);
-  } catch {}
 };
 
 //Adds a bookmark for the question on behalf of the current user.

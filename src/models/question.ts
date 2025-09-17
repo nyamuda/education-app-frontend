@@ -39,6 +39,8 @@ export class Question {
     public tags: Tag[] = [],
     public upvotes: Upvote[] = [],
     public totalUpvotes: number | null = null,
+    /**Indicates whether the current user has upvoted this question. */
+    public isUpvoted: boolean = false,
     public totalAnswers: number | null = null,
     public flags: QuestionFlag[] = [],
     public comments: Comment[] = [],
