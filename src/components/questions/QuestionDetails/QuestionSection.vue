@@ -55,10 +55,12 @@
                   <dd class="col-sm-9">{{ question?.subject?.level?.name }}</dd>
                   <dt class="col-sm-3">Subject</dt>
                   <dd class="col-sm-9">{{ question?.subject?.name }}</dd>
-                  <dt class="col-sm-3">Topic</dt>
-                  <dd class="col-sm-9">{{ question?.topic?.name }}</dd>
-                  <dt class="col-sm-3">Subtopic</dt>
-                  <dd class="col-sm-9">{{ question?.subtopic?.name }}</dd>
+                  <dt v-if="question?.topic?.name" class="col-sm-3">Topic</dt>
+                  <dd v-if="question?.topic?.name" class="col-sm-9">{{ question?.topic?.name }}</dd>
+                  <dt v-if="question?.subtopic?.name" class="col-sm-3">Subtopic</dt>
+                  <dd v-if="question?.subtopic?.name" class="col-sm-9">
+                    {{ question?.subtopic?.name }}
+                  </dd>
                 </dl>
 
                 <hr class="separator my-2" />
@@ -99,10 +101,25 @@
                     />
                   </div>
 
-                  <div class="author-info d-flex align-items-center gap-2 ms-auto">
-                    <Avatar label="A" shape="circle" />
-                    <div>
-                      <span class="d-block cursor-pointer">{{ question?.user?.username }}</span>
+                  <div class="author-info d-flex align-items-center gap-2 ms-auto mt-2 mt-md-0">
+                    <div
+                      style="font-size: small"
+                      class="d-flex flex-column align-items-start gap-1"
+                    >
+                      <!-- Date created -->
+                      <span
+                        >Created
+                        {{
+                          dayjs.utc(question?.createdAt).local().format("MMM D, YYYY [at] H:mm")
+                        }}</span
+                      >
+                      <!-- Avatar and user name -->
+                      <div class="d-flex align-items-center gap-2">
+                        <Avatar :label="question?.user?.username[0].toUpperCase()" />
+                        <span class="d-block cursor-pointer text-primary">{{
+                          question?.user?.username
+                        }}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -227,6 +244,10 @@ const getQuestionUpvotes = async () => {
 };
 </script>
 <style scoped lang="scss">
+.text-primary {
+  color: #1a73e8 !important;
+}
+
 .meta-text small {
   font-size: 0.8rem;
 }
