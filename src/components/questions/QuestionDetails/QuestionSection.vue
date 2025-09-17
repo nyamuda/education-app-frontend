@@ -90,13 +90,13 @@
                       class="action-btn"
                       label="Share"
                     />
-                    <Button
-                      icon="pi pi-bookmark"
-                      text
-                      severity="secondary"
-                      size="small"
-                      class="action-btn"
-                      label="Bookmark"
+                    <BookmarkButton
+                      :is-bookmarked="question?.isBookmarked ?? false"
+                      :onBookmark="bookmarkQuestion"
+                      :onRemoveBookmark="removeQuestionBookmark"
+                      :tooltip-message="
+                        question?.isBookmarked ? 'Unsave this question.' : 'Save this question.'
+                      "
                     />
                     <Button
                       icon="pi pi-flag"
@@ -156,6 +156,8 @@ import type { Upvote } from "@/models/upvote";
 import dayjs from "dayjs";
 import { useAuthStore } from "@/stores/auth";
 import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
+import { useBookmarkStore } from "@/stores/bookmark";
+import BookmarkButton from "@/components/shared/BookmarkButton.vue";
 
 onMounted(async () => {
   //scroll up to the top of the page
@@ -178,12 +180,15 @@ const router = useRouter();
 const toast = useToast();
 const questionStore = useQuestionStore();
 const upvoteStore = useUpvoteStore();
+const bookmarkStore = useBookmarkStore();
 const authStore = useAuthStore();
 const questionId: Ref<number | null> = ref(null);
 const question: Ref<Question | null> = ref(null);
 const upvotes: Ref<Upvote[]> = ref([]);
 const isUpvoting = ref(false);
 const isRemovingUpvote = ref(false);
+const isBookmarking = ref(false);
+const isRemovingBookmark = ref(false);
 
 const getQuestionById = async () => {
   try {
@@ -249,6 +254,44 @@ const getQuestionUpvotes = async () => {
     if (!questionId.value) return;
     upvotes.value = await upvoteStore.getQuestionUpvotes(questionId.value);
   } catch {}
+};
+
+//Adds a bookmark for the question on behalf of the current user.
+const bookmarkQuestion = async () => {
+  try {
+    if (!questionId.value || isBookmarking.value || isRemovingBookmark.value) return;
+
+    isBookmarking.value = true;
+    await bookmarkStore.addQuestionBookmark(questionId.value);
+  } catch {
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: "Failed to bookmark this question.",
+      life: 10000,
+    });
+  } finally {
+    isBookmarking.value = false;
+  }
+};
+
+// Removes the current user's bookmark for the question.
+const removeQuestionBookmark = async () => {
+  try {
+    if (!questionId.value || isBookmarking.value || isRemovingBookmark.value) return;
+
+    isRemovingBookmark.value = true;
+    await bookmarkStore.deleteQuestionBookmark(questionId.value);
+  } catch {
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: "Failed to remove your bookmark for this question.",
+      life: 10000,
+    });
+  } finally {
+    isRemovingBookmark.value = false;
+  }
 };
 
 /**

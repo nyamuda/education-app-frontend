@@ -7,7 +7,7 @@
     :icon="localIsBookmarked ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"
     @click="handleClick"
     :severity="localIsBookmarked ? 'primary' : 'secondary'"
-    v-tooltip="localIsBookmarked ? 'Unsave this question.' : 'Save this question.'"
+    v-tooltip="tooltipMessage"
   />
 </template>
 

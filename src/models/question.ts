@@ -44,6 +44,9 @@ export class Question {
     public comments: Comment[] = [],
     public answers: Answer[] = [],
 
+    /**Indicates whether the current user has bookmarked this question. */
+    public isBookmarked: boolean = false,
+
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),
   ) {}
