@@ -1,13 +1,13 @@
 <template>
   <Button
     :label="localCount.toString()"
-    :icon="localIsUpvoted ? 'pi pi-sort-up-fill' : 'pi pi-sort-up'"
+    :icon="localIsUpvoted ? 'pi pi-thumbs-up-fill' : 'pi pi-thumbs-up'"
     @click="handleClick"
     :severity="localIsUpvoted ? 'primary' : 'secondary'"
     size="small"
-    :variant="localIsUpvoted ? '' : 'text'"
+    :variant="localIsUpvoted ? 'text' : 'text'"
     class="action-btn"
-    v-tooltip="tooltipMessage"
+    v-tooltip="localIsUpvoted ? upvotedTooltipText : notUpvotedTooltipText"
   />
 </template>
 
@@ -48,8 +48,18 @@ const props = defineProps({
     required: true,
   },
 
-  /**Tooltip text to show when a user hovers over the button */
-  tooltipMessage: {
+  /**Tooltip text to show when a user hovers over
+   * the button and the item is upvoted.
+   */
+  upvotedTooltipText: {
+    type: String,
+    required: true,
+  },
+
+  /**Tooltip text to show when a user hovers over
+   * the button and the item is not upvoted.
+   */
+  notUpvotedTooltipText: {
     type: String,
     required: true,
   },

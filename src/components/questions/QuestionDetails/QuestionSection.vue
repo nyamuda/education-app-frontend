@@ -75,11 +75,8 @@
                       :is-upvoted="question?.isUpvoted ?? false"
                       :onUpvote="upvoteQuestion"
                       :onRemoveUpvote="removeQuestionUpvote"
-                      :tooltip-message="
-                        question?.isUpvoted
-                          ? 'This question is clear, helpful, and adds value for students (click to undo your upvote)'
-                          : 'This question is clear, helpful, and adds value for students'
-                      "
+                      upvoted-tooltip-text="This question is clear, helpful, and adds value for students (click to undo your upvote)."
+                      not-upvoted-tooltip-text="This question is clear, helpful, and adds value for students."
                     />
 
                     <Button
@@ -94,9 +91,8 @@
                       :is-bookmarked="question?.isBookmarked ?? false"
                       :onBookmark="bookmarkQuestion"
                       :onRemoveBookmark="removeQuestionBookmark"
-                      :tooltip-message="
-                        question?.isBookmarked ? 'Unsave this question.' : 'Save this question.'
-                      "
+                      bookmarked-tooltip-text="Unsave this question."
+                      not-bookmarked-tooltip-text="Save this question."
                     />
                     <Button
                       icon="pi pi-flag"

@@ -3,11 +3,11 @@
     text
     size="small"
     class="action-btn"
-    label="Bookmark"
+    :label="localIsBookmarked ? 'Saved' : 'Save'"
     :icon="localIsBookmarked ? 'pi pi-bookmark-fill' : 'pi pi-bookmark'"
     @click="handleClick"
     :severity="localIsBookmarked ? 'primary' : 'secondary'"
-    v-tooltip="tooltipMessage"
+    v-tooltip="localIsBookmarked ? bookmarkedTooltipText : notBookmarkedTooltipText"
   />
 </template>
 
@@ -41,8 +41,17 @@ const props = defineProps({
     required: true,
   },
 
-  /**Tooltip text to show when a user hovers over the button */
-  tooltipMessage: {
+  /**Tooltip text to show when a user hovers over
+   * the button and the item is bookmarked.
+   */
+  bookmarkedTooltipText: {
+    type: String,
+    required: true,
+  },
+  /**Tooltip text to show when a user hovers over
+   * the button and the item is not bookmarked.
+   */
+  notBookmarkedTooltipText: {
     type: String,
     required: true,
   },
