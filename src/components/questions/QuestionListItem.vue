@@ -30,8 +30,11 @@
       <div>
         <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center mb-2">
           <!-- Title -->
-          <h5 class="fw-semibold text-primary cursor-pointer mb-1 mb-md-0 flex-fill">
-            <RouterLink :to="'/questions/' + id + '/details'"> {{ title }}</RouterLink>
+          <h5
+            @click="onTitleClick"
+            class="fw-semibold text-primary cursor-pointer mb-1 mb-md-0 flex-fill"
+          >
+            {{ title }}
           </h5>
 
           <!-- Marks badge -->
@@ -131,7 +134,7 @@ import { useRouter } from "vue-router";
 import { useQuestionStore } from "@/stores/question";
 import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 
-defineProps({
+const props = defineProps({
   curriculum: { type: [String, null], required: true },
   examBoard: { type: [String, null], required: false },
   level: { type: [String, null], required: true },
@@ -151,6 +154,9 @@ defineProps({
 
 const router = useRouter();
 const questionStore = useQuestionStore();
+
+// Handles clicking on a question title to view more details
+const onTitleClick = () => router.push(`/questions/${props.id}/details`);
 
 /**
  * Handles clicking on a tag to filter questions.

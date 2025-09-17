@@ -5,9 +5,8 @@
     @click="handleClick"
     :severity="localIsUpvoted ? 'primary' : 'secondary'"
     size="small"
-    :variant="isUpvoted ? '' : 'text'"
+    :variant="localIsUpvoted ? '' : 'text'"
     class="action-btn"
-    :disabled="loading"
     v-tooltip="
       isUpvoted
         ? 'This question is clear, helpful, and adds value for students (click to undo your upvote)'

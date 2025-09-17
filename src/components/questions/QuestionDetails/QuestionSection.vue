@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div class="container-fluid">
     <div class="row">
       <!-- Main Content -->
-      <div class="col-12 col-lg-8">
+      <div class="col-12 col-lg-8 w-100">
         <!-- Question Section -->
         <Card class="position-relative">
           <template #content>
@@ -17,20 +17,31 @@
               <!-- Main content -->
               <div class="flex-grow-1">
                 <!-- Tags + meta -->
-                <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-                  <Tag value="blockchain" severity="info" rounded class="tag-chip" />
-                  <Tag value="computer-science" severity="info" rounded class="tag-chip" />
-                  <Tag value="cryptography" severity="info" rounded class="tag-chip" />
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                  <Tag
+                    v-for="tag in question?.tags"
+                    :key="tag.id"
+                    :value="tag.name"
+                    severity="info"
+                    rounded
+                    class="tag-chip"
+                  />
                 </div>
 
                 <!-- Title + body -->
                 <h2 class="question-title text-secondary">{{ question?.title }}</h2>
 
-                <div class="ms-auto d-flex gap-3 meta-text mb-2">
-                  <small class="text-muted">Created 15h ago</small>
-                  <small class="text-muted">Modified 3h ago</small>
+                <div class="ms-auto d-flex gap-4 meta-text mb-2">
+                  <small
+                    ><span class="text-muted me-1">Created</span
+                    >{{ dayjs.utc(question?.createdAt).local().fromNow() }}</small
+                  >
+                  <small
+                    ><span class="text-muted me-1">Modified</span
+                    >{{ dayjs.utc(question?.updatedAt).local().fromNow() }}</small
+                  >
                 </div>
-                <p class="question-body mb-3">{{ question?.contentText }}</p>
+                <p class="question-body mb-3 text-dark">{{ question?.contentText }}</p>
 
                 <!-- Metadata -->
                 <dl class="row">
@@ -91,9 +102,7 @@
                   <div class="author-info d-flex align-items-center gap-2 ms-auto">
                     <Avatar label="A" shape="circle" />
                     <div>
-                      <span class="d-block fw-bold cursor-pointer">{{
-                        question?.user?.username
-                      }}</span>
+                      <span class="d-block cursor-pointer">{{ question?.user?.username }}</span>
                     </div>
                   </div>
                 </div>
@@ -120,6 +129,7 @@ import { useToast } from "primevue";
 import { useQuestionStore } from "@/stores/question";
 import { useUpvoteStore } from "@/stores/upvote";
 import type { Upvote } from "@/models/upvote";
+import dayjs from "dayjs";
 import { useAuthStore } from "@/stores/auth";
 
 onMounted(async () => {
@@ -147,6 +157,8 @@ const authStore = useAuthStore();
 const questionId: Ref<number | null> = ref(null);
 const question: Ref<Question | null> = ref(null);
 const upvotes: Ref<Upvote[]> = ref([]);
+const isUpvoting = ref(false);
+const isRemovingUpvote = ref(false);
 
 const getQuestionById = async () => {
   try {
@@ -164,7 +176,9 @@ const getQuestionById = async () => {
 //Adds an upvote to the question on behalf of the current user.
 const upvoteQuestion = async () => {
   try {
-    if (!questionId.value) return;
+    if (!questionId.value || isUpvoting.value || isRemovingUpvote.value) return;
+
+    isUpvoting.value = true;
     await upvoteStore.addQuestionUpvote(questionId.value);
 
     await getQuestionUpvotes();
@@ -175,6 +189,8 @@ const upvoteQuestion = async () => {
       detail: "Failed to upvote this question.",
       life: 10000,
     });
+  } finally {
+    isUpvoting.value = false;
   }
 };
 
@@ -184,7 +200,9 @@ const hasUpvoted = computed(() => upvotes.value.some((x) => x.userId === authSto
 // Removes the current user's upvote from the question.
 const removeQuestionUpvote = async () => {
   try {
-    if (!questionId.value) return;
+    if (!questionId.value || isUpvoting.value || isRemovingUpvote.value) return;
+
+    isRemovingUpvote.value = true;
     await upvoteStore.deleteQuestionUpvote(questionId.value);
 
     await getQuestionUpvotes();
@@ -195,6 +213,8 @@ const removeQuestionUpvote = async () => {
       detail: "Failed to remove your upvote from this question.",
       life: 10000,
     });
+  } finally {
+    isRemovingUpvote.value = false;
   }
 };
 
