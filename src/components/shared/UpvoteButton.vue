@@ -7,11 +7,7 @@
     size="small"
     :variant="localIsUpvoted ? '' : 'text'"
     class="action-btn"
-    v-tooltip="
-      isUpvoted
-        ? 'This question is clear, helpful, and adds value for students (click to undo your upvote)'
-        : 'This question is clear, helpful, and adds value for students'
-    "
+    v-tooltip="tooltipMessage"
   />
 </template>
 
@@ -49,6 +45,12 @@ const props = defineProps({
   /** Callback to call when removing an upvote */
   onRemoveUpvote: {
     type: Function as PropType<() => Promise<void>>,
+    required: true,
+  },
+
+  /**Tooltip text to show when a user hovers over the button */
+  tooltipMessage: {
+    type: String,
     required: true,
   },
 });
@@ -111,6 +113,7 @@ const handleClick = async () => {
 </script>
 
 <style scoped lang="scss">
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
 .action-btn {
   min-width: 3rem;
 }

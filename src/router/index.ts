@@ -40,10 +40,10 @@ import SubtopicList from "@/components/subtopics/SubtopicList.vue";
 import AddSubtopic from "@/components/subtopics/AddSubtopic.vue";
 import SubtopicDetails from "@/components/subtopics/SubtopicDetails.vue";
 import EditSubtopic from "@/components/subtopics/EditSubtopic.vue";
-import QuestionList from "@/components/questions/QuestionList.vue";
+import QuestionList from "@/components/questions/QuestionList/QuestionList.vue";
 import AddQuestion from "@/components/questions/AddQuestion.vue";
 import EditQuestion from "@/components/questions/EditQuestion.vue";
-import QuestionDetails from "@/components/questions/QuestionDetails.vue";
+import QuestionDetails from "@/components/questions/QuestionDetails/QuestionDetails.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

@@ -9,9 +9,10 @@
             <div class="d-flex flex-column flex-md-row">
               <!-- Ribbon -->
               <div
+                v-if="question?.marks"
                 class="position-absolute top-0 end-0 bg-secondary text-white px-3 py-1 rounded-start"
               >
-                {{ question?.marks }} marks
+                {{ question?.marks == 1 ? question?.marks + " mark" : question?.marks + " marks" }}
               </div>
 
               <!-- Main content -->
@@ -24,7 +25,8 @@
                     :value="tag.name"
                     severity="info"
                     rounded
-                    class="tag-chip"
+                    class="tag-chip cursor-pointer"
+                    @click="() => onTagClick(tag.name)"
                   />
                 </div>
 
@@ -73,6 +75,11 @@
                       :is-upvoted="hasUpvoted"
                       :onUpvote="upvoteQuestion"
                       :onRemoveUpvote="removeQuestionUpvote"
+                      :tooltip-message="
+                        hasUpvoted
+                          ? 'This question is clear, helpful, and adds value for students (click to undo your upvote)'
+                          : 'This question is clear, helpful, and adds value for students'
+                      "
                     />
 
                     <Button
@@ -148,6 +155,7 @@ import { useUpvoteStore } from "@/stores/upvote";
 import type { Upvote } from "@/models/upvote";
 import dayjs from "dayjs";
 import { useAuthStore } from "@/stores/auth";
+import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 
 onMounted(async () => {
   //scroll up to the top of the page
@@ -241,6 +249,35 @@ const getQuestionUpvotes = async () => {
     if (!questionId.value) return;
     upvotes.value = await upvoteStore.getQuestionUpvotes(questionId.value);
   } catch {}
+};
+
+/**
+ * Handles clicking on a tag.
+ *
+ * - Resets any existing filters.
+ * - Applies the selected tag as the active filter.
+ * - Updates the browser URL with the new filter query parameters.
+ * - Navigates to the questions page and fetches filtered questions.
+ *
+ * @param tagName The name of the tag that was clicked.
+ */
+const onTagClick = async (tagName: string) => {
+  // Clear any previously applied filters
+  questionStore.filter.clear();
+
+  // Apply the clicked tag as the active filter
+  questionStore.filter.tags = tagName;
+
+  // Update the browser URL to reflect the current filter state
+  const availableQueryParams = questionStore.filter.applyFilterToBrowserUrl();
+  router.push({ path: "/questions", query: { ...availableQueryParams } });
+
+  //smoothly scroll to the top of the question list
+  const elementId = "question-list";
+  SmoothScrollHelper.scrollToElement(elementId);
+
+  // Fetch the list of questions based on the updated filter
+  await questionStore.getQuestions(questionStore.filter.toQueryParams());
 };
 </script>
 <style scoped lang="scss">

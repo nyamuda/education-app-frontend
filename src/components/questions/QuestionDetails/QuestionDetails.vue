@@ -103,7 +103,7 @@ import { useRouter } from "vue-router";
 import type { Question } from "@/models/question";
 import { useToast } from "primevue";
 import { useQuestionStore } from "@/stores/question";
-import QuestionSection from "./QuestionDetails/QuestionSection.vue";
+import QuestionSection from "./QuestionSection.vue";
 
 onMounted(async () => {
   //scroll up to the top of the page

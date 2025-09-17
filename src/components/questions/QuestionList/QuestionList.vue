@@ -106,17 +106,17 @@
 import { ref, onMounted } from "vue";
 import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";
-import EmptyList from "../shared/EmptyList.vue";
-import TitleSection from "../shared/TitleSection.vue";
+import EmptyList from "@/components/shared/EmptyList.vue";
+import TitleSection from "@/components/shared/TitleSection.vue";
 //import Paginator, { type PageState } from "primevue/paginator";
 //import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 import { useQuestionStore } from "@/stores/question";
-import QuestionListItemSkeleton from "./skeletons/QuestionListItemSkeleton.vue";
+import QuestionListItemSkeleton from "../skeletons/QuestionListItemSkeleton.vue";
 import QuestionListItem from "./QuestionListItem.vue";
-import QuestionSortingSelect from "../shared/selects/QuestionSortingSelect.vue";
-import CurriculumHierarchyQuestionFilter from "../shared/CurriculumHierarchyQuestionFilter.vue";
-import LoadMoreButton from "../shared/LoadMoreButton.vue";
-import QuestionTagFilter from "./QuestionTagFilter.vue";
+import QuestionSortingSelect from "@/components/shared/selects/QuestionSortingSelect.vue";
+import CurriculumHierarchyQuestionFilter from "@/components/shared/CurriculumHierarchyQuestionFilter.vue";
+import LoadMoreButton from "@/components/shared/LoadMoreButton.vue";
+import QuestionTagFilter from "../QuestionTagFilter.vue";
 
 const questionStore = useQuestionStore();
 
