@@ -21,6 +21,10 @@ export const useQuestionStore = defineStore("question", () => {
   //Gets a question with a given ID
   const getQuestionById = (id: number): Promise<Question> => {
     return new Promise((resolve, reject) => {
+      // If the user is logged in, add access token to the request (optional since this is not a protected route).
+      // The token can be used in the backend to determine if the logged in user has
+      // bookmarked or upvoted this question.
+      setAuthToken();
       axios
         .get<Question>(`${apiUrl.value}/${id}`)
         .then((response) => {
