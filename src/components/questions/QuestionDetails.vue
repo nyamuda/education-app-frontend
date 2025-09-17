@@ -177,7 +177,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, type Ref } from "vue";
+import { onMounted, ref, type Ref } from "vue";
 
 import Card from "primevue/card";
 import Avatar from "primevue/avatar";
@@ -191,8 +191,9 @@ import { useRouter } from "vue-router";
 import type { Question } from "@/models/question";
 import { useToast } from "primevue";
 import { useQuestionStore } from "@/stores/question";
+import { useUpvoteStore } from "@/stores/upvote";
 
-onMounted(() => {
+onMounted(async () => {
   //scroll up to the top of the page
   window.scrollTo(0, 0);
 
@@ -204,13 +205,14 @@ onMounted(() => {
 
   try {
     questionId.value = Number(id);
-    getQuestionById(questionId.value);
+    await getQuestionById();
   } catch {}
 });
 
 const router = useRouter();
 const toast = useToast();
 const questionStore = useQuestionStore();
+const upvoteStore = useUpvoteStore();
 const questionId: Ref<number | null> = ref(null);
 const question: Ref<Question | null> = ref(null);
 
@@ -273,8 +275,20 @@ const getQuestionById = async () => {
     });
   }
 };
-
-const upvoteQuestion = async (que) => {};
+//Adds an upvote to the question on behalf of the current user.
+const upvoteQuestion = async () => {
+  try {
+    if (!questionId.value) return;
+    await upvoteStore.addQuestionUpvote(questionId.value);
+  } catch {
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: "Failed to upvote this question.",
+      life: 10000,
+    });
+  }
+};
 </script>
 <style scoped lang="scss">
 .meta-text small {
