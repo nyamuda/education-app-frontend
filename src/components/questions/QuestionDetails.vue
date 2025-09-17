@@ -4,94 +4,7 @@
       <!-- Main Content -->
       <div class="col-12 col-lg-8">
         <!-- Question Section -->
-        <Card class="position-relative">
-          <template #content>
-            <div class="d-flex flex-column flex-md-row">
-              <!-- Ribbon -->
-              <div
-                class="position-absolute top-0 end-0 bg-secondary text-white px-3 py-1 rounded-start"
-              >
-                {{ question.marks }} marks
-              </div>
-
-              <!-- Main content -->
-              <div class="flex-grow-1">
-                <!-- Tags + meta -->
-                <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-                  <Tag value="blockchain" severity="info" rounded class="tag-chip" />
-                  <Tag value="computer-science" severity="info" rounded class="tag-chip" />
-                  <Tag value="cryptography" severity="info" rounded class="tag-chip" />
-                </div>
-
-                <!-- Title + body -->
-                <h2 class="question-title text-secondary">{{ question.title }}</h2>
-
-                <div class="ms-auto d-flex gap-3 meta-text mb-2">
-                  <small class="text-muted">Created 15h ago</small>
-                  <small class="text-muted">Modified 3h ago</small>
-                </div>
-                <p class="question-body mb-3">{{ question.body }}</p>
-
-                <!-- Metadata -->
-                <dl class="row">
-                  <dt class="col-sm-3">Curriculum</dt>
-                  <dd class="col-sm-9">{{ question.curriculum }}</dd>
-                  <dt class="col-sm-3">Exam Board</dt>
-                  <dd class="col-sm-9">{{ question.examBoard }}</dd>
-                  <dt class="col-sm-3">Level</dt>
-                  <dd class="col-sm-9">{{ question.level }}</dd>
-                  <dt class="col-sm-3">Subject</dt>
-                  <dd class="col-sm-9">{{ question.subject }}</dd>
-                  <dt class="col-sm-3">Topic</dt>
-                  <dd class="col-sm-9">{{ question.topic }}</dd>
-                  <dt class="col-sm-3">Subtopic</dt>
-                  <dd class="col-sm-9">{{ question.subtopic }}</dd>
-                </dl>
-
-                <hr class="separator my-2" />
-
-                <!-- Action buttons + author -->
-                <div class="d-flex flex-column">
-                  <div class="action-bar d-flex gap-3 mt-0">
-                    <VotePanel />
-
-                    <Button
-                      icon="pi pi-share-alt"
-                      text
-                      size="small"
-                      severity="secondary"
-                      class="action-btn"
-                      label="Share"
-                    />
-                    <Button
-                      icon="pi pi-bookmark"
-                      text
-                      severity="secondary"
-                      size="small"
-                      class="action-btn"
-                      label="Bookmark"
-                    />
-                    <Button
-                      icon="pi pi-flag"
-                      text
-                      size="small"
-                      severity="secondary"
-                      class="action-btn"
-                      label="Flag"
-                    />
-                  </div>
-
-                  <div class="author-info d-flex align-items-center gap-2 ms-auto">
-                    <Avatar label="A" shape="circle" />
-                    <div>
-                      <span class="d-block fw-bold cursor-pointer">{{ question.author }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </template>
-        </Card>
+        <QuestionSection />
 
         <!-- Answers Section -->
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -186,12 +99,11 @@ import Tag from "primevue/tag";
 //import Avatar from "primevue/avatar";
 // import Dropdown from "primevue/dropdown";
 import InputText from "primevue/inputtext";
-import VotePanel from "../shared/UpvoteButton.vue";
 import { useRouter } from "vue-router";
 import type { Question } from "@/models/question";
 import { useToast } from "primevue";
 import { useQuestionStore } from "@/stores/question";
-import { useUpvoteStore } from "@/stores/upvote";
+import QuestionSection from "./QuestionDetails/QuestionSection.vue";
 
 onMounted(async () => {
   //scroll up to the top of the page
@@ -212,7 +124,6 @@ onMounted(async () => {
 const router = useRouter();
 const toast = useToast();
 const questionStore = useQuestionStore();
-const upvoteStore = useUpvoteStore();
 const questionId: Ref<number | null> = ref(null);
 const question: Ref<Question | null> = ref(null);
 
@@ -275,53 +186,5 @@ const getQuestionById = async () => {
     });
   }
 };
-//Adds an upvote to the question on behalf of the current user.
-const upvoteQuestion = async () => {
-  try {
-    if (!questionId.value) return;
-    await upvoteStore.addQuestionUpvote(questionId.value);
-  } catch {
-    toast.add({
-      severity: "error",
-      summary: "Error",
-      detail: "Failed to upvote this question.",
-      life: 10000,
-    });
-  }
-};
 </script>
-<style scoped lang="scss">
-.meta-text small {
-  font-size: 0.8rem;
-}
-
-.tag-chip {
-  font-size: 0.75rem;
-  font-weight: 600;
-  background-color: #e9f2ff;
-  color: #2196f3;
-  border: 1px solid #bbdffc;
-}
-
-.question-title {
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: #2c3e50;
-}
-
-.question-body {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: #495057;
-}
-
-/*
-.action-btn {
-  color: #6c757d;
-  font-weight: 500;
-  transition: color 0.2s ease-in-out;
-  &:hover {
-    color: #2196f3;
-  }
-}*/
-</style>
+<style scoped lang="scss"></style>
