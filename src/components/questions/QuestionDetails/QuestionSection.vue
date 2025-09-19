@@ -1,4 +1,5 @@
 <template>
+  <QuestionFlagging />
   <div class="container-fluid">
     <div class="row">
       <!-- Main Content -->
@@ -146,6 +147,7 @@ import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 import { useBookmarkStore } from "@/stores/bookmark";
 import BookmarkButton from "@/components/shared/BookmarkButton.vue";
 import ShareButton from "@/components/shared/ShareButton.vue";
+import QuestionFlagging from "@/components/Flags/FlagQuestion.vue";
 
 onMounted(async () => {
   //get the question ID from a query parameter

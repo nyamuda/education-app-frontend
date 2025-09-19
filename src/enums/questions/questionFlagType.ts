@@ -13,11 +13,6 @@ export enum QuestionFlagType {
   Offensive = "Offensive",
 
   /**
-   * The question is a duplicate of another existing question.
-   */
-  Duplicate = "Duplicate",
-
-  /**
    * The question is not relevant to the topic or subject.
    */
   Irrelevant = "Irrelevant",
