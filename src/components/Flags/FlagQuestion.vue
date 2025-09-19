@@ -14,6 +14,7 @@
           <RadioButton
             v-model="v$.flagType.$model"
             :inputId="option.value"
+            @change="() => onChange(option.value)"
             name="flagType"
             :value="option.value"
           />
@@ -27,32 +28,47 @@
           {{ option.description }}
         </div>
       </div>
-
-      <div v-if="v$.flagType.$error" class="text-danger small mt-1">Please select a reason.</div>
     </div>
 
     <!-- Other Reason -->
     <div v-if="formData.flagType === QuestionFlagType.Other" class="mb-3">
-      <label class="form-label">Please describe</label>
-      <Textarea v-model="formData.otherReason" rows="3" autoResize class="w-100" />
-      <div v-if="v$.otherReason.$error" class="text-danger small mt-1">
-        Please provide a reason.
-      </div>
+      <FloatLabel variant="on">
+        <Textarea
+          v-model="v$.otherReason.$model"
+          :invalid="v$.otherReason.$error"
+          rows="3"
+          autoResize
+          class="w-100"
+          id="otherReasonQuestionFlag"
+        />
+        <label for="otherReasonQuestionFlag">Describe the issue</label>
+      </FloatLabel>
+      <Message size="small" severity="error" v-if="v$.otherReason.$error" variant="simple">
+        <div v-for="error of v$.otherReason.$errors" :key="error.$uid">
+          <div>{{ error.$message }}</div>
+        </div>
+      </Message>
     </div>
 
     <!-- Submit -->
-    <Button type="submit" label="Submit" class="mt-2" />
+    <Button type="submit" label="Submit" size="small" />
   </form>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, onMounted, ref, type Ref } from "vue";
 import { useVuelidate } from "@vuelidate/core";
-import { required, helpers } from "@vuelidate/validators";
-import Textarea from "primevue/textarea";
+import { required, helpers, requiredIf } from "@vuelidate/validators";
 import Button from "primevue/button";
 import { QuestionFlagType } from "@/enums/flags/questionFlagType";
 import RadioButton from "primevue/radiobutton";
+import Message from "primevue/message";
+import Textarea from "primevue/textarea";
+import FloatLabel from "primevue/floatlabel";
+
+onMounted(() => {
+  v$.value.$touch();
+});
 
 // Options for radio buttons with descriptions
 const flagOptions = [
@@ -79,21 +95,22 @@ const flagOptions = [
   },
 ];
 
-const formData = ref({
-  flagType: "" as QuestionFlagType | "",
-  otherReason: "",
+const formData: Ref<{ flagType: QuestionFlagType | null; otherReason: string | null }> = ref({
+  flagType: null,
+  otherReason: null,
 });
 
 // Validation rules
-const rules = {
+
+const rules = computed(() => ({
   flagType: { required },
-  otherReason: () =>
-    formData.value.flagType == QuestionFlagType.Other
-      ? {
-          required: helpers.withMessage("Please provide a reason.", required),
-        }
-      : {},
-};
+  otherReason: {
+    required: helpers.withMessage(
+      "Please enter a short explanation of the problem.",
+      requiredIf(() => formData.value.flagType === QuestionFlagType.Other),
+    ),
+  },
+}));
 
 const v$ = useVuelidate(rules, formData);
 
@@ -103,6 +120,11 @@ async function submitForm() {
 
   alert("Flag submitted successfully!");
 }
+
+const onChange = (flagType: QuestionFlagType) => {
+  if (flagType == QuestionFlagType.Other) v$.value.$touch();
+  return;
+};
 </script>
 
 <style scoped>
