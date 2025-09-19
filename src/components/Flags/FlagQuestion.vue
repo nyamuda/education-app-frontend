@@ -1,58 +1,69 @@
 <template>
-  <form @submit.prevent="submitForm" class="">
-    <h5 class="mb-2">Report qestion</h5>
-    <p>
-      Thanks for looking out for the community. Please let us know what’s wrong with this question
-      so we can review it. Your report helps us maintain a helpful and respectful learning
-      environment.
-    </p>
-    <!-- Flag Type using radio buttons with descriptions -->
-    <div class="mb-3">
-      <div v-for="option in flagOptions" :key="option.value" class="mb-3">
-        <!-- Radio button + label on one row -->
-        <div class="d-flex align-items-center gap-2">
-          <RadioButton
-            v-model="v$.flagType.$model"
-            :inputId="option.value"
-            @change="() => onChange(option.value)"
-            name="flagType"
-            :value="option.value"
-          />
-          <label :for="option.value" class="fw-semibold">
-            {{ option.label }}
-          </label>
-        </div>
+  <Button
+    @click="showDialog = !showDialog"
+    icon="pi pi-flag"
+    text
+    size="small"
+    severity="secondary"
+    class="action-btn"
+    label="Flag"
+  />
+  <Dialog v-model:visible="showDialog" modal header="Report question">
+    <form @submit.prevent="submitForm" class="">
+      <!-- <h5 class="mb-2">Report qestion</h5> -->
+      <p>
+        Thanks for looking out for the community. Please let us know what’s wrong with this question
+        so we can review it. Your report helps us maintain a helpful and respectful learning
+        environment.
+      </p>
+      <!-- Flag Type using radio buttons with descriptions -->
+      <div class="mb-3">
+        <div v-for="option in flagOptions" :key="option.value" class="mb-3">
+          <!-- Radio button + label on one row -->
+          <div class="d-flex align-items-center gap-2">
+            <RadioButton
+              v-model="v$.flagType.$model"
+              :inputId="option.value"
+              @change="() => onChange(option.value)"
+              name="flagType"
+              :value="option.value"
+            />
+            <label :for="option.value" class="fw-semibold">
+              {{ option.label }}
+            </label>
+          </div>
 
-        <!-- Description on its own row, indented -->
-        <div class="text-muted small ms-0">
-          {{ option.description }}
+          <!-- Description on its own row, indented -->
+          <div class="text-muted small ms-0">
+            {{ option.description }}
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Other Reason -->
-    <div v-if="formData.flagType === QuestionFlagType.Other" class="mb-3">
-      <FloatLabel variant="on">
-        <Textarea
-          v-model="v$.otherReason.$model"
-          :invalid="v$.otherReason.$error"
-          rows="3"
-          autoResize
-          class="w-100"
-          id="otherReasonQuestionFlag"
-        />
-        <label for="otherReasonQuestionFlag">Describe the issue</label>
-      </FloatLabel>
-      <Message size="small" severity="error" v-if="v$.otherReason.$error" variant="simple">
-        <div v-for="error of v$.otherReason.$errors" :key="error.$uid">
-          <div>{{ error.$message }}</div>
-        </div>
-      </Message>
-    </div>
+      <!-- Other Reason -->
+      <div v-if="formData.flagType === QuestionFlagType.Other" class="mb-3">
+        <FloatLabel variant="on">
+          <Textarea
+            v-model="v$.otherReason.$model"
+            :invalid="v$.otherReason.$error"
+            rows="3"
+            autoResize
+            class="w-100"
+            id="otherReasonQuestionFlag"
+          />
+          <label for="otherReasonQuestionFlag">Describe the issue</label>
+        </FloatLabel>
+        <Message size="small" severity="error" v-if="v$.otherReason.$error" variant="simple">
+          <div v-for="error of v$.otherReason.$errors" :key="error.$uid">
+            <div>{{ error.$message }}</div>
+          </div>
+        </Message>
+      </div>
 
-    <!-- Submit -->
-    <Button type="submit" label="Submit" size="small" />
-  </form>
+      <!-- Submit -->
+      <Button type="submit" label="Submit" size="small" />
+    </form>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -66,9 +77,13 @@ import Message from "primevue/message";
 import Textarea from "primevue/textarea";
 import FloatLabel from "primevue/floatlabel";
 
+import Dialog from "primevue/dialog";
+
 onMounted(() => {
   v$.value.$touch();
 });
+
+const showDialog = ref(false);
 
 // Options for radio buttons with descriptions
 const flagOptions = [
@@ -114,12 +129,12 @@ const rules = computed(() => ({
 
 const v$ = useVuelidate(rules, formData);
 
-async function submitForm() {
+const submitForm = async () => {
   const isValid = await v$.value.$validate();
   if (!isValid) return;
 
-  alert("Flag submitted successfully!");
-}
+  showDialog.value = false;
+};
 
 const onChange = (flagType: QuestionFlagType) => {
   if (flagType == QuestionFlagType.Other) v$.value.$touch();
