@@ -7,7 +7,7 @@
     size="small"
     :variant="localIsUpvoted ? 'text' : 'text'"
     class="action-btn"
-    v-tooltip="localIsUpvoted ? upvotedTooltipText : notUpvotedTooltipText"
+    v-tooltip="localIsUpvoted ? upvotedTooltipText : notUpvotedTooltipTextque"
   />
 </template>
 

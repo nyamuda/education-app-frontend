@@ -1,4 +1,5 @@
 <template>
+  <ShareButton title="hello world" :share-url="shareUrl" />
   <div class="container-fluid">
     <div class="row">
       <!-- Main Content -->
@@ -136,7 +137,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, type Ref } from "vue";
+import { computed, onMounted, ref, type Ref } from "vue";
 
 import Card from "primevue/card";
 import Avatar from "primevue/avatar";
@@ -152,6 +153,7 @@ import dayjs from "dayjs";
 import { SmoothScrollHelper } from "@/helpers/smoothScrollHelper";
 import { useBookmarkStore } from "@/stores/bookmark";
 import BookmarkButton from "@/components/shared/BookmarkButton.vue";
+import ShareButton from "@/components/shared/ShareButton.vue";
 
 onMounted(async () => {
   //get the question ID from a query parameter
@@ -177,6 +179,11 @@ const isUpvoting = ref(false);
 const isRemovingUpvote = ref(false);
 const isBookmarking = ref(false);
 const isRemovingBookmark = ref(false);
+
+//Url for sharing the question
+const shareUrl = computed(() => {
+  return `${window.location.origin}/questions/${router.currentRoute.value.params["id"]}/details`;
+});
 
 const getQuestionById = async () => {
   try {

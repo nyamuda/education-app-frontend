@@ -38,13 +38,16 @@
           </h5>
 
           <!-- Marks badge -->
-          <Badge
+          <!-- <Badge
             v-if="marks != null"
             class="ms-md-2 mt-1 mt-md-0"
             :value="!marks ? 'unknown marks' : marks == 1 ? marks + ' mark' : marks + ' marks'"
             severity="secondary"
             size=""
-          />
+          /> -->
+          <div v-if="marks" class="position-absolute top-0 end-0 marks-badge text-white px-3 py-1">
+            {{ marks == 1 ? marks + " mark" : marks + " marks" }}
+          </div>
         </div>
 
         <!-- Question content with marks badge -->
@@ -125,7 +128,7 @@
 <script setup lang="ts">
 import dayjs from "dayjs";
 import type { Tag } from "@/models/Tag";
-import Badge from "primevue/badge";
+//import Badge from "primevue/badge";
 import Breadcrumb from "primevue/breadcrumb";
 import type { MenuItem } from "primevue/menuitem";
 
@@ -191,6 +194,9 @@ const onTagClick = async (tagName: string) => {
 <style scoped lang="scss">
 .text-primary {
   color: #1a73e8 !important;
+}
+.marks-badge {
+  background-color: #5d80b6;
 }
 .question-card {
   font-size: 0.95rem;
