@@ -11,42 +11,41 @@
         <!-- Link field -->
         <InputGroup
           ><InputText style="width: 20rem" size="small" :value="shareUrl" readonly fluid />
-          <Button severity="secondary" size="small" label="Copy" icon="pi pi-copy"></Button
+          <Button
+            @click="copyLink"
+            severity="secondary"
+            size="small"
+            label="Copy"
+            icon="pi pi-copy"
+          ></Button
         ></InputGroup>
 
         <!-- Footer: copy button + social icons -->
-        <div class="d-flex justify-content-between align-items-center mt-2">
-          <Button label="Copy Link" size="small" @click="copyLink" />
 
-          <div class="flex gap-2">
-            <!-- WhatsApp -->
-            <a :href="`https://wa.me/?text=${encodedUrl}`" target="_blank" rel="noopener">
-              <i class="pi pi-whatsapp text-xl"></i>
-            </a>
+        <div class="d-flex gap-3 mt-2">
+          <!-- WhatsApp -->
+          <a :href="`https://wa.me/?text=${encodedUrl}`" target="_blank" rel="noopener">
+            <i class="pi pi-whatsapp"></i>
+          </a>
 
-            <!-- Facebook -->
-            <a
-              :href="`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`"
-              target="_blank"
-              rel="noopener"
-            >
-              <i class="pi pi-facebook text-xl"></i>
-            </a>
+          <!-- Facebook -->
+          <a
+            :href="`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`"
+            target="_blank"
+            rel="noopener"
+          >
+            <i class="pi pi-facebook"></i>
+          </a>
 
-            <!-- X (Twitter) -->
-            <a
-              :href="`https://x.com/intent/tweet?url=${encodedUrl}`"
-              target="_blank"
-              rel="noopener"
-            >
-              <i class="pi pi-twitter text-xl"></i>
-            </a>
+          <!-- X (Twitter) -->
+          <a :href="`https://x.com/intent/tweet?url=${encodedUrl}`" target="_blank" rel="noopener">
+            <i class="pi pi-twitter"></i>
+          </a>
 
-            <!-- Telegram -->
-            <a :href="`https://t.me/share/url?url=${encodedUrl}`" target="_blank" rel="noopener">
-              <i class="pi pi-send text-xl"></i>
-            </a>
-          </div>
+          <!-- Telegram -->
+          <a :href="`https://t.me/share/url?url=${encodedUrl}`" target="_blank" rel="noopener">
+            <i class="pi pi-send"></i>
+          </a>
         </div>
       </div>
     </Popover>
