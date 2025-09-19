@@ -23,7 +23,7 @@
             @click="copyLink"
             severity="secondary"
             size="small"
-            label="Copy"
+            :label="isCopied ? 'Copied!' : 'Copy'"
             icon="pi pi-copy"
           ></Button
         ></InputGroup>
@@ -87,7 +87,10 @@ const encodedUrl = computed(() => encodeURIComponent(props.shareUrl));
 
 const togglePopover = (event: MouseEvent) => {
   popover.value.toggle(event);
+  isCopied.value = false;
 };
+
+const isCopied = ref(false);
 
 //Copy the URL
 const copyLink = () => {
@@ -99,6 +102,7 @@ const copyLink = () => {
       detail: "The link has been copied to your clipboard.",
       life: 5000,
     });
+    isCopied.value = true;
   } catch {
     toast.add({
       severity: "error",
@@ -106,6 +110,7 @@ const copyLink = () => {
       detail: "We couldn't copy the link to your clipboard. Please try again.",
       life: 10000,
     });
+    isCopied.value = false;
   }
 };
 </script>
