@@ -190,6 +190,7 @@ const getQuestionById = async () => {
     });
   }
 };
+
 //Adds an upvote to the question on behalf of the current user.
 const upvoteQuestion = async () => {
   try {

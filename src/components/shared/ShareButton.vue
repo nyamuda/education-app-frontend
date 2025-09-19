@@ -33,7 +33,7 @@
         <div class="d-flex gap-3 mt-2">
           <!-- WhatsApp -->
           <a :href="`https://wa.me/?text=${encodedUrl}`" target="_blank" rel="noopener">
-            <i class="pi pi-whatsapp"></i>
+            <i class="pi pi-whatsapp" style="font-size: 1.2rem"></i>
           </a>
 
           <!-- Facebook -->
@@ -42,17 +42,17 @@
             target="_blank"
             rel="noopener"
           >
-            <i class="pi pi-facebook"></i>
+            <i class="pi pi-facebook" style="font-size: 1.2rem"></i>
           </a>
 
           <!-- X (Twitter) -->
           <a :href="`https://x.com/intent/tweet?url=${encodedUrl}`" target="_blank" rel="noopener">
-            <i class="pi pi-twitter"></i>
+            <i class="pi pi-twitter" style="font-size: 1.2rem"></i>
           </a>
 
           <!-- Telegram -->
           <a :href="`https://t.me/share/url?url=${encodedUrl}`" target="_blank" rel="noopener">
-            <i class="pi pi-send"></i>
+            <i class="pi pi-send" style="font-size: 1.2rem"></i>
           </a>
         </div>
       </div>
