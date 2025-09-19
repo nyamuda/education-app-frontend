@@ -9,8 +9,10 @@
     label="Flag"
   />
   <Dialog v-model:visible="showDialog" modal header="Report question">
-    <form @submit.prevent="submitForm" class="">
-      <!-- <h5 class="mb-2">Report qestion</h5> -->
+    <template #header>
+      <h4>Report question</h4>
+    </template>
+    <form class="questionFlagDialog" @submit.prevent="submitForm">
       <p>
         Thanks for looking out for the community. Please let us know what’s wrong with this question
         so we can review it. Your report helps us maintain a helpful and respectful learning
@@ -61,7 +63,17 @@
       </div>
 
       <!-- Submit -->
-      <Button type="submit" label="Submit" size="small" />
+      <div class="d-flex gap-2">
+        <Button
+          @click="showDialog = !showDialog"
+          class="mt-2"
+          severity="secondary"
+          variant="outlined"
+          label="Cancel"
+          size="small"
+        />
+        <Button class="mt-2" type="submit" label="Submit" size="small" />
+      </div>
     </form>
   </Dialog>
 </template>
@@ -142,8 +154,10 @@ const onChange = (flagType: QuestionFlagType) => {
 };
 </script>
 
-<style scoped>
-.form-check .text-muted {
-  margin-left: 1.5rem;
+<style lang="scss" scoped>
+@media (min-width: 728px) {
+  .questionFlagDialog {
+    width: 30rem !important;
+  }
 }
 </style>
