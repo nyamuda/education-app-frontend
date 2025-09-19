@@ -1,7 +1,15 @@
 <template>
   <div>
     <!-- Share trigger button -->
-    <Button icon="pi pi-share-alt" label="Share" @click="togglePopover" ref="shareBtn" />
+    <Button
+      label="Share"
+      @click="togglePopover"
+      icon="pi pi-share-alt"
+      text
+      size="small"
+      severity="secondary"
+      class="action-btn"
+    />
 
     <!-- Popover content -->
     <Popover ref="popover">
@@ -73,7 +81,6 @@ const props = defineProps({
 
 const toast = useToast();
 const popover = ref();
-const shareBtn = ref();
 
 // Encode the URL for use in query params
 const encodedUrl = computed(() => encodeURIComponent(props.shareUrl));

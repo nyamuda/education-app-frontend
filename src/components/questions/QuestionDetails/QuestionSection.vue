@@ -1,5 +1,4 @@
 <template>
-  <ShareButton title="hello world" :share-url="shareUrl" />
   <div class="container-fluid">
     <div class="row">
       <!-- Main Content -->
@@ -80,14 +79,7 @@
                       not-upvoted-tooltip-text="This question is clear, helpful, and adds value for students."
                     />
 
-                    <Button
-                      icon="pi pi-share-alt"
-                      text
-                      size="small"
-                      severity="secondary"
-                      class="action-btn"
-                      label="Share"
-                    />
+                    <ShareButton title="hello world" :share-url="shareUrl" />
                     <BookmarkButton
                       :is-bookmarked="question?.isBookmarked ?? false"
                       :onBookmark="bookmarkQuestion"
